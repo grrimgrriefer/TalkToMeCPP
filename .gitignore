@@ -17,7 +17,6 @@ TalkToMeCPP/TalkToMeCPP/x64/Debug
 TalkToMeCPP/logfile.txt
 
 # Packages
-*.nupkg
 TalkToMeCPP/vcpkg_installed
-TalkToMeCPP/packages
-!TalkToMeCPP/packages/repositories.config
+TalkToMeCPP/Release
+TalkToMeCPP/TalkToMeCPP/Release
