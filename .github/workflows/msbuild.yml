@@ -6,6 +6,7 @@ on:
 
 env:
   PROJECT_FILE_PATH: TalkToMeCPP.vcxproj
+  BUILD_ARTIFACTs: BuildsArtifacts
   BUILD_PLATFORM: x64
   BUILD_CONFIGURATION: Release
 
@@ -18,7 +19,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-
+      with:
+        fetch-depth: 0
+    
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
 
@@ -28,4 +31,10 @@ jobs:
       
     - name: Build
       working-directory: TalkToMeCPP
-      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} ${{env.PROJECT_FILE_PATH}}
+      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:OutDir=${{env.BUILD_ARTIFACTs}} ${{env.PROJECT_FILE_PATH}}
+      
+    - name: Archive
+      uses: actions/upload-artifact@v4
+      with:
+        name: buildArtifacts
+        path: D:\a\TalkToMeCPP\TalkToMeCPP\TalkToMeCPP\BuildsArtifacts

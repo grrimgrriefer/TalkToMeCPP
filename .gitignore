@@ -7,8 +7,8 @@
 TalkToMeCPP/.vs
 TalkToMeCPP/Release
 TalkToMeCPP/TalkToMeCPP/Release
-TalkToMeCPP/x64/Debug
-TalkToMeCPP/TalkToMeCPP/x64/Debug
+TalkToMeCPP/x64
+TalkToMeCPP/TalkToMeCPP/x64
 
 # User-specific files
 *.rsuser
@@ -20,4 +20,3 @@ TalkToMeCPP/logfile.txt
 
 # Packages
 TalkToMeCPP/vcpkg_installed
-
