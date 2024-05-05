@@ -1,28 +1,20 @@
 // 2024 - Creative Commons Zero v1.0 Universal
 
 #pragma once
+#include "Voxta/VoxtaClient.h"
 #include "Logger/ThreadedLogger.h"
-#include <cstdlib>
 #include <iostream>
 #include <filesystem>
-
-void exiting();
-
-Logger::ThreadedLogger* logger;
+#include <memory>
 
 int main()
 {
 	auto path = std::filesystem::current_path();
 	path /= "logfile.txt";
-	logger = new Logger::ThreadedLogger(path.string());
-
-	std::atexit(exiting);
+	auto logger(std::make_unique<Logger::ThreadedLogger>(path.string()));
+	auto client(std::make_unique<Voxta::VoxtaClient>(*logger, "127.0.0.1", 5384));
+	client->Connect();
 
 	std::cin.get();
 	return 0;
-}
-
-void exiting()
-{
-	delete client;
 }

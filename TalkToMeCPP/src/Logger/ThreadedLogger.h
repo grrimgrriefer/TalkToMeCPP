@@ -4,6 +4,10 @@
 #include <fstream>
 #include <string>
 #include <mutex>
+#include <deque>
+#include <vector>
+#include <thread>
+#include <atomic>
 
 namespace Logger
 {
@@ -12,13 +16,23 @@ namespace Logger
 	public:
 		enum class LogLevel { INFO, WARNING, ERROR };
 
-		ThreadedLogger(const std::string& filename);
-		~ThreadedLogger();
+		explicit ThreadedLogger(const std::string& filename);
+		~ThreadedLogger() = default;
 
-		void log(LogLevel level, const std::string& message);
+		void Log(LogLevel level, const std::string& message);
 
 	private:
-		std::ofstream m_logFile;
+		const std::string& m_logFilePath;
+
 		std::mutex m_mutex;
+		std::ofstream m_logFile;
+		std::deque<std::string> m_logQueue;
+		std::vector<std::string> m_logBuffer;
+		std::jthread writeThread;
+		std::atomic_bool m_writeRequested;
+
+		void AddToFileWriteQueue(const std::stringstream& formattedMessage);
+		void CopyQueueIntoBuffer();
+		void WriteToFileDelayed();
 	};
 }

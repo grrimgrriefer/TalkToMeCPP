@@ -15,3 +15,9 @@ TalkToMeCPP/TalkToMeCPP/x64/Debug
 *.userosscache
 *.sln.docstates
 TalkToMeCPP/logfile.txt
+
+# Packages
+*.nupkg
+TalkToMeCPP/vcpkg_installed
+TalkToMeCPP/packages
+!TalkToMeCPP/packages/repositories.config

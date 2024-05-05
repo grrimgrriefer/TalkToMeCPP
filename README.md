@@ -1,2 +1,18 @@
 # TalkToMeCPP
-Barebones C++ client for Voxta
+
+:uri-qg-status: https://sonarcloud.io/dashboard?id=justanotherburner123_TalkToMeCPP
+:img-qg-status: https://sonarcloud.io/api/project_badges/measure?project=justanotherburner123_TalkToMeCPP&metric=alert_status
+:uri-build-status: https://github.com/justanotherburner123/TalkToMeCPP/actions/workflows/build.yml
+:img-build-status: https://github.com/justanotherburner123/TalkToMeCPP/actions/workflows/build.yml/badge.svg
+
+image:{img-build-status}[Build Status, link={uri-build-status}]
+image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
+
+
+WIP Barebones C++ client for Voxta
+
+Goal: Feed microphone input into Voxta server and play the response audio back.
+
+Currently using:
+- c++20
+- signalR (vcpkg)
