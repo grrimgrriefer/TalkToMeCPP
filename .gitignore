@@ -5,6 +5,8 @@
 
 # VS
 TalkToMeCPP/.vs
+TalkToMeCPP/Release
+TalkToMeCPP/TalkToMeCPP/Release
 TalkToMeCPP/x64/Debug
 TalkToMeCPP/TalkToMeCPP/x64/Debug
 
@@ -18,5 +20,4 @@ TalkToMeCPP/logfile.txt
 
 # Packages
 TalkToMeCPP/vcpkg_installed
-TalkToMeCPP/Release
-TalkToMeCPP/TalkToMeCPP/Release
+

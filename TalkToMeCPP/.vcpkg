@@ -1,0 +1,11 @@
+# git clone https://github.com/Microsoft/vcpkg.git .
+# .\bootstrap-vcpkg.bat
+
+vcpkg install gtest:x86-windows
+vcpkg install gtest:x64-windows
+vcpkg install zlib:x86-windows
+vcpkg install zlib:x64-windows
+vcpkg install microsoft-signalr:x86-windows
+vcpkg install microsoft-signalr:x64-windows
+
+vcpkg integrate install
