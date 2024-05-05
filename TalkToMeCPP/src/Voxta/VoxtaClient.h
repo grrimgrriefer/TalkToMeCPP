@@ -13,7 +13,7 @@ namespace Voxta
 	class VoxtaClient
 	{
 	public:
-		explicit VoxtaClient(const Logger::ThreadedLogger& logger, std::string_view address, int port);
+		explicit VoxtaClient(Logger::ThreadedLogger& logger, std::string_view address, int port);
 		~VoxtaClient() = default;
 
 		void Connect();
@@ -22,9 +22,11 @@ namespace Voxta
 		void StartChat(std::string_view sessionData, std::string_view contextKey, const std::vector<std::string_view>& characterFunctions, std::string_view context);
 
 	private:
-		const Logger::ThreadedLogger& m_logger;
+		Logger::ThreadedLogger& m_logger;
 		signalr::hub_connection connection;
 
 		void Authenticate();
+
+		void SendMessage(const signalr::value& message);
 	};
 }

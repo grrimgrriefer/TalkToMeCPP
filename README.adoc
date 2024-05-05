@@ -1,4 +1,8 @@
-# TalkToMeCPP
+= TalkToMeCPP - Barebones C++ client for Voxta
+
+_All my code is CC0 cuz I'm too poor to hire a lawyer anyway._
+
+== Dev Progress
 
 :uri-qg-status: https://sonarcloud.io/dashboard?id=justanotherburner123_TalkToMeCPP
 :img-qg-status: https://sonarcloud.io/api/project_badges/measure?project=justanotherburner123_TalkToMeCPP&metric=alert_status
@@ -8,11 +12,21 @@
 image:{img-build-status}[Build Status, link={uri-build-status}]
 image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
 
+[ :heavy_check_mark: ]   Authenticate to Voxta server
 
-WIP Barebones C++ client for Voxta
+[ :fire:	]   Initiate chat with Voxta server
 
-Goal: Feed microphone input into Voxta server and play the response audio back.
+[ :black_square_button:	]   Playback Voxta server generated audio
 
-Req:
-* C++20
-* SignalR (vcpkg)
+[ :black_square_button:	]   Provide Mic input to Voxta server
+
+== Build
+
+- Get the artifacts of latest run: https://github.com/justanotherburner123/TalkToMeCPP/actions
+- Build it yourself
+  * MSbuild (ISO C++20 support)
+  * vcpkg submodule
+  * run vcpkg integrate install
+  * build release x64
+ 
+_FYI, VS intellisense requires a restart after vcpkg downloads the libraries._
