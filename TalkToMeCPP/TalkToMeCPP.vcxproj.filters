@@ -24,15 +24,24 @@
     <ClCompile Include="src\Logger\ThreadedLogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Voxta\VoxtaCommData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Logger\HubConnectionLogger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Voxta\VoxtaClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Voxta\VoxtaDataStructs.h">
+    <ClInclude Include="src\Voxta\VoxtaCommData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Logger\ThreadedLogger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Logger\HubConnectionLogger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

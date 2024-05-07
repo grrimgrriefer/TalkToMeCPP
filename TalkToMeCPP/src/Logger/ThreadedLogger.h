@@ -14,7 +14,7 @@ namespace Logger
 	class ThreadedLogger
 	{
 	public:
-		enum class LogLevel { INFO, WARNING, ERROR };
+		enum class LogLevel { DEBUG, INFO, WARNING, ERROR };
 
 		explicit ThreadedLogger(const std::string& filename);
 		~ThreadedLogger() = default;
@@ -22,7 +22,7 @@ namespace Logger
 		void Log(LogLevel level, const std::string& message);
 
 	private:
-		const std::string& m_logFilePath;
+		std::string m_logFilePath;
 
 		std::mutex m_mutex;
 		std::ofstream m_logFile;

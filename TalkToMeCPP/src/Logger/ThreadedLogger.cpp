@@ -15,10 +15,10 @@ namespace Logger
 {
 	ThreadedLogger::ThreadedLogger(const std::string& path) : m_logFilePath(path)
 	{
-		std::ofstream newFile(path);
+		std::ofstream newFile(path, std::ios::trunc);
 		if (newFile.is_open())
 		{
-			newFile << "" << std::endl;
+			newFile << "Log started" << std::endl;
 			newFile.flush();
 			newFile.close();
 			std::cout << "Cleared logfile for new session!" << std::endl;
@@ -34,6 +34,9 @@ namespace Logger
 		std::stringstream formattedMessage;
 		switch (level)
 		{
+			case LogLevel::DEBUG:
+				formattedMessage << "[DEBUG] ";
+				break;
 			case LogLevel::INFO:
 				formattedMessage << "[INFO] ";
 				break;
@@ -43,6 +46,9 @@ namespace Logger
 			case LogLevel::ERROR:
 				formattedMessage << "[ERROR] ";
 				break;
+			default:
+				// TODO exception
+				break;
 		}
 
 		auto local = std::chrono::zoned_time{ std::chrono::current_zone(), std::chrono::system_clock::now() };
@@ -50,7 +56,11 @@ namespace Logger
 
 		formattedMessage << message;
 		auto formattedStr = formattedMessage.str();
-		std::osyncstream((level == LogLevel::ERROR) ? std::cerr : std::cout) << formattedStr << std::endl;
+		if (level == LogLevel::WARNING || level == LogLevel::ERROR)
+		{
+			// Only log errors and warnings to console, rest goes in the logfile
+			std::osyncstream((level == LogLevel::ERROR) ? std::cerr : std::cout) << formattedStr << std::endl;
+		}
 
 		AddToFileWriteQueue(formattedMessage);
 	}
@@ -67,6 +77,14 @@ namespace Logger
 		}
 	}
 
+	void ThreadedLogger::CopyQueueIntoBuffer()
+	{
+		std::scoped_lock<std::mutex> lock(m_mutex);
+
+		m_logBuffer.resize(m_logQueue.size());
+		std::ranges::copy(m_logQueue.begin(), m_logQueue.end(), m_logBuffer.begin());
+	}
+
 	void ThreadedLogger::WriteToFileDelayed()
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
@@ -75,16 +93,9 @@ namespace Logger
 
 		m_logFile.open(m_logFilePath, std::ofstream::out | std::ofstream::app);
 		std::ranges::copy(m_logBuffer, std::ostream_iterator<std::string>(m_logFile, "\n"));
+		m_logFile.flush();
 		m_logFile.close();
 
 		m_writeRequested = false;
-	}
-
-	void ThreadedLogger::CopyQueueIntoBuffer()
-	{
-		std::scoped_lock<std::mutex> lock(m_mutex);
-
-		m_logBuffer.resize(m_logQueue.size());
-		std::ranges::copy(m_logQueue.begin(), m_logQueue.end(), m_logBuffer.begin());
 	}
 }

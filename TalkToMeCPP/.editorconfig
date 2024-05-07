@@ -79,3 +79,7 @@ cpp_sort_includes_priority_case_sensitive = false
 cpp_sort_includes_priority_style = quoted
 cpp_includes_style = default
 cpp_includes_use_forward_slash = true
+
+# Guides
+
+guidelines = 120
