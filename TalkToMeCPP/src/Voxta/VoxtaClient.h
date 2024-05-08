@@ -15,7 +15,7 @@ namespace Voxta
 	class VoxtaClient
 	{
 	public:
-		enum class VoxtaClientState { LOADING, IDLE, CHATTING };
+		enum class VoxtaClientState { DISCONNECTED, LOADING, CHARACTER_LOBBY, CHATTING };
 
 		explicit VoxtaClient(Logger::ThreadedLogger& logger, std::string_view address, int port,
 			const std::function<void(VoxtaClientState newState)>& stateChange);
@@ -39,7 +39,7 @@ namespace Voxta
 		std::unique_ptr<DataTypes::CharData> m_userData;
 		std::vector<DataTypes::CharData> m_characterList;
 
-		VoxtaClientState m_currentState;
+		VoxtaClientState m_currentState = VoxtaClient::VoxtaClientState::DISCONNECTED;
 
 		void SendMessage(const signalr::value& message);
 		bool HandleResponse(const std::map<std::string, signalr::value>& map);

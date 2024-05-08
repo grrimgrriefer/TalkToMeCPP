@@ -12,26 +12,47 @@
 #include <memory>
 #include "DataTypes/CharData.h"
 #include <type_traits>
+#include <format>
+#include <stdexcept>
+#include <cassert>
 
 namespace Voxta
 {
 	VoxtaApiHandler::VoxtaApiHandler() :
 		m_authenticateReqData(std::make_unique<signalr::value>(ConstructAuthenticateReqData())),
 		m_loadCharacterListReqData(std::make_unique<signalr::value>(ConstructLoadCharacterListReqData()))
-	{}
+	{
+	}
 
-	const signalr::value& VoxtaApiHandler::GetRequestData(const VoxtaRequestType commData) const
+	signalr::value VoxtaApiHandler::GetRequestData(const VoxtaRequestType commData) const
+	{
+		return GetRequestData(commData, nullptr);
+	}
+
+	template<typename... Args>
+	signalr::value VoxtaApiHandler::GetRequestData(const VoxtaRequestType commData, Args... args) const
 	{
 		switch (commData)
 		{
-			case VoxtaRequestType::AUTHENTICATE:
+			using enum Voxta::VoxtaApiHandler::VoxtaRequestType;
+			case AUTHENTICATE:
 				return *m_authenticateReqData.get();
-			case VoxtaRequestType::LOAD_CHARACTERS_LIST:
+			case LOAD_CHARACTERS_LIST:
 				return *m_loadCharacterListReqData.get();
+			case LOAD_CHARACTER:
+				return ConstructLoadCharacterReqData(args...);
 			default:
-				// TODO log / exception
+				assert(false && "Voxta::VoxtaApiHandler::GetRequestData is missing an implementation");
 				break;
 		}
+	}
+
+	signalr::value VoxtaApiHandler::ConstructLoadCharacterReqData(std::string_view characterId) const
+	{
+		return signalr::value(std::map<std::string, signalr::value> {
+			{ "$type", "loadCharacter" },
+			{ "characterId", characterId.data() }
+		});
 	}
 
 	signalr::value VoxtaApiHandler::ConstructAuthenticateReqData() const
@@ -82,6 +103,10 @@ namespace Voxta
 				chars.push_back(character);
 			}
 			return std::make_unique<DataTypes::VoxtaResponseCharacterList>(chars);
+		}
+		else
+		{
+			throw std::invalid_argument(std::format("Voxta::VoxtaApiHandler::GetResponseData has no support for {}", type));
 		}
 	}
 }

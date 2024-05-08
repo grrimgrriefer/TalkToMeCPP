@@ -14,7 +14,9 @@ image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
 
 [ :heavy_check_mark: ]   Authenticate to Voxta server
 
-[ :fire:	]   Initiate chat with Voxta server
+[ :heavy_check_mark: ]   Load characters
+
+[ :fire:	]   Text chat with specific character(s)
 
 [ :black_square_button:	]   Playback Voxta server generated audio
 
@@ -22,11 +24,16 @@ image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
 
 == Build
 
-- Get the artifacts of latest run: https://github.com/justanotherburner123/TalkToMeCPP/actions
-- Build it yourself
-  * MSbuild (ISO C++20 support)
-  * vcpkg submodule
-  * run vcpkg integrate install
-  * build release x64
- 
-_FYI, VS intellisense requires a restart after vcpkg downloads the libraries._
+- Download the x64 windows build from latest run artifacts: https://github.com/justanotherburner123/TalkToMeCPP/actions
+- Build it yourself 
+  * reqs:
+    - Compiler with C++20 support
+    - Activated vcpkg to install the req libs
+  
+_x86 builds might work but I cba to test two versions, so who knows._
+  
+== Run
+
+1. Run Voxta.Server.Exe
+2. Run TalkToMeCPP.exe
+3. Enjoy :3

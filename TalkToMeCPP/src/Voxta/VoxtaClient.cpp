@@ -102,11 +102,14 @@ namespace Voxta
 	}
 
 	void VoxtaClient::LoadCharacter(std::string_view characterId)
-	{}
+	{
+		SendMessage(m_voxtaCommData.GetRequestData<std::string_view>(VoxtaApiHandler::VoxtaRequestType::LOAD_CHARACTER, characterId));
+	}
 
 	void VoxtaClient::StartChat(std::string_view sessionData, std::string_view contextKey,
 		const std::vector<std::string_view>& characterFunctions, std::string_view context)
-	{}
+	{
+	}
 
 	void VoxtaClient::SendMessage(const signalr::value& message)
 	{
@@ -146,7 +149,7 @@ namespace Voxta
 					m_logger.Log(Logger::ThreadedLogger::LogLevel::INFO, "Fetched character list sucessfully");
 					auto derivedResponse = dynamic_cast<Voxta::DataTypes::VoxtaResponseCharacterList*>(response.get());
 					m_characterList = derivedResponse->m_characters;
-					m_stateChange(VoxtaClientState::IDLE);
+					m_stateChange(VoxtaClientState::CHARACTER_LOBBY);
 					break;
 				}
 			}

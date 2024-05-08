@@ -9,12 +9,13 @@
 #include <algorithm>
 #include <format>
 #include <functional>
+#include <cctype>
+#include <string>
+#include <cstdlib>
 
-class SimpleClient
+class ExampleClient
 {
 public:
-	std::unique_ptr<Voxta::VoxtaClient> voxtaClient;
-
 	void DoStuff()
 	{
 		auto path = std::filesystem::current_path();
@@ -25,40 +26,92 @@ public:
 				ClientCallback(newState);
 			});
 		voxtaClient->Connect();
-
-		std::cin.get();
 	}
+
+private:
+	std::unique_ptr<Voxta::VoxtaClient> voxtaClient;
 
 	void ClientCallback(const Voxta::VoxtaClient::VoxtaClientState& newState) const
 	{
-		if (newState == Voxta::VoxtaClient::VoxtaClientState::IDLE)
+		switch (newState)
 		{
-			std::cout << std::endl << std::format("Welcome {} !!", voxtaClient->GetUsername()) << std::endl << std::endl;
-			std::cout << "I was able to find your girlfriends listed below :D" << std::endl;
-
-			auto& characters = voxtaClient->GetCharacters();
-			for (int i = 0; i < characters.size(); i++)
+			case Voxta::VoxtaClient::VoxtaClientState::CHARACTER_LOBBY:
 			{
-				std::string output = std::format("   {}  {}", i, characters[i].m_name);
-				if (characters[i].m_explicitContent)
-				{
-					output.append("  [Explicit]");
-				}
+				auto& characters = voxtaClient->GetCharacters();
+				auto charAmount = characters.size();
 
-				if (!characters[i].m_creatorNotes.empty())
-				{
-					output.append(std::format("  ({})", characters[i].m_creatorNotes));
-				}
-
-				std::cout << output << std::endl;
+				ListCharacters(characters);
+				int index = AskUserForCharacterSelection(charAmount);
+				voxtaClient->LoadCharacter(characters[index].m_id);
+				break;
 			}
+			case Voxta::VoxtaClient::VoxtaClientState::CHATTING:
+			{
+				break;
+			}
+			default:
+				break;
+		}
+	}
+
+	int AskUserForCharacterSelection(std::vector<Voxta::DataTypes::CharData>::size_type charAmount) const
+	{
+		std::cout << std::endl << "Please enter the number of the waifu you want to chat with :3" << std::endl;
+		bool isValid(false);
+		do
+		{
+			std::string selection;
+			std::cin >> selection;
+
+			char* end;
+			long index = std::strtol(selection.c_str(), &end, 10);
+
+			if (*end != '\0')
+			{
+				index = -1;
+			}
+			else
+			{
+				isValid = index >= 0 && index < charAmount;
+				if (isValid)
+				{
+					return index;
+				}
+			}
+
+			std::cout << std::format("Oh, don't think that was a number. Pls enter a number between 0 and {}", charAmount) << std::endl;
+		}
+		while (!isValid);
+	}
+
+	void ListCharacters(const std::vector<Voxta::DataTypes::CharData>& characters) const
+	{
+		auto charAmount = characters.size();
+
+		std::cout << std::endl << std::format("Welcome {} !!", voxtaClient->GetUsername()) << std::endl << std::endl;
+		std::cout << "I was able to find your girlfriends listed below :D" << std::endl;
+
+		for (int i = 0; i < charAmount; i++)
+		{
+			std::string output = std::format("   {}  {}", i, characters[i].m_name);
+			if (characters[i].m_explicitContent)
+			{
+				output.append("  [Explicit]");
+			}
+
+			if (!characters[i].m_creatorNotes.empty())
+			{
+				output.append(std::format("  ({})", characters[i].m_creatorNotes));
+			}
+
+			std::cout << output << std::endl;
 		}
 	}
 };
 
 int main()
 {
-	auto client = std::make_unique<SimpleClient>();
+	auto client = std::make_unique<ExampleClient>();
 	client->DoStuff();
 	return 0;
 }
