@@ -15,4 +15,15 @@ namespace Voxta::DataTypes
 		bool m_explicitContent = false;
 		bool m_favorite = false;
 	};
+
+	struct CharDataIdComparer
+	{
+		std::string_view m_charId;
+		explicit CharDataIdComparer(std::string_view charId) : m_charId(charId) {}
+
+		bool operator()(const DataTypes::CharData& element) const
+		{
+			return element.m_id == m_charId;
+		}
+	};
 }

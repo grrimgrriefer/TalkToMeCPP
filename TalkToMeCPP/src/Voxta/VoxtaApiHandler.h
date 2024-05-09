@@ -2,25 +2,29 @@
 
 #pragma once
 #include "DataTypes/VoxtaResponseBase.h"
+#include "DataTypes/CharData.h"
 #include <signalrclient/signalr_value.h>
 #include <memory>
+#include <string>
+#include <map>
 
 namespace Voxta
 {
 	class VoxtaApiHandler
 	{
 	public:
-		enum class VoxtaRequestType
+		enum class VoxtaGenericRequestType
 		{
-			AUTHENTICATE, LOAD_CHARACTERS_LIST, LOAD_CHARACTER
+			AUTHENTICATE, LOAD_CHARACTERS_LIST
 		};
 
 		explicit VoxtaApiHandler();
 		~VoxtaApiHandler() = default;
 
-		signalr::value GetRequestData(const VoxtaRequestType commData) const;
-		template<typename... Args>
-		signalr::value GetRequestData(const VoxtaRequestType commData, Args ...args) const;
+		signalr::value GetRequestData(const VoxtaGenericRequestType commData) const;
+		signalr::value GetLoadCharacterRequestData(std::string_view characterId) const;
+		signalr::value GetStartChatRequestData(DataTypes::CharData charData) const;
+
 		std::unique_ptr<DataTypes::VoxtaResponseBase> GetResponseData(const std::map<std::string, signalr::value>& map) const;
 
 	private:
@@ -29,8 +33,5 @@ namespace Voxta
 
 		signalr::value ConstructAuthenticateReqData() const;
 		signalr::value ConstructLoadCharacterListReqData() const;
-		signalr::value ConstructLoadCharacterReqData(std::string_view characterId) const;
 	};
 }
-
-template signalr::value Voxta::VoxtaApiHandler::GetRequestData<std::basic_string_view<char, std::char_traits<char>>>(const VoxtaRequestType commData, std::basic_string_view<char, std::char_traits<char>>) const;

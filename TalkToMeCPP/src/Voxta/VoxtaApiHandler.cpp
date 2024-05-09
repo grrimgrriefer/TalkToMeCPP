@@ -2,19 +2,25 @@
 
 #pragma once
 #include "VoxtaApiHandler.h"
+#include "DataTypes/CharData.h"
 #include "DataTypes/VoxtaResponseBase.h"
 #include "DataTypes/VoxtaResponseWelcome.h"
 #include "DataTypes/VoxtaResponseCharacterList.h"
+#include "DataTypes/VoxtaResponseCharacterLoaded.h"
 #include <signalrclient/signalr_value.h>
 #include <map>
 #include <string>
 #include <vector>
 #include <memory>
-#include "DataTypes/CharData.h"
 #include <type_traits>
 #include <format>
 #include <stdexcept>
-#include <cassert>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/lexical_cast.hpp>
+
+#pragma comment(lib, "bcrypt.lib")
 
 namespace Voxta
 {
@@ -24,35 +30,16 @@ namespace Voxta
 	{
 	}
 
-	signalr::value VoxtaApiHandler::GetRequestData(const VoxtaRequestType commData) const
-	{
-		return GetRequestData(commData, nullptr);
-	}
-
-	template<typename... Args>
-	signalr::value VoxtaApiHandler::GetRequestData(const VoxtaRequestType commData, Args... args) const
+	signalr::value VoxtaApiHandler::GetRequestData(const VoxtaGenericRequestType commData) const
 	{
 		switch (commData)
 		{
-			using enum Voxta::VoxtaApiHandler::VoxtaRequestType;
+			using enum Voxta::VoxtaApiHandler::VoxtaGenericRequestType;
 			case AUTHENTICATE:
 				return *m_authenticateReqData.get();
 			case LOAD_CHARACTERS_LIST:
 				return *m_loadCharacterListReqData.get();
-			case LOAD_CHARACTER:
-				return ConstructLoadCharacterReqData(args...);
-			default:
-				assert(false && "Voxta::VoxtaApiHandler::GetRequestData is missing an implementation");
-				break;
 		}
-	}
-
-	signalr::value VoxtaApiHandler::ConstructLoadCharacterReqData(std::string_view characterId) const
-	{
-		return signalr::value(std::map<std::string, signalr::value> {
-			{ "$type", "loadCharacter" },
-			{ "characterId", characterId.data() }
-		});
 	}
 
 	signalr::value VoxtaApiHandler::ConstructAuthenticateReqData() const
@@ -74,6 +61,47 @@ namespace Voxta
 	{
 		return signalr::value(std::map<std::string, signalr::value> {
 			{ "$type", "loadCharactersList" }
+		});
+	}
+
+	signalr::value VoxtaApiHandler::GetLoadCharacterRequestData(std::string_view characterId) const
+	{
+		return signalr::value(std::map<std::string, signalr::value> {
+			{ "$type", "loadCharacter" },
+			{ "characterId", characterId.data() }
+		});
+	}
+
+	signalr::value VoxtaApiHandler::GetStartChatRequestData(DataTypes::CharData charData) const
+	{
+		boost::uuids::uuid guid = boost::uuids::random_generator()();
+		std::string guidString = boost::lexical_cast<std::string>(guid);
+
+		return signalr::value(std::map<std::string, signalr::value> {
+			{ "$type", "startChat" },
+			{ "contextKey", "" },
+			{ "context", "" },
+			{ "chatId", guidString },
+			{ "characterId", charData.m_id },
+			{ "character", std::map<std::string, signalr::value> {
+					{ "id", charData.m_id },
+					{ "name", charData.m_name },
+					{ "explicitContent", charData.m_explicitContent ? "True" : "False" },
+					{ "textToSpeech", std::vector<signalr::value> {
+						std::map<std::string, signalr::value> {
+							{ "voice", std::map<std::string, signalr::value> {
+								{ "parameters", std::map<std::string, signalr::value> {
+									{ "Filename", "female_03.wav" },
+									{ "Temperature", "0.7"},
+									{ "TopK", signalr::value() },
+									{ "TopP", signalr::value() } } },
+								{ "label", "female_03.wav" }
+							} },
+							{ "service", std::map<std::string, signalr::value> {
+								{ "serviceName", "Coqui"},
+								{ "serviceId", "aef6d791-314f-f1e7-32f1-72b382dc7bd9" }	} }
+					} } } }
+			}
 		});
 	}
 
@@ -103,6 +131,12 @@ namespace Voxta
 				chars.push_back(character);
 			}
 			return std::make_unique<DataTypes::VoxtaResponseCharacterList>(chars);
+		}
+		else if (type == "characterLoaded")
+		{
+			auto& characterData = map.at("character").as_map();
+			return std::make_unique<DataTypes::VoxtaResponseCharacterLoaded>(characterData.at("id").as_string(),
+				characterData.at("enableThinkingSpeech").as_bool());
 		}
 		else
 		{

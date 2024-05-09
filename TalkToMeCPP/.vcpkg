@@ -7,5 +7,7 @@ vcpkg install zlib:x86-windows
 vcpkg install zlib:x64-windows
 vcpkg install microsoft-signalr:x86-windows
 vcpkg install microsoft-signalr:x64-windows
+vcpkg install boost-uuid:x86-windows
+vcpkg install boost-uuid:x64-windows
 
 vcpkg integrate install

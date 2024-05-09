@@ -4,7 +4,7 @@
 
 namespace Voxta::DataTypes
 {
-	enum class VoxtaResponseType { WELCOME, CHARACTER_LIST };
+	enum class VoxtaResponseType { WELCOME, CHARACTER_LIST, CHARACTER_LOADED };
 
 	struct VoxtaResponseBase
 	{

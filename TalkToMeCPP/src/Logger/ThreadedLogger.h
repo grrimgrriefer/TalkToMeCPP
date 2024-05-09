@@ -31,7 +31,7 @@ namespace Logger
 		std::jthread writeThread;
 		std::atomic_bool m_writeRequested;
 
-		void AddToFileWriteQueue(const std::stringstream& formattedMessage);
+		void AddToFileWriteQueue(std::string_view formattedMessage);
 		void CopyQueueIntoBuffer();
 		void WriteToFileDelayed();
 	};

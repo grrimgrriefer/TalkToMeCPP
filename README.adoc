@@ -1,6 +1,6 @@
-= TalkToMeCPP - Barebones C++ client for Voxta
+= TalkToMeCPP - A proof of concept barebones C++ client for Voxta
 
-_All my code is CC0 cuz I'm too poor to hire a lawyer anyway._
+_All of this is CC0 cuz no way am I gonna hire a lawyer for this project lmao._
 
 == Dev Progress
 
@@ -27,13 +27,20 @@ image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
 - Download the x64 windows build from latest run artifacts: https://github.com/justanotherburner123/TalkToMeCPP/actions
 - Build it yourself 
   * reqs:
-    - Compiler with C++20 support
-    - Activated vcpkg to install the req libs
+  ** Compiler with C++20 support
+  ** Activated vcpkg to install the req libs
   
-_x86 builds might work but I cba to test two versions, so who knows._
+[NOTE]
+====
+*NOTE* _x86 builds might work but I cba to test two versions, so who knows._ :shrug:
+====
   
 == Run
 
-1. Run Voxta.Server.Exe
+Reqs
+- Voxta server (from https://voxta.ai/)
+- Valid Voxta service configuration (TTS, STT, LLM)
+
+1. Run Voxta.Server.Exe 
 2. Run TalkToMeCPP.exe
 3. Enjoy :3

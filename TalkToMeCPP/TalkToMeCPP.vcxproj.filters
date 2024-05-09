@@ -24,10 +24,13 @@
     <ClCompile Include="src\Logger\ThreadedLogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Voxta\VoxtaCommData.cpp">
+    <ClCompile Include="src\Logger\HubConnectionLogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Logger\HubConnectionLogger.cpp">
+    <ClCompile Include="src\Voxta\VoxtaApiHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Voxta\VoxtaChatSession.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,13 +38,31 @@
     <ClInclude Include="src\Voxta\VoxtaClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Voxta\VoxtaCommData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Logger\ThreadedLogger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Logger\HubConnectionLogger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Voxta\DataTypes\CharData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Voxta\DataTypes\VoxtaResponseBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Voxta\DataTypes\VoxtaResponseWelcome.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Voxta\VoxtaApiHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Voxta\DataTypes\VoxtaResponseCharacterList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Voxta\DataTypes\VoxtaResponseCharacterLoaded.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Voxta\VoxtaChatSession.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

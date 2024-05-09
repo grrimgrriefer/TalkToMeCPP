@@ -62,13 +62,13 @@ namespace Logger
 			std::osyncstream((level == LogLevel::ERROR) ? std::cerr : std::cout) << formattedStr << std::endl;
 		}
 
-		AddToFileWriteQueue(formattedMessage);
+		AddToFileWriteQueue(formattedStr);
 	}
 
-	void ThreadedLogger::AddToFileWriteQueue(const std::stringstream& formattedMessage)
+	void ThreadedLogger::AddToFileWriteQueue(std::string_view formattedMessage)
 	{
 		std::scoped_lock<std::mutex> lock(m_mutex);
-		m_logQueue.push_back(formattedMessage.str());
+		m_logQueue.emplace_back(formattedMessage.data());
 
 		if (!m_writeRequested)
 		{

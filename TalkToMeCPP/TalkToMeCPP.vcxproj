@@ -142,16 +142,19 @@
     <ClCompile Include="src\Voxta\VoxtaClient.cpp" />
     <ClCompile Include="src\Logger\ThreadedLogger.cpp" />
     <ClCompile Include="src\Voxta\VoxtaApiHandler.cpp" />
+    <ClCompile Include="src\Voxta\VoxtaChatSession.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Logger\HubConnectionLogger.h" />
     <ClInclude Include="src\Voxta\DataTypes\CharData.h" />
     <ClInclude Include="src\Voxta\DataTypes\VoxtaResponseBase.h" />
+    <ClInclude Include="src\Voxta\DataTypes\VoxtaResponseCharacterLoaded.h" />
     <ClInclude Include="src\Voxta\DataTypes\VoxtaResponseWelcome.h" />
     <ClInclude Include="src\Voxta\VoxtaClient.h" />
     <ClInclude Include="src\Voxta\VoxtaApiHandler.h" />
     <ClInclude Include="src\Logger\ThreadedLogger.h" />
     <ClInclude Include="src\Voxta\DataTypes\VoxtaResponseCharacterList.h" />
+    <ClInclude Include="src\Voxta\VoxtaChatSession.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
