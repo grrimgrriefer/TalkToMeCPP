@@ -2,11 +2,12 @@ on:
   push:
     branches: [ "master" ]
   pull_request:
-    branches: [ "master" ]
+    types: [opened, synchronize, reopened]
 
 env:
-  PROJECT_FILE_PATH: TalkToMeCPP.vcxproj
+  PROJECT_FILE_PATH: TalkToMeCPP/TalkToMeCPP.vcxproj
   BUILD_ARTIFACTs: BuildsArtifacts
+  BUILD_WRAPPER_OUT_DIR: BuildsArtifacts
   BUILD_PLATFORM: x64
   BUILD_CONFIGURATION: Release
 
@@ -16,12 +17,13 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
+    environment: burner_env
 
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
+
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
 
@@ -29,12 +31,22 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: vcpkg integrate install
       
-    - name: Build
-      working-directory: TalkToMeCPP
-      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} /p:OutDir=${{env.BUILD_ARTIFACTs}} ${{env.PROJECT_FILE_PATH}}
+    - name: Install sonar-scanner and build-wrapper
+      uses: SonarSource/sonarcloud-github-c-cpp@v2
+      
+    - name: Run build-wrapper
+      run: |
+        build-wrapper-win-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} ${{env.PROJECT_FILE_PATH}} /t:rebuild /nodeReuse:false
+
+    - name: Run sonar-scanner
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        sonar-scanner -X --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
       
     - name: Archive
       uses: actions/upload-artifact@v4
       with:
         name: buildArtifacts
-        path: D:\a\TalkToMeCPP\TalkToMeCPP\TalkToMeCPP\BuildsArtifacts
+        path: D:\a\TalkToMeCPP\TalkToMeCPP\TalkToMeCPP\x64\Release\

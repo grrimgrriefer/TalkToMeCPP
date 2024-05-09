@@ -1,7 +1,5 @@
 = TalkToMeCPP - A proof of concept barebones C++ client for Voxta
 
-_All of this is CC0 cuz no way am I gonna hire a lawyer for this project lmao._
-
 == Dev Progress
 
 :uri-qg-status: https://sonarcloud.io/dashboard?id=justanotherburner123_TalkToMeCPP
@@ -11,6 +9,8 @@ _All of this is CC0 cuz no way am I gonna hire a lawyer for this project lmao._
 
 image:{img-build-status}[Build Status, link={uri-build-status}]
 image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
+
+*This project is analysed on https://sonarcloud.io/project/overview?id=justanotherburner123_TalkToMeCPP[SonarCloud]!*
 
 [ :heavy_check_mark: ]   Authenticate to Voxta server
 
@@ -24,23 +24,45 @@ image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
 
 == Build
 
-- Download the x64 windows build from latest run artifacts: https://github.com/justanotherburner123/TalkToMeCPP/actions
-- Build it yourself 
-  * reqs:
-  ** Compiler with C++20 support
-  ** Activated vcpkg to install the req libs
+Either
+
+* Download the x64 windows build from latest run artifacts: https://github.com/justanotherburner123/TalkToMeCPP/actions
+
+OR
+
+* Build it yourself 
+** reqs:
+*** Compiler with C++20 support
+*** Activated vcpkg to install the req libs
   
-[NOTE]
-====
-*NOTE* _x86 builds might work but I cba to test two versions, so who knows._ :shrug:
-====
+_I only tested the x64, so the x86 may or may not work._ :shrug:
   
 == Run
 
-Reqs
+Reqs:
+
 - Voxta server (from https://voxta.ai/)
 - Valid Voxta service configuration (TTS, STT, LLM)
+
 
 1. Run Voxta.Server.Exe 
 2. Run TalkToMeCPP.exe
 3. Enjoy :3
+
+_Keep in mind: You really shouldn't be running C++ code from some random repo on your PC, but who am I to stop you._
+
+== Q&A
+
+[qanda]
+Where is the documentation?:: Coming soon.
+What is the test coverage of this project?:: Coming soon.
+Can I contribute to this?:: No.
+Can I support this?::
+    No. +
+	If you see a ko-fi, patreon, etc. for this, it's a scammer.
+Can I use this for my own project?::
+    It's CC0, so do with this repo whatever you want. +
+    Just +
+	a) don't imply I endorse your stuff, +
+	b) know I provide no warranties for this code, +
+	c) don't be an asshole by injecting malware in your fork.
