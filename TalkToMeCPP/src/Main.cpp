@@ -66,11 +66,7 @@ private:
 			char* end;
 			long index = std::strtol(selection.c_str(), &end, 10);
 
-			if (*end != '\0')
-			{
-				index = -1;
-			}
-			else
+			if (*end == '\0')
 			{
 				isValid = index >= 0 && index < charAmount;
 				if (isValid)
@@ -82,6 +78,7 @@ private:
 			std::cout << std::format("Oh, don't think that was a number. Pls enter a number between 0 and {}", charAmount) << std::endl;
 		}
 		while (!isValid);
+		return -1;
 	}
 
 	void ListCharacters(const std::vector<Voxta::DataTypes::CharData>& characters) const

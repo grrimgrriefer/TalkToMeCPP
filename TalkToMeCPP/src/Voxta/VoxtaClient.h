@@ -35,10 +35,9 @@ namespace Voxta
 		std::function<void(VoxtaClientState newState)> m_stateChange;
 		Logger::ThreadedLogger& m_logger;
 
-		std::unique_ptr<DataTypes::CharData> m_userData;
+		std::unique_ptr<DataTypes::CharData> m_userData = nullptr;
+		std::unique_ptr<VoxtaChatSession> m_chatSession = nullptr;
 		std::vector<DataTypes::CharData> m_characterList;
-
-		std::unique_ptr<VoxtaChatSession> m_chatSession;
 		VoxtaClientState m_currentState = VoxtaClient::VoxtaClientState::DISCONNECTED;
 
 		void SendMessage(const signalr::value& message);

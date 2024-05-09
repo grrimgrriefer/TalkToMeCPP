@@ -32,22 +32,20 @@ namespace Logger
 	void ThreadedLogger::Log(LogLevel level, const std::string& message)
 	{
 		std::stringstream formattedMessage;
+		using enum LogLevel;
 		switch (level)
 		{
-			case LogLevel::DEBUG:
+			case DEBUG:
 				formattedMessage << "[DEBUG] ";
 				break;
-			case LogLevel::INFO:
+			case INFO:
 				formattedMessage << "[INFO] ";
 				break;
-			case LogLevel::WARNING:
+			case WARNING:
 				formattedMessage << "[WARNING] ";
 				break;
-			case LogLevel::ERROR:
+			case ERROR:
 				formattedMessage << "[ERROR] ";
-				break;
-			default:
-				// TODO exception
 				break;
 		}
 

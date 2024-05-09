@@ -29,7 +29,7 @@ namespace Voxta
 		const std::function<void(VoxtaClientState newState)>& stateChange) :
 		m_connection(signalr::hub_connection_builder::create(std::format("http://{}:{}/hub", address, std::to_string(port)))
 			.with_logging(std::make_shared<Logger::HubConnectionLogger>(logger), signalr::trace_level::verbose).build()),
-		m_stateChange(stateChange), m_logger(logger), m_chatSession(nullptr)
+		m_stateChange(stateChange), m_logger(logger)
 	{
 		m_connection.on("ReceiveMessage", [this] (const std::vector<signalr::value>& messageContainer)
 			{
