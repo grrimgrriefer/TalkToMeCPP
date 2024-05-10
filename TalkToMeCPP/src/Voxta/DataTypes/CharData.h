@@ -2,12 +2,14 @@
 
 #pragma once
 #include <string>
+#include <memory>
 
 namespace Voxta::DataTypes
 {
 	struct CharData
 	{
 		explicit CharData(std::string_view id, std::string_view name) : m_id(id), m_name(name) {}
+		~CharData() = default;
 
 		std::string m_id;
 		std::string m_name;
@@ -21,9 +23,9 @@ namespace Voxta::DataTypes
 		std::string_view m_charId;
 		explicit CharDataIdComparer(std::string_view charId) : m_charId(charId) {}
 
-		bool operator()(const DataTypes::CharData& element) const
+		bool operator()(const std::shared_ptr<DataTypes::CharData>& element) const
 		{
-			return element.m_id == m_charId;
+			return element->m_id == m_charId;
 		}
 	};
 }

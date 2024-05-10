@@ -30,9 +30,6 @@
     <ClCompile Include="src\Voxta\VoxtaApiHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Voxta\VoxtaChatSession.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Voxta\VoxtaClient.h">
@@ -47,22 +44,28 @@
     <ClInclude Include="src\Voxta\DataTypes\CharData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Voxta\DataTypes\VoxtaResponseBase.h">
+    <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Voxta\DataTypes\VoxtaResponseWelcome.h">
+    <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseWelcome.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Voxta\VoxtaApiHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Voxta\DataTypes\VoxtaResponseCharacterList.h">
+    <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseCharacterList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Voxta\DataTypes\VoxtaResponseCharacterLoaded.h">
+    <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseCharacterLoaded.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Voxta\VoxtaChatSession.h">
+    <ClInclude Include="src\Voxta\DataTypes\ChatSession.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Voxta\DataTypes\ServiceData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseChatStarted.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

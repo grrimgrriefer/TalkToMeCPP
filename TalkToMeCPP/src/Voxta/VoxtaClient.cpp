@@ -3,14 +3,15 @@
 #pragma once
 #include "VoxtaClient.h"
 #include "VoxtaApiHandler.h"
-#include "VoxtaChatSession.h"
 #include "../Logger/ThreadedLogger.h"
 #include "../Logger/HubConnectionLogger.h"
 #include "DataTypes/CharData.h"
-#include "DataTypes/VoxtaResponseBase.h"
-#include "DataTypes/VoxtaResponseWelcome.h"
-#include "DataTypes/VoxtaResponseCharacterList.h"
-#include "DataTypes/VoxtaResponseCharacterLoaded.h"
+#include "DataTypes/ChatSession.h"
+#include "DataTypes/ServerResponses/ServerResponseBase.h"
+#include "DataTypes/ServerResponses/ServerResponseWelcome.h"
+#include "DataTypes/ServerResponses/ServerResponseCharacterList.h"
+#include "DataTypes/ServerResponses/ServerResponseCharacterLoaded.h"
+#include "DataTypes/ServerResponses/ServerResponseChatStarted.h"
 #include <format>
 #include <future>
 #include <exception>
@@ -66,7 +67,7 @@ namespace Voxta
 		return "";
 	}
 
-	const std::vector<DataTypes::CharData>& VoxtaClient::GetCharacters() const
+	const std::vector<std::shared_ptr<DataTypes::CharData>>& VoxtaClient::GetCharacters() const
 	{
 		return m_characterList;
 	}
@@ -126,37 +127,40 @@ namespace Voxta
 
 	bool VoxtaClient::HandleResponse(const std::map<std::string, signalr::value>& map)
 	{
-		std::unique_ptr<Voxta::DataTypes::VoxtaResponseBase> response = m_voxtaCommData.GetResponseData(map);
+		auto response = m_voxtaCommData.GetResponseData(map);
 
 		if (response)
 		{
+			using enum DataTypes::ServerResponses::ServerResponseType;
 			switch (response->GetType())
 			{
-				case DataTypes::VoxtaResponseType::WELCOME:
+				case WELCOME:
 				{
 					m_logger.Log(Logger::ThreadedLogger::LogLevel::INFO, "Logged in sucessfully");
-					auto derivedResponse = dynamic_cast<Voxta::DataTypes::VoxtaResponseWelcome*>(response.get());
+					auto derivedResponse = dynamic_cast<DataTypes::ServerResponses::ServerResponseWelcome*>(response.get());
 					m_userData = std::make_unique<DataTypes::CharData>(derivedResponse->m_user);
 					SendMessage(m_voxtaCommData.GetRequestData(VoxtaApiHandler::VoxtaGenericRequestType::LOAD_CHARACTERS_LIST));
 					break;
 				}
-				case DataTypes::VoxtaResponseType::CHARACTER_LIST:
+				case CHARACTER_LIST:
 				{
 					m_logger.Log(Logger::ThreadedLogger::LogLevel::INFO, "Fetched character list sucessfully");
-					auto derivedResponse = dynamic_cast<Voxta::DataTypes::VoxtaResponseCharacterList*>(response.get());
-					m_characterList = derivedResponse->m_characters;
+					auto derivedResponse = dynamic_cast<DataTypes::ServerResponses::ServerResponseCharacterList*>(response.get());
+					m_characterList.clear();
+					for (auto& charElement : derivedResponse->m_characters)
+					{
+						m_characterList.emplace_back(std::make_unique<DataTypes::CharData>(charElement));
+					}
 					m_stateChange(VoxtaClientState::CHARACTER_LOBBY);
 					break;
 				}
-				case DataTypes::VoxtaResponseType::CHARACTER_LOADED:
+				case CHARACTER_LOADED:
 				{
 					m_logger.Log(Logger::ThreadedLogger::LogLevel::INFO, "Loaded selected character sucessfully");
-					auto derivedResponse = dynamic_cast<Voxta::DataTypes::VoxtaResponseCharacterLoaded*>(response.get());
-					if (auto characterIt = std::find_if(m_characterList.begin(), m_characterList.end(),
-						DataTypes::CharDataIdComparer(derivedResponse->m_characterId)); characterIt !=
-						std::end(m_characterList))
+					auto derivedResponse = dynamic_cast<DataTypes::ServerResponses::ServerResponseCharacterLoaded*>(response.get());
+					if (auto characterIt = std::ranges::find_if(m_characterList.begin(), m_characterList.end(),
+						DataTypes::CharDataIdComparer(derivedResponse->m_characterId)); characterIt != std::end(m_characterList))
 					{
-						m_chatSession = std::make_unique<VoxtaChatSession>(*characterIt);
 						SendMessage(m_voxtaCommData.GetStartChatRequestData(*characterIt));
 					}
 					else
@@ -165,6 +169,26 @@ namespace Voxta
 							"Loaded a character that doesn't exist in the list? This should never happen.");
 					}
 					break;
+				}
+				case CHAT_STARTED:
+				{
+					m_logger.Log(Logger::ThreadedLogger::LogLevel::INFO, "Started chat session sucessfully");
+					auto derivedResponse = dynamic_cast<DataTypes::ServerResponses::ServerResponseChatStarted*>(response.get());
+
+					std::vector<std::shared_ptr<DataTypes::CharData>> characters;
+					auto& charIds = derivedResponse->m_characterIds;
+					for (int i = 0; i < charIds.size(); i++)
+					{
+						if (auto characterIt = std::ranges::find_if(m_characterList.begin(), m_characterList.end(),
+							DataTypes::CharDataIdComparer(charIds[i])); characterIt !=
+							std::end(m_characterList))
+						{
+							characters.emplace_back(*characterIt);
+						}
+					}
+
+					m_chatSession = std::make_unique<DataTypes::ChatSession>(characters, derivedResponse->m_chatId,
+						derivedResponse->m_sessionId, derivedResponse->m_serviceIds);
 				}
 			}
 			return true;
@@ -194,7 +218,8 @@ namespace Voxta
 			"{} from Voxta server, which is currenlty not supported.", type));
 	}
 
-	void VoxtaClient::SafeInvoke(const std::function<void()>& lambda, std::exception_ptr exception)
+	template<typename Callable>
+	void VoxtaClient::SafeInvoke(Callable lambda, std::exception_ptr exception)
 	{
 		try
 		{

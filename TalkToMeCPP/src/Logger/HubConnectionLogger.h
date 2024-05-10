@@ -11,7 +11,6 @@ namespace Logger
 	{
 	public:
 		explicit HubConnectionLogger(ThreadedLogger& logger);
-		~HubConnectionLogger() = default;
 
 		void __cdecl write(const std::string& entry) override;
 

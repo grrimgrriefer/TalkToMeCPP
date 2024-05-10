@@ -32,37 +32,29 @@ OR
 
 * Build it yourself 
 ** reqs:
-*** Compiler with C++20 support
-*** Activated vcpkg to install the req libs
+*** MSbuild with C++20 support (VS 2019 v16.9 or later)
+*** Activated vcpkg to install the req libs (classic mode, NOT MANIFEST MODE)
   
-_I only tested the x64, so the x86 may or may not work._ :shrug:
+*Note:* _I only tested x64, so the x86 may or may not work._ :shrug:
   
 == Run
 
-Reqs:
-
-- Voxta server (from https://voxta.ai/)
-- Valid Voxta service configuration (TTS, STT, LLM)
-
-
 1. Run Voxta.Server.Exe 
+  - Download from https://voxta.ai/
+  - Ensure a valid Voxta service configuration (TTS, STT, LLM)
 2. Run TalkToMeCPP.exe
 3. Enjoy :3
-
-_Keep in mind: You really shouldn't be running C++ code from some random repo on your PC, but who am I to stop you._
 
 == Q&A
 
 [qanda]
-Where is the documentation?:: Coming soon.
-What is the test coverage of this project?:: Coming soon.
+Where is the code documentation?:: Coming soon, after text chat is working.
+What is the test coverage of this project?:: Coming soon (probably never :joy:)
 Can I contribute to this?:: No.
 Can I support this?::
-    No. +
-	If you see a ko-fi, patreon, etc. for this, it's a scammer.
+    No, due to IRL job reasons I can't accept donations.
 Can I use this for my own project?::
-    It's CC0, so do with this repo whatever you want. +
-    Just +
+    Yes, I only ask that you: +
 	a) don't imply I endorse your stuff, +
 	b) know I provide no warranties for this code, +
-	c) don't be an asshole by injecting malware in your fork.
+	c) won't use this as a trojan wrapper for your shitty rootkit / bitcoinminer.

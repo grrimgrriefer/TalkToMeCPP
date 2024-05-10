@@ -17,7 +17,7 @@ namespace Logger
 		enum class LogLevel { DEBUG, INFO, WARNING, ERROR };
 
 		explicit ThreadedLogger(const std::string& filename);
-		~ThreadedLogger() = default;
+		~ThreadedLogger();
 
 		void Log(LogLevel level, const std::string& message);
 
@@ -31,7 +31,7 @@ namespace Logger
 		std::jthread writeThread;
 		std::atomic_bool m_writeRequested;
 
-		void AddToFileWriteQueue(std::string_view formattedMessage);
+		void AddToFileWriteQueue(std::string formattedMessage);
 		void CopyQueueIntoBuffer();
 		void WriteToFileDelayed();
 	};

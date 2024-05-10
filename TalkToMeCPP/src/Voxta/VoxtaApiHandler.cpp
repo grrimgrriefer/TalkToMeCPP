@@ -3,10 +3,12 @@
 #pragma once
 #include "VoxtaApiHandler.h"
 #include "DataTypes/CharData.h"
-#include "DataTypes/VoxtaResponseBase.h"
-#include "DataTypes/VoxtaResponseWelcome.h"
-#include "DataTypes/VoxtaResponseCharacterList.h"
-#include "DataTypes/VoxtaResponseCharacterLoaded.h"
+#include "DataTypes/ServiceData.h"
+#include "DataTypes/ServerResponses/ServerResponseBase.h"
+#include "DataTypes/ServerResponses/ServerResponseWelcome.h"
+#include "DataTypes/ServerResponses/ServerResponseCharacterList.h"
+#include "DataTypes/ServerResponses/ServerResponseCharacterLoaded.h"
+#include "DataTypes/ServerResponses/ServerResponseChatStarted.h"
 #include <signalrclient/signalr_value.h>
 #include <map>
 #include <string>
@@ -40,6 +42,7 @@ namespace Voxta
 			case LOAD_CHARACTERS_LIST:
 				return *m_loadCharacterListReqData.get();
 		}
+		return nullptr;
 	}
 
 	signalr::value VoxtaApiHandler::ConstructAuthenticateReqData() const
@@ -72,7 +75,7 @@ namespace Voxta
 		});
 	}
 
-	signalr::value VoxtaApiHandler::GetStartChatRequestData(DataTypes::CharData charData) const
+	signalr::value VoxtaApiHandler::GetStartChatRequestData(std::shared_ptr<DataTypes::CharData>& charData) const
 	{
 		boost::uuids::uuid guid = boost::uuids::random_generator()();
 		std::string guidString = boost::lexical_cast<std::string>(guid);
@@ -82,11 +85,11 @@ namespace Voxta
 			{ "contextKey", "" },
 			{ "context", "" },
 			{ "chatId", guidString },
-			{ "characterId", charData.m_id },
+			{ "characterId", charData->m_id },
 			{ "character", std::map<std::string, signalr::value> {
-					{ "id", charData.m_id },
-					{ "name", charData.m_name },
-					{ "explicitContent", charData.m_explicitContent ? "True" : "False" },
+					{ "id", charData->m_id },
+					{ "name", charData->m_name },
+					{ "explicitContent", charData->m_explicitContent ? "True" : "False" },
 					{ "textToSpeech", std::vector<signalr::value> {
 						std::map<std::string, signalr::value> {
 							{ "voice", std::map<std::string, signalr::value> {
@@ -105,15 +108,15 @@ namespace Voxta
 		});
 	}
 
-	std::unique_ptr<DataTypes::VoxtaResponseBase> VoxtaApiHandler::GetResponseData(
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseBase> VoxtaApiHandler::GetResponseData(
 		const std::map<std::string, signalr::value>& map) const
 	{
-		using enum DataTypes::VoxtaResponseType;
+		using enum DataTypes::ServerResponses::ServerResponseType;
 		std::string type = map.at("$type").as_string();
 		if (type == "welcome")
 		{
 			auto& user = map.at("user").as_map();
-			return std::make_unique<DataTypes::VoxtaResponseWelcome>(
+			return std::make_unique<DataTypes::ServerResponses::ServerResponseWelcome>(
 				DataTypes::CharData(user.at("id").as_string(), user.at("name").as_string()));
 		}
 		else if (type == "charactersListLoaded")
@@ -121,26 +124,70 @@ namespace Voxta
 			auto& charArray = map.at("characters").as_array();
 			std::vector<DataTypes::CharData> chars;
 			chars.reserve(charArray.size());
-			for (int i = 0; i < charArray.size(); i++)
+			for (auto& charElement : charArray)
 			{
-				auto& characterData = charArray[i].as_map();
+				auto& characterData = charElement.as_map();
 				auto character = DataTypes::CharData(characterData.at("id").as_string(), characterData.at("name").as_string());
 				character.m_creatorNotes = characterData.contains("creatorNotes") ? characterData.at("creatorNotes").as_string() : "";
 				character.m_explicitContent = characterData.contains("explicitContent") ? characterData.at("explicitContent").as_bool() : false;
 				character.m_favorite = characterData.contains("favorite") ? characterData.at("favorite").as_bool() : false;
 				chars.push_back(character);
 			}
-			return std::make_unique<DataTypes::VoxtaResponseCharacterList>(chars);
+			return std::make_unique<DataTypes::ServerResponses::ServerResponseCharacterList>(chars);
 		}
 		else if (type == "characterLoaded")
 		{
 			auto& characterData = map.at("character").as_map();
-			return std::make_unique<DataTypes::VoxtaResponseCharacterLoaded>(characterData.at("id").as_string(),
+			return std::make_unique<DataTypes::ServerResponses::ServerResponseCharacterLoaded>(characterData.at("id").as_string(),
 				characterData.at("enableThinkingSpeech").as_bool());
 		}
+		else if (type == "chatStarted")
+		{
+			auto& user = map.at("user").as_map();
+			auto& charIdArray = map.at("characters").as_array();
+			std::vector<std::string_view> chars;
+			chars.reserve(charIdArray.size());
+			for (auto& charElement : charIdArray)
+			{
+				auto& characterData = charElement.as_map();
+				chars.push_back(characterData.at("id").as_string());
+			}
+
+			auto& servicesMap = map.at("services").as_map();
+			using enum DataTypes::ServiceData::ServiceType;
+			std::map<DataTypes::ServiceData::ServiceType, DataTypes::ServiceData> services;
+			std::map<DataTypes::ServiceData::ServiceType, std::string> serviceTypes = {
+				{ TEXT_GEN, "textGen" },
+				{ SPEECH_TO_TEXT, "speechToText" },
+				{ TEXT_TO_SPEECH, "textToSpeech" }
+			};
+
+			for (const auto& [enumType, stringValue] : serviceTypes)
+			{
+				if (servicesMap.contains(stringValue))
+				{
+					auto& serviceData = servicesMap.at(stringValue).as_map();
+					services.try_emplace(enumType, DataTypes::ServiceData(enumType, serviceData.at("serviceName").as_string(),
+						serviceData.at("serviceId").as_string()));
+				}
+			}
+			return std::make_unique<DataTypes::ServerResponses::ServerResponseChatStarted>(user.at("id").as_string(),
+				chars, services, map.at("chatId").as_string(), map.at("sessionId").as_string());
+		}
+
+		// TODO:
+		//		else if (type == "replyStart") {}
+		//		else if (type == "replyChunk") {}
+		//		else if (type == "replyEnd") {}
+		//		else if (type == "replyEnd") {}
+		//		else if (type == "chatClosed") {}
+		//		else if (type == "chatInProgress") {}
+		//		else if (type == "chatSessionError") {}
+
 		else
 		{
 			throw std::invalid_argument(std::format("Voxta::VoxtaApiHandler::GetResponseData has no support for {}", type));
 		}
+		return nullptr;
 	}
 }

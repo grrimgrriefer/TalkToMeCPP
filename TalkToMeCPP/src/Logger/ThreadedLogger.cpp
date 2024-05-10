@@ -10,6 +10,7 @@
 #include <thread>
 #include <type_traits>
 #include <iosfwd>
+#include <deque>
 
 namespace Logger
 {
@@ -26,6 +27,14 @@ namespace Logger
 		else
 		{
 			std::cerr << "Failed to create an empty logfile :(" << std::endl;
+		}
+	}
+
+	ThreadedLogger::~ThreadedLogger()
+	{
+		if (writeThread.joinable())
+		{
+			writeThread.join();
 		}
 	}
 
@@ -53,7 +62,7 @@ namespace Logger
 		formattedMessage << "[" << local << "] : ";
 
 		formattedMessage << message;
-		auto formattedStr = formattedMessage.str();
+		std::string formattedStr = formattedMessage.str();
 		if (level == LogLevel::WARNING || level == LogLevel::ERROR)
 		{
 			// Only log errors and warnings to console, rest goes in the logfile
@@ -63,10 +72,10 @@ namespace Logger
 		AddToFileWriteQueue(formattedStr);
 	}
 
-	void ThreadedLogger::AddToFileWriteQueue(std::string_view formattedMessage)
+	void ThreadedLogger::AddToFileWriteQueue(std::string formattedMessage)
 	{
 		std::scoped_lock<std::mutex> lock(m_mutex);
-		m_logQueue.emplace_back(formattedMessage.data());
+		m_logQueue.emplace_back(formattedMessage);
 
 		if (!m_writeRequested)
 		{
@@ -81,13 +90,14 @@ namespace Logger
 
 		m_logBuffer.resize(m_logQueue.size());
 		std::ranges::copy(m_logQueue.begin(), m_logQueue.end(), m_logBuffer.begin());
+		m_logQueue.clear();
 	}
 
 	void ThreadedLogger::WriteToFileDelayed()
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-
 		CopyQueueIntoBuffer();
+		std::scoped_lock<std::mutex> lock(m_mutex);
 
 		m_logFile.open(m_logFilePath, std::ofstream::out | std::ofstream::app);
 		std::ranges::copy(m_logBuffer, std::ostream_iterator<std::string>(m_logFile, "\n"));

@@ -4,12 +4,16 @@
 #include "../Logger/ThreadedLogger.h"
 #include "DataTypes/CharData.h"
 #include "VoxtaApiHandler.h"
-#include "VoxtaChatSession.h"
+#include "Datatypes/ChatSession.h"
 #include <signalrclient/hub_connection.h>
 #include <signalrclient/hub_connection_builder.h>
 #include <signalrclient/signalr_value.h>
 #include <string>
 #include <vector>
+#include <exception>
+#include <functional>
+#include <map>
+#include <memory>
 
 namespace Voxta
 {
@@ -23,7 +27,7 @@ namespace Voxta
 		~VoxtaClient() = default;
 
 		std::string_view GetUsername() const;
-		const std::vector<DataTypes::CharData>& GetCharacters() const;
+		const std::vector<std::shared_ptr<DataTypes::CharData>>& GetCharacters() const;
 
 		void Connect();
 		void Disconnect();
@@ -36,13 +40,15 @@ namespace Voxta
 		Logger::ThreadedLogger& m_logger;
 
 		std::unique_ptr<DataTypes::CharData> m_userData = nullptr;
-		std::unique_ptr<VoxtaChatSession> m_chatSession = nullptr;
-		std::vector<DataTypes::CharData> m_characterList;
+		std::unique_ptr<DataTypes::ChatSession> m_chatSession = nullptr;
+		std::vector<std::shared_ptr<DataTypes::CharData>> m_characterList;
 		VoxtaClientState m_currentState = VoxtaClient::VoxtaClientState::DISCONNECTED;
 
 		void SendMessage(const signalr::value& message);
 		bool HandleResponse(const std::map<std::string, signalr::value>& map);
 		void HandleBadResponse(const signalr::value& response);
-		void SafeInvoke(const std::function<void()>& lambda, std::exception_ptr exception);
+
+		template<typename Callable>
+		void SafeInvoke(Callable lambda, std::exception_ptr exception);
 	};
 }
