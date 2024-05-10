@@ -15,27 +15,41 @@
 #include <cstdlib>
 #include <vector>
 #include <climits>
+#include <future>
 
-class ExampleClient
+class MainThreadHogger
 {
 public:
-	void DoStuff()
+	MainThreadHogger() : itsQuittingTime(false)
 	{
 		auto path = std::filesystem::current_path();
 		path /= "logfile.txt";
-		auto logger(std::make_unique<Logger::ThreadedLogger>(path.string()));
+		logger = std::make_unique<Logger::ThreadedLogger>(path.string());
 		voxtaClient = std::make_unique<Voxta::VoxtaClient>(*logger, "127.0.0.1", 5384,
 			[this] (Voxta::VoxtaClient::VoxtaClientState newState)
 			{
 				ClientCallback(newState);
 			});
+
 		voxtaClient->Connect();
+		std::unique_lock<std::mutex> lock(mutexLock);
+		quittinTimeCondition.wait(lock, [this] { return itsQuittingTime; });
+	}
+
+	~MainThreadHogger()
+	{
+		itsQuittingTime = true;
+		quittinTimeCondition.notify_one();
 	}
 
 private:
+	std::unique_ptr<Logger::ThreadedLogger> logger;
 	std::unique_ptr<Voxta::VoxtaClient> voxtaClient;
+	std::mutex mutexLock;
+	std::condition_variable quittinTimeCondition;
+	bool itsQuittingTime;
 
-	void ClientCallback(const Voxta::VoxtaClient::VoxtaClientState& newState) const
+	void ClientCallback(const Voxta::VoxtaClient::VoxtaClientState& newState)
 	{
 		switch (newState)
 		{
@@ -51,6 +65,8 @@ private:
 			}
 			case Voxta::VoxtaClient::VoxtaClientState::CHATTING:
 			{
+				std::cout << std::endl << "Ayy we chattin boys" << std::endl;
+
 				break;
 			}
 			default:
@@ -105,7 +121,6 @@ private:
 
 int main()
 {
-	auto client = std::make_unique<ExampleClient>();
-	client->DoStuff();
+	auto client = MainThreadHogger();
 	return 0;
 }

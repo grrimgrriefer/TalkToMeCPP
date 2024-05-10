@@ -174,7 +174,6 @@ namespace Voxta
 			return std::make_unique<DataTypes::ServerResponses::ServerResponseChatStarted>(user.at("id").as_string(),
 				chars, services, map.at("chatId").as_string(), map.at("sessionId").as_string());
 		}
-
 		// TODO:
 		//		else if (type == "replyStart") {}
 		//		else if (type == "replyChunk") {}
@@ -183,11 +182,6 @@ namespace Voxta
 		//		else if (type == "chatClosed") {}
 		//		else if (type == "chatInProgress") {}
 		//		else if (type == "chatSessionError") {}
-
-		else
-		{
-			throw std::invalid_argument(std::format("Voxta::VoxtaApiHandler::GetResponseData has no support for {}", type));
-		}
 		return nullptr;
 	}
 }
