@@ -2,15 +2,15 @@
 
 == Dev Progress
 
-:uri-qg-status: https://sonarcloud.io/dashboard?id=justanotherburner123_TalkToMeCPP
-:img-qg-status: https://sonarcloud.io/api/project_badges/measure?project=justanotherburner123_TalkToMeCPP&metric=alert_status
-:uri-build-status: https://github.com/justanotherburner123/TalkToMeCPP/actions/workflows/msbuild.yml
-:img-build-status: https://github.com/justanotherburner123/TalkToMeCPP/actions/workflows/msbuild.yml/badge.svg
+:uri-qg-status: https://sonarcloud.io/dashboard?id=grrimgrriefer_TalkToMeCPP
+:img-qg-status: https://sonarcloud.io/api/project_badges/measure?project=grrimgrriefer_TalkToMeCPP&metric=alert_status
+:uri-build-status: https://github.com/grrimgrriefer/TalkToMeCPP/actions/workflows/msbuild.yml
+:img-build-status: https://github.com/grrimgrriefer/TalkToMeCPP/actions/workflows/msbuild.yml/badge.svg
 
 image:{img-build-status}[Build Status, link={uri-build-status}]
 image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
 
-*This project is analysed on https://sonarcloud.io/project/overview?id=justanotherburner123_TalkToMeCPP[SonarCloud]!*
+*This project is analysed on https://sonarcloud.io/project/overview?id=grrimgrriefer_TalkToMeCPP[SonarCloud]!*
 
 [ :heavy_check_mark: ]   Authenticate to Voxta server
 
@@ -26,14 +26,14 @@ image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
 
 Either
 
-* Download the x64 windows build from latest run artifacts: https://github.com/justanotherburner123/TalkToMeCPP/actions
+* Download the x64 windows build from latest run artifacts: https://github.com/grrimgrriefer/TalkToMeCPP/actions
 
 OR
 
 * Build it yourself 
 ** reqs:
 *** MSbuild with C++20 support (VS 2019 v16.9 or later)
-*** Activated vcpkg to install the req libs (classic mode, NOT MANIFEST MODE)
+*** Activated vcpkg to install the req libs (classic mode, *not* manifest mode)
   
 *Note:* _I only tested x64, so the x86 may or may not work._ :shrug:
   
@@ -48,13 +48,7 @@ OR
 == Q&A
 
 [qanda]
-Where is the code documentation?:: Coming soon, after text chat is working.
-What is the test coverage of this project?:: Coming soon (probably never :joy:)
-Can I contribute to this?:: No.
-Can I support this?::
-    No, due to IRL job reasons I can't accept donations.
-Can I use this for my own project?::
-    Yes, I only ask that you: +
-	a) don't imply I endorse your stuff, +
-	b) know I provide no warranties for this code, +
-	c) won't use this as a trojan wrapper for your shitty rootkit / bitcoinminer.
+Can I use this for my own project?:: Yes.
+Do I need to credit you?:: No.
+Can I contribute to this repo?:: No.
+Can I donate/support this?:: No. _(IRL job exclusivity clause)_
