@@ -6,7 +6,7 @@ namespace Voxta::DataTypes::ServerResponses
 {
 	enum class ServerResponseType
 	{
-		WELCOME, CHARACTER_LIST, CHARACTER_LOADED, CHAT_STARTED
+		WELCOME, CHARACTER_LIST, CHARACTER_LOADED, CHAT_STARTED, CHAT_MESSAGE
 	};
 
 	struct ServerResponseBase

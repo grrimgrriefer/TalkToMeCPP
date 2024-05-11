@@ -9,6 +9,7 @@
 #include "DataTypes/ServerResponses/ServerResponseCharacterList.h"
 #include "DataTypes/ServerResponses/ServerResponseCharacterLoaded.h"
 #include "DataTypes/ServerResponses/ServerResponseChatStarted.h"
+#include "DataTypes/ServerResponses/ServerResponseChatMessage.h"
 #include <signalrclient/signalr_value.h>
 #include <map>
 #include <string>
@@ -75,7 +76,7 @@ namespace Voxta
 		});
 	}
 
-	signalr::value VoxtaApiHandler::GetStartChatRequestData(std::shared_ptr<DataTypes::CharData>& charData) const
+	signalr::value VoxtaApiHandler::GetStartChatRequestData(const std::unique_ptr<DataTypes::CharData>& charData) const
 	{
 		boost::uuids::uuid guid = boost::uuids::random_generator()();
 		std::string guidString = boost::lexical_cast<std::string>(guid);
@@ -167,18 +168,42 @@ namespace Voxta
 				if (servicesMap.contains(stringValue))
 				{
 					auto& serviceData = servicesMap.at(stringValue).as_map();
-					services.try_emplace(enumType, DataTypes::ServiceData(enumType, serviceData.at("serviceName").as_string(),
-						serviceData.at("serviceId").as_string()));
+					services.try_emplace(enumType, enumType, serviceData.at("serviceName").as_string(),
+						serviceData.at("serviceId").as_string());
 				}
 			}
 			return std::make_unique<DataTypes::ServerResponses::ServerResponseChatStarted>(user.at("id").as_string(),
 				chars, services, map.at("chatId").as_string(), map.at("sessionId").as_string());
 		}
+		else if (type == "replyStart")
+		{
+			return std::make_unique<DataTypes::ServerResponses::ServerResponseChatMessage>(
+				DataTypes::ServerResponses::ServerResponseChatMessage::MessageType::MESSAGE_START,
+				map.at("messageId").as_string(),
+				map.at("senderId").as_string(),
+				map.at("sessionId").as_string());
+		}
+		else if (type == "replyChunk")
+		{
+			return std::make_unique<DataTypes::ServerResponses::ServerResponseChatMessage>(
+				   DataTypes::ServerResponses::ServerResponseChatMessage::MessageType::MESSAGE_CHUNK,
+				   map.at("messageId").as_string(),
+				   map.at("senderId").as_string(),
+				   map.at("sessionId").as_string(),
+				   static_cast<int>(map.at("startIndex").as_double()),
+				   static_cast<int>(map.at("endIndex").as_double()),
+				   map.at("text").as_string(),
+				   map.at("audioUrl").as_string());
+		}
+		else if (type == "replyEnd")
+		{
+			return std::make_unique<DataTypes::ServerResponses::ServerResponseChatMessage>(
+				   DataTypes::ServerResponses::ServerResponseChatMessage::MessageType::MESSAGE_END,
+				   map.at("messageId").as_string(),
+				   map.at("senderId").as_string(),
+				   map.at("sessionId").as_string());
+		}
 		// TODO:
-		//		else if (type == "replyStart") {}
-		//		else if (type == "replyChunk") {}
-		//		else if (type == "replyEnd") {}
-		//		else if (type == "replyEnd") {}
 		//		else if (type == "chatClosed") {}
 		//		else if (type == "chatInProgress") {}
 		//		else if (type == "chatSessionError") {}

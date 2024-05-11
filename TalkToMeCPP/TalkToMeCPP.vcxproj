@@ -146,8 +146,10 @@
   <ItemGroup>
     <ClInclude Include="src\Logger\HubConnectionLogger.h" />
     <ClInclude Include="src\Voxta\DataTypes\CharData.h" />
+    <ClInclude Include="src\Voxta\DataTypes\ChatMessage.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseBase.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseCharacterLoaded.h" />
+    <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseChatMessage.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseChatStarted.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseWelcome.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServiceData.h" />

@@ -7,11 +7,13 @@
 #include "../Logger/HubConnectionLogger.h"
 #include "DataTypes/CharData.h"
 #include "DataTypes/ChatSession.h"
+#include "DataTypes/ChatMessage.h"
 #include "DataTypes/ServerResponses/ServerResponseBase.h"
 #include "DataTypes/ServerResponses/ServerResponseWelcome.h"
 #include "DataTypes/ServerResponses/ServerResponseCharacterList.h"
 #include "DataTypes/ServerResponses/ServerResponseCharacterLoaded.h"
 #include "DataTypes/ServerResponses/ServerResponseChatStarted.h"
+#include "DataTypes/ServerResponses/ServerResponseChatMessage.h"
 #include <format>
 #include <future>
 #include <exception>
@@ -27,10 +29,11 @@
 namespace Voxta
 {
 	VoxtaClient::VoxtaClient(Logger::ThreadedLogger& logger, std::string_view address, int port,
-		const std::function<void(VoxtaClientState newState)>& stateChange) :
+		const std::function<void(VoxtaClientState newState)>& stateChange,
+		const std::function<void(const DataTypes::ChatMessage*, const DataTypes::CharData*)>& charSpeakingEvent) :
 		m_connection(signalr::hub_connection_builder::create(std::format("http://{}:{}/hub", address, std::to_string(port)))
 			.with_logging(std::make_shared<Logger::HubConnectionLogger>(logger), signalr::trace_level::verbose).build()),
-		m_stateChange(stateChange), m_logger(logger)
+		m_stateChange(stateChange), m_logger(logger), m_charSpeakingEvent(charSpeakingEvent)
 	{
 		m_connection.on("ReceiveMessage", [this] (const std::vector<signalr::value>& messageContainer)
 			{
@@ -67,9 +70,14 @@ namespace Voxta
 		return "";
 	}
 
-	const std::vector<std::shared_ptr<DataTypes::CharData>>& VoxtaClient::GetCharacters() const
+	const std::vector<std::unique_ptr<DataTypes::CharData>>& VoxtaClient::GetCharacters() const
 	{
 		return m_characterList;
+	}
+
+	const DataTypes::ChatSession* VoxtaClient::GetChatSession() const
+	{
+		return m_chatSession.get();
 	}
 
 	void VoxtaClient::Connect()
@@ -140,7 +148,7 @@ namespace Voxta
 					auto derivedResponse = dynamic_cast<DataTypes::ServerResponses::ServerResponseWelcome*>(response.get());
 					m_userData = std::make_unique<DataTypes::CharData>(derivedResponse->m_user);
 					SendMessage(m_voxtaCommData.GetRequestData(VoxtaApiHandler::VoxtaGenericRequestType::LOAD_CHARACTERS_LIST));
-					break;
+					return true;
 				}
 				case CHARACTER_LIST:
 				{
@@ -152,7 +160,7 @@ namespace Voxta
 						m_characterList.emplace_back(std::make_unique<DataTypes::CharData>(charElement));
 					}
 					m_stateChange(VoxtaClientState::CHARACTER_LOBBY);
-					break;
+					return true;
 				}
 				case CHARACTER_LOADED:
 				{
@@ -168,30 +176,66 @@ namespace Voxta
 						m_logger.Log(Logger::ThreadedLogger::LogLevel::ERROR,
 							"Loaded a character that doesn't exist in the list? This should never happen.");
 					}
-					break;
+					return true;
 				}
 				case CHAT_STARTED:
 				{
 					m_logger.Log(Logger::ThreadedLogger::LogLevel::INFO, "Started chat session sucessfully");
 					auto derivedResponse = dynamic_cast<DataTypes::ServerResponses::ServerResponseChatStarted*>(response.get());
 
-					std::vector<std::shared_ptr<DataTypes::CharData>> characters;
+					std::vector<const DataTypes::CharData*> characters;
 					auto& charIds = derivedResponse->m_characterIds;
 					for (int i = 0; i < charIds.size(); i++)
 					{
 						if (auto characterIt = std::ranges::find_if(m_characterList.begin(), m_characterList.end(),
-							DataTypes::CharDataIdComparer(charIds[i])); characterIt !=
-							std::end(m_characterList))
+							DataTypes::CharDataIdComparer(charIds[i])); characterIt != std::end(m_characterList))
 						{
-							characters.emplace_back(*characterIt);
+							characters.emplace_back((*characterIt).get());
 						}
 					}
 
 					m_chatSession = std::make_unique<DataTypes::ChatSession>(characters, derivedResponse->m_chatId,
 						derivedResponse->m_sessionId, derivedResponse->m_serviceIds);
+					m_stateChange(VoxtaClientState::CHAR_THINKING);
+					return true;
 				}
+				case CHAT_MESSAGE:
+				{
+					m_logger.Log(Logger::ThreadedLogger::LogLevel::INFO, "Received chat message update sucessfully");
+					auto derivedResponse = dynamic_cast<DataTypes::ServerResponses::ServerResponseChatMessage*>(response.get());
+
+					auto& messages = m_chatSession->m_chatMessages;
+					using enum DataTypes::ServerResponses::ServerResponseChatMessage::MessageType;
+					switch (derivedResponse->m_messageType)
+					{
+						case MESSAGE_START:
+							m_chatSession->m_chatMessages.emplace(std::make_unique<DataTypes::ChatMessage>(derivedResponse->m_messageId, derivedResponse->m_senderId));
+							break;
+						case MESSAGE_CHUNK:
+							if (auto chatMessage = std::ranges::find_if(messages.begin(), messages.end(),
+								DataTypes::ChatMessageIdComparer(derivedResponse->m_messageId)); chatMessage != std::end(messages))
+							{
+								(*chatMessage)->m_text.append(derivedResponse->m_messageText);
+								(*chatMessage)->m_audioUrls.emplace_back(derivedResponse->m_audioUrlPath);
+							}
+							break;
+						case MESSAGE_END:
+							if (auto chatMessage = std::ranges::find_if(messages.begin(), messages.end(),
+								DataTypes::ChatMessageIdComparer(derivedResponse->m_messageId)); chatMessage != std::end(messages))
+							{
+								if (auto characterIt = std::ranges::find_if(m_characterList.begin(), m_characterList.end(),
+									DataTypes::CharDataIdComparer(derivedResponse->m_senderId)); characterIt != std::end(m_characterList))
+								{
+									m_charSpeakingEvent((*chatMessage).get(), (*characterIt).get());
+								}
+							}
+							break;
+					}
+					return true;
+				}
+				default:
+					return false;
 			}
-			return true;
 		}
 		else
 		{

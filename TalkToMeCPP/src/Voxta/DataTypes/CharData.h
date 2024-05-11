@@ -23,7 +23,7 @@ namespace Voxta::DataTypes
 		std::string_view m_charId;
 		explicit CharDataIdComparer(std::string_view charId) : m_charId(charId) {}
 
-		bool operator()(const std::shared_ptr<DataTypes::CharData>& element) const
+		bool operator()(const std::unique_ptr<DataTypes::CharData>& element) const
 		{
 			return element->m_id == m_charId;
 		}

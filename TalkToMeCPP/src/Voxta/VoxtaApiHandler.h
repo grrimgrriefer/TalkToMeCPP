@@ -23,7 +23,7 @@ namespace Voxta
 
 		signalr::value GetRequestData(const VoxtaGenericRequestType commData) const;
 		signalr::value GetLoadCharacterRequestData(std::string_view characterId) const;
-		signalr::value GetStartChatRequestData(std::shared_ptr<DataTypes::CharData>& charData) const;
+		signalr::value GetStartChatRequestData(const std::unique_ptr<DataTypes::CharData>& charData) const;
 
 		// TODO:
 		// type: send (for text message)

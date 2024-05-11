@@ -4,23 +4,21 @@
 #include "Voxta/VoxtaClient.h"
 #include "Logger/ThreadedLogger.h"
 #include "Voxta/DataTypes/CharData.h"
+#include "Voxta/DataTypes/ChatMessage.h"
 #include <iostream>
 #include <filesystem>
 #include <memory>
-#include <algorithm>
 #include <format>
-#include <functional>
-#include <cctype>
 #include <string>
-#include <cstdlib>
 #include <vector>
 #include <climits>
-#include <future>
+#include <stdlib.h>
+#include <mutex>
 
 class MainThreadHogger
 {
 public:
-	MainThreadHogger() : itsQuittingTime(false)
+	MainThreadHogger()
 	{
 		auto path = std::filesystem::current_path();
 		path /= "logfile.txt";
@@ -29,14 +27,18 @@ public:
 			[this] (Voxta::VoxtaClient::VoxtaClientState newState)
 			{
 				ClientCallback(newState);
+			},
+			[this] (const Voxta::DataTypes::ChatMessage* message, const Voxta::DataTypes::CharData* charSource)
+			{
+				CharSpeaking(message, charSource);
 			});
 
 		voxtaClient->Connect();
-		std::unique_lock<std::mutex> lock(mutexLock);
+		std::unique_lock lock(mutexLock);
 		quittinTimeCondition.wait(lock, [this] { return itsQuittingTime; });
 	}
 
-	~MainThreadHogger()
+	void ForceStop()
 	{
 		itsQuittingTime = true;
 		quittinTimeCondition.notify_one();
@@ -63,15 +65,30 @@ private:
 				voxtaClient->LoadCharacter(characters[index]->m_id);
 				break;
 			}
-			case Voxta::VoxtaClient::VoxtaClientState::CHATTING:
+			case Voxta::VoxtaClient::VoxtaClientState::CHAR_THINKING:
 			{
-				std::cout << std::endl << "Ayy we chattin boys" << std::endl;
-
+				auto& characters = voxtaClient->GetChatSession()->m_characters;
+				std::string charNames;
+				for (int i = 0; i < characters.size(); i++)
+				{
+					charNames.append(characters[i]->m_name);
+					if (i < characters.size() - 1)
+					{
+						charNames.append(", ");
+					}
+				}
+				std::cout << std::endl << std::format("Hold on, {} {} thinking...", charNames,
+					characters.size() > 1 ? "are" : "is") << std::endl;
 				break;
 			}
 			default:
 				break;
 		}
+	}
+
+	void CharSpeaking(const Voxta::DataTypes::ChatMessage* message, const Voxta::DataTypes::CharData* charSource) const
+	{
+		std::cout << std::endl << std::format("{}: {}", charSource->m_name, message->m_text) << std::endl;
 	}
 
 	int AskUserForCharacterSelection(int charAmount) const
@@ -88,13 +105,13 @@ private:
 				return index;
 			}
 
-			std::cout << std::format("Dangit, I couldn't read that as a valid number. :( Pls only enter a number between 0 and {}",
-				charAmount) << std::endl;
+			std::cout << std::format("Dangit, I couldn't read that as a valid number. :( \nPls only enter a number between 0 and {}",
+				charAmount - 1) << std::endl;
 		}
 		while (true);
 	}
 
-	void ListCharacters(const std::vector<std::shared_ptr<Voxta::DataTypes::CharData>>& characters) const
+	void ListCharacters(const std::vector<std::unique_ptr<Voxta::DataTypes::CharData>>& characters) const
 	{
 		auto charAmount = characters.size();
 
