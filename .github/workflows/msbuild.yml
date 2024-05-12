@@ -48,7 +48,7 @@ jobs:
         
     - name: Run tests with coverage
       run: >
-        vstest.console.exe *\TalkToMeCPP_Tests.dll
+        vstest.console.exe D:\a\TalkToMeCPP\TalkToMeCPP\TalkToMeCPP_Tests\x64\Debug\TalkToMeCPP_Tests.dll
         /EnableCodeCoverage 
         /Collect:"Code Coverage;Format=Xml" 
         /ResultsDirectory:"${{ env.COVERAGE_RESULTS }}"
