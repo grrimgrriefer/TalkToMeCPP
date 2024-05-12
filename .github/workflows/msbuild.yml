@@ -5,8 +5,7 @@ on:
     types: [opened, synchronize, reopened]
 
 env:
-  PROJECT_FILE_PATH: TalkToMeCPP/TalkToMeCPP.vcxproj
-  BUILD_ARTIFACTs: BuildsArtifacts
+  PROJECT_FILE_PATH: TalkToMeCPP.sln
   BUILD_WRAPPER_OUT_DIR: BuildsArtifacts
   BUILD_PLATFORM: x64
   BUILD_CONFIGURATION: Release

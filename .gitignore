@@ -4,11 +4,7 @@
 *.app
 
 # VS
-TalkToMeCPP/.vs
-TalkToMeCPP/Release
-TalkToMeCPP/TalkToMeCPP/Release
-TalkToMeCPP/x64
-TalkToMeCPP/TalkToMeCPP/x64
+.vs
 
 # User-specific files
 *.rsuser
@@ -18,5 +14,12 @@ TalkToMeCPP/TalkToMeCPP/x64
 *.sln.docstates
 TalkToMeCPP/logfile.txt
 
-# Packages
+#build
+x64
+TalkToMeCPP/x64
+TalkToMeCPP/Release
 TalkToMeCPP/vcpkg_installed
+
+TalkToMeCPP_Tests/x64
+TalkToMeCPP_Tests/Release
+TalkToMeCPP_Tests/vcpkg_installed
