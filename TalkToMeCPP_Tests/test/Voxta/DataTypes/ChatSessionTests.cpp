@@ -3,8 +3,8 @@
 #include "pch.h"
 #include "CppUnitTest.h"
 #include "../TalkToMeCPP/src/Voxta/DataTypes/ChatSession.h"
-#include "../../../../TalkToMeCPP/src/Voxta/DataTypes/CharData.h"
-#include "../../../../TalkToMeCPP/src/Voxta/DataTypes/ServiceData.h"
+#include "../TalkToMeCPP/src/Voxta/DataTypes/CharData.h"
+#include "../TalkToMeCPP/src/Voxta/DataTypes/ServiceData.h"
 #include <map>
 #include <string>
 #include <vector>

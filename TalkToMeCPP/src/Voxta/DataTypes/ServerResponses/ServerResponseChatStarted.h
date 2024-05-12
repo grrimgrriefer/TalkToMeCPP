@@ -2,8 +2,10 @@
 
 #pragma once
 #include "ServerResponseBase.h"
+#include "../ServiceData.h"
 #include <string>
 #include <vector>
+#include <map>
 
 namespace Voxta::DataTypes::ServerResponses
 {
@@ -15,7 +17,7 @@ namespace Voxta::DataTypes::ServerResponses
 		}
 
 		explicit ServerResponseChatStarted(std::string_view userId, const std::vector<std::string>& characterIds,
-			const std::map<const DataTypes::ServiceData::ServiceType, const DataTypes::ServiceData>& serviceIds,
+			const std::map<const Voxta::DataTypes::ServiceData::ServiceType, const DataTypes::ServiceData>& serviceIds,
 			std::string_view chatId, std::string_view sessionId) :
 			m_characterIds(characterIds), m_serviceIds(serviceIds), m_userId(userId), m_chatId(chatId), m_sessionId(sessionId)
 		{

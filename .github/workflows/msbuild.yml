@@ -5,10 +5,12 @@ on:
     types: [opened, synchronize, reopened]
 
 env:
-  PROJECT_FILE_PATH: TalkToMeCPP.sln
+  PROJECT_FILE_PATH: TalkToMeCPP/TalkToMeCPP.vcxproj
+  TEST_PROJECT_FILE_PATH: TalkToMeCPP_Tests/TalkToMeCPP_Tests.vcxproj
   BUILD_WRAPPER_OUT_DIR: BuildsArtifacts
   BUILD_PLATFORM: x64
   BUILD_CONFIGURATION: Release
+  COVERAGE_RESULTS: coverage_results
 
 permissions:
   contents: read
@@ -26,6 +28,9 @@ jobs:
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
 
+    - name: Setup VSTest.console.exe
+      uses: darenm/Setup-VSTest@v1.2
+        
     - name: Restore vcpkg packages
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: vcpkg integrate install
@@ -37,12 +42,25 @@ jobs:
       run: |
         build-wrapper-win-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} ${{env.PROJECT_FILE_PATH}} /t:rebuild /nodeReuse:false
 
+    - name: Build tests
+      run: |
+        msbuild /m /p:Configuration=Debug /p:Platform=${{env.BUILD_PLATFORM}} ${{env.TEST_PROJECT_FILE_PATH}}
+        
+    - name: Run tests with coverage
+      run: >
+        vstest.console.exe *\TalkToMeCPP_Tests.dll
+        /EnableCodeCoverage 
+        /Collect:"Code Coverage;Format=Xml" 
+        /ResultsDirectory:"${{ env.COVERAGE_RESULTS }}"
+          
     - name: Run sonar-scanner
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: |
-        sonar-scanner -X --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
+      run: >
+        sonar-scanner -X 
+        --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
+        --define sonar.cfamily.vscoveragexml.reportsPath="${{ env.COVERAGE_RESULTS }}/*/*.xml"
       
     - name: Archive
       uses: actions/upload-artifact@v4

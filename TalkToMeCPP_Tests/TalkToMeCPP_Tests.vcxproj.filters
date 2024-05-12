@@ -27,6 +27,27 @@
     <ClCompile Include="test\Voxta\DataTypes\ChatSessionTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="test\Voxta\DataTypes\ServiceDataTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseWelcomeTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseChatUpdateTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseChatStartedTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseChatMessageTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseCharacterLoadedTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseCharacterListTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
