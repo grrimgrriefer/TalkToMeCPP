@@ -151,6 +151,7 @@
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseCharacterLoaded.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseChatMessage.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseChatStarted.h" />
+    <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseChatUpdate.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseWelcome.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServiceData.h" />
     <ClInclude Include="src\Voxta\VoxtaClient.h" />

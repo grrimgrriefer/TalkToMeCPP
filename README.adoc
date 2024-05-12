@@ -1,5 +1,7 @@
 = TalkToMeCPP - A proof of concept barebones C++ client for Voxta
 
+_Made in collaboration with DZnnah_
+
 == Dev Progress
 
 :uri-qg-status: https://sonarcloud.io/dashboard?id=grrimgrriefer_TalkToMeCPP
@@ -39,7 +41,7 @@ OR
   
 == Run
 
-1. Run Voxta.Server.Exe 
+1. Run Voxta.Server.Exe (v1.0.0-beta.113)
   - Download from https://voxta.ai/
   - Ensure a valid Voxta service configuration (TTS, STT, LLM)
 2. Run TalkToMeCPP.exe
@@ -49,6 +51,6 @@ OR
 
 [qanda]
 Can I use this for my own project?:: Yes.
-Do I need to credit you?:: No.
+Do I need to credit you?:: Ideally yes, but we aren't gonna sue you if you don't lmao, so it's whatever :shrug:
 Can I contribute to this repo?:: No.
 Can I donate/support this?:: No. _(IRL job exclusivity clause)_

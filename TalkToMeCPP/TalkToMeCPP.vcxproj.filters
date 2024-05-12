@@ -74,5 +74,8 @@
     <ClInclude Include="src\Voxta\DataTypes\ChatMessage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseChatUpdate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

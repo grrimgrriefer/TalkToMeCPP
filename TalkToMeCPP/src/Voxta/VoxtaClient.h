@@ -1,4 +1,4 @@
-// 2024 - Creative Commons Zero v1.0 Universal
+// Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
 #include "../Logger/ThreadedLogger.h"
@@ -21,10 +21,11 @@ namespace Voxta
 	class VoxtaClient
 	{
 	public:
-		enum class VoxtaClientState { DISCONNECTED, LOADING, CHARACTER_LOBBY, CHAR_THINKING, WAITING_FOR_USER_INPUT };
+		enum class VoxtaClientState { DISCONNECTED, LOADING, CHARACTER_LOBBY, CHATTING };
 
 		explicit VoxtaClient(Logger::ThreadedLogger& logger, std::string_view address, int port,
 			const std::function<void(VoxtaClientState newState)>& stateChange,
+			const std::function<std::string()>& requestingUserInputEvent,
 			const std::function<void(const DataTypes::ChatMessage*, const DataTypes::CharData*)>& charSpeakingEvent);
 		~VoxtaClient() = default;
 
@@ -40,6 +41,7 @@ namespace Voxta
 		signalr::hub_connection m_connection;
 		VoxtaApiHandler m_voxtaCommData;
 		const std::function<void(VoxtaClientState newState)> m_stateChange;
+		const std::function<std::string()> m_requestingUserInputEvent;
 		const std::function<void(const DataTypes::ChatMessage*, const DataTypes::CharData*)> m_charSpeakingEvent;
 		Logger::ThreadedLogger& m_logger;
 

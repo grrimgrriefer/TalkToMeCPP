@@ -1,4 +1,4 @@
-// 2024 - Creative Commons Zero v1.0 Universal
+// Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
 #include <string>
@@ -8,7 +8,13 @@ namespace Voxta::DataTypes
 {
 	struct ChatMessage
 	{
-		explicit ChatMessage(std::string_view messageId, std::string_view charID) : m_messageId(messageId), m_charId(charID)
+		explicit ChatMessage(std::string_view messageId, std::string_view charID, std::string_view text) :
+			m_text(text), m_messageId(messageId), m_charId(charID)
+		{
+		}
+
+		explicit ChatMessage(std::string_view messageId, std::string_view charID) : m_messageId(messageId),
+			m_charId(charID)
 		{
 		}
 		~ChatMessage() = default;

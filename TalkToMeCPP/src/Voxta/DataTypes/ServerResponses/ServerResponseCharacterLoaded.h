@@ -1,4 +1,4 @@
-// 2024 - Creative Commons Zero v1.0 Universal
+// Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
 #include "ServerResponseBase.h"
@@ -18,7 +18,7 @@ namespace Voxta::DataTypes::ServerResponses
 		{
 		}
 
-		std::string_view m_characterId;
-		bool m_enableThinkingSpeech;
+		const std::string m_characterId;
+		const bool m_enableThinkingSpeech;
 	};
 }

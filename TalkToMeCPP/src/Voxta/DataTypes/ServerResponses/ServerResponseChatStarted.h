@@ -1,4 +1,4 @@
-// 2024 - Creative Commons Zero v1.0 Universal
+// Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
 #include "ServerResponseBase.h"
@@ -14,16 +14,17 @@ namespace Voxta::DataTypes::ServerResponses
 			return ServerResponseType::CHAT_STARTED;
 		}
 
-		explicit ServerResponseChatStarted(std::string_view userId, const std::vector<std::string_view>& characterIds,
-			const std::map<DataTypes::ServiceData::ServiceType, DataTypes::ServiceData>& serviceIds, std::string_view chatId, std::string_view sessionId) :
-			m_userId(userId), m_characterIds(characterIds), m_serviceIds(serviceIds), m_chatId(chatId), m_sessionId(sessionId)
+		explicit ServerResponseChatStarted(std::string_view userId, const std::vector<std::string>& characterIds,
+			const std::map<const DataTypes::ServiceData::ServiceType, const DataTypes::ServiceData>& serviceIds,
+			std::string_view chatId, std::string_view sessionId) :
+			m_characterIds(characterIds), m_serviceIds(serviceIds), m_userId(userId), m_chatId(chatId), m_sessionId(sessionId)
 		{
 		}
 
-		std::string_view m_userId;
-		std::vector<std::string_view> m_characterIds;
-		std::map<DataTypes::ServiceData::ServiceType, DataTypes::ServiceData> m_serviceIds;
-		std::string_view m_chatId;
-		std::string_view m_sessionId;
+		std::vector<std::string> m_characterIds;
+		std::map<const DataTypes::ServiceData::ServiceType, const DataTypes::ServiceData> m_serviceIds;
+		const std::string m_userId;
+		const std::string m_chatId;
+		const std::string m_sessionId;
 	};
 }

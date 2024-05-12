@@ -1,4 +1,4 @@
-// 2024 - Creative Commons Zero v1.0 Universal
+// Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
 #include "ServerResponseBase.h"
@@ -30,13 +30,13 @@ namespace Voxta::DataTypes::ServerResponses
 		{
 		}
 
-		MessageType m_messageType;
-		std::string_view m_messageId;
-		std::string_view m_senderId;
-		std::string_view m_sessionId;
-		int m_startIndex = 0;
-		int m_endIndex = 0;
-		std::string_view m_messageText = "";
-		std::string_view m_audioUrlPath = "";
+		const MessageType m_messageType;
+		const std::string m_messageId;
+		const std::string m_senderId;
+		const std::string m_sessionId;
+		const int m_startIndex = 0;
+		const int m_endIndex = 0;
+		const std::string m_messageText = "";
+		const std::string m_audioUrlPath = "";
 	};
 }

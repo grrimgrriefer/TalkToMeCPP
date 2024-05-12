@@ -1,4 +1,4 @@
-// 2024 - Creative Commons Zero v1.0 Universal
+// Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
 #include "VoxtaApiHandler.h"
@@ -10,6 +10,7 @@
 #include "DataTypes/ServerResponses/ServerResponseCharacterLoaded.h"
 #include "DataTypes/ServerResponses/ServerResponseChatStarted.h"
 #include "DataTypes/ServerResponses/ServerResponseChatMessage.h"
+#include "DataTypes/ServerResponses/ServerResponseChatUpdate.h"
 #include <signalrclient/signalr_value.h>
 #include <map>
 #include <string>
@@ -52,7 +53,7 @@ namespace Voxta
 			{ "$type", "authenticate" },
 			{ "client", "TalkToMeCPP" },
 			{ "clientVersion", "0.0.1a" },
-			{ "scope", std::vector<signalr::value> { "role:app" } },
+			{ "scope", std::vector<signalr::value> { "role:app", "broadcast:write" } },
 			{ "capabilities", std::map<std::string, signalr::value> {
 				{ "audioInput", "WebSocketStream" },
 				{ "audioOutput", "Url" },
@@ -76,7 +77,7 @@ namespace Voxta
 		});
 	}
 
-	signalr::value VoxtaApiHandler::GetStartChatRequestData(const std::unique_ptr<DataTypes::CharData>& charData) const
+	signalr::value VoxtaApiHandler::GetStartChatRequestData(const DataTypes::CharData* charData) const
 	{
 		boost::uuids::uuid guid = boost::uuids::random_generator()();
 		std::string guidString = boost::lexical_cast<std::string>(guid);
@@ -109,7 +110,18 @@ namespace Voxta
 		});
 	}
 
-	std::unique_ptr<DataTypes::ServerResponses::ServerResponseBase> VoxtaApiHandler::GetResponseData(
+	signalr::value VoxtaApiHandler::ConstructSendUserMessage(std::string_view sessionId, std::string_view userMessage) const
+	{
+		return signalr::value(std::map<std::string, signalr::value> {
+			{ "$type", "send" },
+			{ "sessionId", sessionId.data() },
+			{ "text", userMessage.data() },
+			{ "doReply", "true" },
+			{ "doCharacterActionInference", "false" }
+		});
+	}
+
+	const std::unique_ptr<DataTypes::ServerResponses::ServerResponseBase> VoxtaApiHandler::GetResponseData(
 		const std::map<std::string, signalr::value>& map) const
 	{
 		using enum DataTypes::ServerResponses::ServerResponseType;
@@ -146,7 +158,7 @@ namespace Voxta
 		{
 			auto& user = map.at("user").as_map();
 			auto& charIdArray = map.at("characters").as_array();
-			std::vector<std::string_view> chars;
+			std::vector<std::string> chars;
 			chars.reserve(charIdArray.size());
 			for (auto& charElement : charIdArray)
 			{
@@ -156,7 +168,7 @@ namespace Voxta
 
 			auto& servicesMap = map.at("services").as_map();
 			using enum DataTypes::ServiceData::ServiceType;
-			std::map<DataTypes::ServiceData::ServiceType, DataTypes::ServiceData> services;
+			std::map<const DataTypes::ServiceData::ServiceType, const DataTypes::ServiceData> services;
 			std::map<DataTypes::ServiceData::ServiceType, std::string> serviceTypes = {
 				{ TEXT_GEN, "textGen" },
 				{ SPEECH_TO_TEXT, "speechToText" },
@@ -203,7 +215,15 @@ namespace Voxta
 				   map.at("senderId").as_string(),
 				   map.at("sessionId").as_string());
 		}
-		// TODO:
+		else if (type == "update")
+		{
+			return std::make_unique<DataTypes::ServerResponses::ServerResponseChatUpdate>(
+				   map.at("messageId").as_string(),
+				   map.at("senderId").as_string(),
+				   map.at("text").as_string(),
+				   map.at("sessionId").as_string());
+		}
+		// TODO: maybe?
 		//		else if (type == "chatClosed") {}
 		//		else if (type == "chatInProgress") {}
 		//		else if (type == "chatSessionError") {}

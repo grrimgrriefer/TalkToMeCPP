@@ -1,4 +1,4 @@
-// 2024 - Creative Commons Zero v1.0 Universal
+// Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
 #include "Voxta/VoxtaClient.h"
@@ -14,6 +14,7 @@
 #include <climits>
 #include <stdlib.h>
 #include <mutex>
+#include <istream>
 
 class MainThreadHogger
 {
@@ -27,6 +28,10 @@ public:
 			[this] (Voxta::VoxtaClient::VoxtaClientState newState)
 			{
 				ClientCallback(newState);
+			},
+			[this] ()
+			{
+				return AskUserInput();
 			},
 			[this] (const Voxta::DataTypes::ChatMessage* message, const Voxta::DataTypes::CharData* charSource)
 			{
@@ -65,7 +70,7 @@ private:
 				voxtaClient->LoadCharacter(characters[index]->m_id);
 				break;
 			}
-			case Voxta::VoxtaClient::VoxtaClientState::CHAR_THINKING:
+			case Voxta::VoxtaClient::VoxtaClientState::CHATTING:
 			{
 				auto& characters = voxtaClient->GetChatSession()->m_characters;
 				std::string charNames;
@@ -74,11 +79,10 @@ private:
 					charNames.append(characters[i]->m_name);
 					if (i < characters.size() - 1)
 					{
-						charNames.append(", ");
+						charNames.append("and ");
 					}
 				}
-				std::cout << std::endl << std::format("Hold on, {} {} thinking...", charNames,
-					characters.size() > 1 ? "are" : "is") << std::endl;
+				std::cout << std::endl << std::format("Starting conversation with {} ...", charNames) << std::endl << std::endl;
 				break;
 			}
 			default:
@@ -102,10 +106,13 @@ private:
 			char* end = nullptr;
 			if (long index = std::strtol(selection.c_str(), &end, 10); *end == '\0' && index >= 0 && index < charAmount)
 			{
+				std::cout << std::endl << std::format("Awesome! Hold on for a bit, I'll go get {} and make sure she's ready for you :D",
+					voxtaClient->GetCharacters()[index]->m_name) << std::endl;
+
 				return index;
 			}
 
-			std::cout << std::format("Dangit, I couldn't read that as a valid number. :( \nPls only enter a number between 0 and {}",
+			std::cout << std::format("Dangit!! I couldn't read that as a valid number :( Sorry... \nPls only enter a number between 0 and {}",
 				charAmount - 1) << std::endl;
 		}
 		while (true);
@@ -133,6 +140,15 @@ private:
 
 			std::cout << output << std::endl;
 		}
+	}
+
+	std::string AskUserInput() const
+	{
+		std::cout << std::format("{}: ", voxtaClient->GetUsername());
+
+		std::string line;
+		std::getline(std::cin >> std::ws, line);
+		return line;
 	}
 };
 

@@ -1,4 +1,4 @@
-// 2024 - Creative Commons Zero v1.0 Universal
+// Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
 #include "DataTypes/ServerResponses/ServerResponseBase.h"
@@ -7,6 +7,7 @@
 #include <memory>
 #include <string>
 #include <map>
+#include <set>
 
 namespace Voxta
 {
@@ -18,19 +19,22 @@ namespace Voxta
 			AUTHENTICATE, LOAD_CHARACTERS_LIST
 		};
 
+		const std::set<std::string> c_ignoredMessageTypes{ "chatStarting", "chatLoadingMessage", "chatsSessionsUpdated",
+			"contextUpdated", "replyGenerating", "replyGenerating", "chatFlow" };
+
 		explicit VoxtaApiHandler();
 		~VoxtaApiHandler() = default;
 
 		signalr::value GetRequestData(const VoxtaGenericRequestType commData) const;
 		signalr::value GetLoadCharacterRequestData(std::string_view characterId) const;
-		signalr::value GetStartChatRequestData(const std::unique_ptr<DataTypes::CharData>& charData) const;
+		signalr::value GetStartChatRequestData(const DataTypes::CharData* charData) const;
+		signalr::value ConstructSendUserMessage(std::string_view sessionId, std::string_view userMessage) const;
 
-		// TODO:
-		// type: send (for text message)
+		// TODO: maybe?
 		// type: stopChat (to stop chat)
 		// type: deleteChat (to delete chat)
 
-		std::unique_ptr<DataTypes::ServerResponses::ServerResponseBase> GetResponseData(const std::map<std::string, signalr::value>& map) const;
+		const std::unique_ptr<DataTypes::ServerResponses::ServerResponseBase> GetResponseData(const std::map<std::string, signalr::value>& map) const;
 
 	private:
 		const std::unique_ptr<signalr::value> m_authenticateReqData;

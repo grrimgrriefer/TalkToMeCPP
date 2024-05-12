@@ -1,9 +1,8 @@
-// 2024 - Creative Commons Zero v1.0 Universal
+// Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
 #include "ServerResponseBase.h"
 #include "../CharData.h"
-#include <string>
 
 namespace Voxta::DataTypes::ServerResponses
 {
@@ -17,6 +16,7 @@ namespace Voxta::DataTypes::ServerResponses
 		explicit ServerResponseWelcome(const DataTypes::CharData& userData) : m_user(userData)
 		{
 		}
-		DataTypes::CharData m_user;
+
+		const DataTypes::CharData m_user;
 	};
 }
