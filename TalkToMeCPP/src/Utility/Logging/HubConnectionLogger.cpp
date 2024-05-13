@@ -1,12 +1,11 @@
-// 2024 - Creative Commons Zero v1.0 Universal
+// Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
 #include "HubConnectionLogger.h"
 #include "ThreadedLogger.h"
-#include <signalrclient/signalr_value.h>
-#include <signalrclient/log_writer.h>
+#include <string>
 
-namespace Logging
+namespace Utility::Logging
 {
 	HubConnectionLogger::HubConnectionLogger(ThreadedLogger& logger)
 		: m_logger(logger)
@@ -15,6 +14,6 @@ namespace Logging
 
 	void __cdecl HubConnectionLogger::write(const std::string& entry)
 	{
-		m_logger.Log(ThreadedLogger::LogLevel::DEBUG, entry);
+		m_logger.LogMessage(ThreadedLogger::LogLevel::DEBUG, entry);
 	}
 }

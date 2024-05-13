@@ -1,6 +1,7 @@
 // 2024 - Creative Commons Zero v1.0 Universal
 
 #pragma once
+#include "LoggerInterface.h"
 #include <fstream>
 #include <string>
 #include <mutex>
@@ -10,17 +11,15 @@
 #include <atomic>
 #include <iosfwd>
 
-namespace Logging
+namespace Utility::Logging
 {
-	class ThreadedLogger
+	class ThreadedLogger : public LoggerInterface
 	{
 	public:
-		enum class LogLevel { DEBUG, INFO, WARNING, ERROR };
-
 		explicit ThreadedLogger(const std::string& filename);
-		~ThreadedLogger();
+		~ThreadedLogger() override;
 
-		void Log(LogLevel level, const std::string& message);
+		void LogMessage(LogLevel level, const std::string& message) override;
 
 	private:
 		std::string m_logFilePath;

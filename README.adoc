@@ -1,6 +1,6 @@
 = TalkToMeCPP - A proof of concept barebones C++ client for Voxta
 
-_Made in collaboration with DZnnah_
+_Made in collaboration with https://twitter.com/DZnnah[DZnnah]_
 
 == Dev Progress
 
@@ -18,7 +18,9 @@ image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
 
 [ :heavy_check_mark: ]   Load characters
 
-[ :fire:	]   Text chat with specific character(s)
+[ :heavy_check_mark:	]   Text chat with specific character(s)
+
+[ :fire:	]   Full code cleanup & proper test coverate  *MVP*
 
 [ :black_square_button:	]   Playback Voxta server generated audio
 
@@ -36,8 +38,8 @@ OR
 ** reqs:
 *** MSbuild with C++20 support (VS 2019 v16.9 or later)
 *** Activated vcpkg to install the req libs (classic mode, *not* manifest mode)
-  
-*Note:* _I only tested x64, so the x86 may or may not work._ :shrug:
+
+*Note:* _I only target x64, so the x86 may or may not work._ :shrug:
   
 == Run
 
@@ -51,6 +53,6 @@ OR
 
 [qanda]
 Can I use this for my own project?:: Yes.
-Do I need to credit you?:: Ideally yes, but we aren't gonna sue you if you don't lmao, so it's whatever :shrug:
+Do I need to credit you?:: That would be kind, but I won't stop you if you don't. Do whatever you want. :shrug:
 Can I contribute to this repo?:: No.
 Can I donate/support this?:: No. _(IRL job exclusivity clause)_

@@ -2,18 +2,18 @@
 
 #pragma once
 #include "ThreadedLogger.h"
+#include "LoggerInterface.h"
 #include <chrono>
 #include <iostream>
 #include <mutex>
-#include <syncstream>
 #include <iterator>
 #include <thread>
-#include <type_traits>
 #include <iosfwd>
 #include <deque>
 #include <string>
+#include <syncstream>
 
-namespace Logging
+namespace Utility::Logging
 {
 	ThreadedLogger::ThreadedLogger(const std::string& path) : m_logFilePath(path)
 	{
@@ -39,7 +39,7 @@ namespace Logging
 		}
 	}
 
-	void ThreadedLogger::Log(LogLevel level, const std::string& message)
+	void ThreadedLogger::LogMessage(LogLevel level, const std::string& message)
 	{
 		std::stringstream formattedMessage;
 		using enum LogLevel;

@@ -1,11 +1,11 @@
-// 2024 - Creative Commons Zero v1.0 Universal
+// Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
 #include "ThreadedLogger.h"
-#include <signalrclient/signalr_value.h>
+#include <string>
 #include <signalrclient/log_writer.h>
 
-namespace Logging
+namespace Utility::Logging
 {
 	class HubConnectionLogger : public signalr::log_writer
 	{

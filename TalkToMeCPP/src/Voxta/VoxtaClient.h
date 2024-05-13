@@ -1,12 +1,12 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
-#include "../Logging/ThreadedLogger.h"
+#include "../Utility/Logging/LoggerInterface.h"
 #include "DataTypes/CharData.h"
 #include "VoxtaApiHandler.h"
 #include "Datatypes/ChatSession.h"
 #include "DataTypes/ChatMessage.h"
-#include "SignalRWrapperInterface.h"
+#include "../Utility/SignalR/SignalRWrapperInterface.h"
 #include <signalrclient/signalr_value.h>
 #include <string>
 #include <vector>
@@ -22,7 +22,8 @@ namespace Voxta
 	public:
 		enum class VoxtaClientState { DISCONNECTED, LOADING, CHARACTER_LOBBY, CHATTING };
 
-		explicit VoxtaClient(std::unique_ptr<SignalRWrapperInterface> connectionBuilder, Logging::ThreadedLogger& logger,
+		explicit VoxtaClient(std::unique_ptr<Utility::SignalR::SignalRWrapperInterface> connectionBuilder,
+			Utility::Logging::LoggerInterface& logger,
 			const std::function<void(VoxtaClientState newState)>& stateChange,
 			const std::function<std::string()>& requestingUserInputEvent,
 			const std::function<void(const DataTypes::ChatMessage*, const DataTypes::CharData*)>& charSpeakingEvent);
@@ -38,12 +39,12 @@ namespace Voxta
 		void LoadCharacter(std::string_view characterId);
 
 	private:
-		std::unique_ptr<SignalRWrapperInterface> m_connection;
-		VoxtaApiHandler m_voxtaCommData;
+		std::unique_ptr<Utility::SignalR::SignalRWrapperInterface> m_connection;
+		VoxtaApiHandler m_voxtaApi;
 		const std::function<void(VoxtaClientState newState)> m_stateChange;
 		const std::function<std::string()> m_requestingUserInputEvent;
 		const std::function<void(const DataTypes::ChatMessage*, const DataTypes::CharData*)> m_charSpeakingEvent;
-		Logging::ThreadedLogger& m_logger;
+		Utility::Logging::LoggerInterface& m_logger;
 
 		std::unique_ptr<DataTypes::CharData> m_userData = nullptr;
 		std::unique_ptr<DataTypes::ChatSession> m_chatSession = nullptr;

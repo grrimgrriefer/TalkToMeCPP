@@ -137,16 +137,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Voxta\SignalRWrapper.cpp" />
-    <ClCompile Include="src\Logging\HubConnectionLogger.cpp" />
+    <ClCompile Include="src\Utility\SignalR\SignalRWrapper.cpp" />
+    <ClCompile Include="src\Utility\Logging\HubConnectionLogger.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Voxta\VoxtaClient.cpp" />
-    <ClCompile Include="src\Logging\ThreadedLogger.cpp" />
+    <ClCompile Include="src\Utility\Logging\ThreadedLogger.cpp" />
     <ClCompile Include="src\Voxta\VoxtaApiHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Voxta\SignalRWrapper.h" />
-    <ClInclude Include="src\Logging\HubConnectionLogger.h" />
+    <ClInclude Include="src\Utility\Logging\LoggerInterface.h" />
+    <ClInclude Include="src\Utility\SignalR\SignalRWrapper.h" />
+    <ClInclude Include="src\Utility\Logging\HubConnectionLogger.h" />
     <ClInclude Include="src\Voxta\DataTypes\CharData.h" />
     <ClInclude Include="src\Voxta\DataTypes\ChatMessage.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseBase.h" />
@@ -156,10 +157,10 @@
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseChatUpdate.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseWelcome.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServiceData.h" />
-    <ClInclude Include="src\Voxta\SignalRWrapperInterface.h" />
+    <ClInclude Include="src\Utility\SignalR\SignalRWrapperInterface.h" />
     <ClInclude Include="src\Voxta\VoxtaClient.h" />
     <ClInclude Include="src\Voxta\VoxtaApiHandler.h" />
-    <ClInclude Include="src\Logging\ThreadedLogger.h" />
+    <ClInclude Include="src\Utility\Logging\ThreadedLogger.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseCharacterList.h" />
     <ClInclude Include="src\Voxta\DataTypes\ChatSession.h" />
   </ItemGroup>
