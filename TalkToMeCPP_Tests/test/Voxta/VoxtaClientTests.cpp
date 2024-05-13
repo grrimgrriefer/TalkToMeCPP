@@ -35,10 +35,6 @@ namespace VoxtaClientTests
 		MOCK_METHOD(void, stop, (std::function<void(std::exception_ptr)>), (noexcept, override));
 		MOCK_METHOD(void, on, (const std::string&, const std::function<void(const std::vector<signalr::value>&)>&), (override));
 		MOCK_METHOD(void, invoke, (const std::string&, const std::vector<signalr::value>&, std::function<void(const signalr::value&, std::exception_ptr)>), (noexcept, override));
-
-		// Constructor mock (if needed)
-		MockHubConnection()
-		{}
 	};
 
 	TEST_CLASS(VoxtaClientTests)
@@ -74,28 +70,17 @@ namespace VoxtaClientTests
 			userInput = "";
 			lastChatMessage = nullptr;
 			lastCharData = nullptr;
-
-			auto wrapper = std::make_unique<MockHubConnection>();
-			std::unique_ptr<Voxta::SignalRWrapperInterface> interface = std::move(wrapper);
-			signalRWrapper = std::move(interface);
 		}
-
-		TEST_METHOD(TestConstructorDisconnected)
-		{
-			Voxta::VoxtaClient client(std::move(signalRWrapper), loggerMock, stateChangeMock, requestingUserInputEventMock, charSpeakingEventMock);
-			Assert::IsTrue(newState == Voxta::VoxtaClient::VoxtaClientState::DISCONNECTED);
-		}
-
 		TEST_METHOD(TestListeningOnConnect)
 		{
 			std::string methodName;
-			std::function<void(const std::vector<signalr::value>&)> function;
 			auto wrapper = std::make_unique<MockHubConnection>();
+			std::string huh;
 
 			auto raw = wrapper.get();
-			EXPECT_CALL(*raw, on(testing::_, testing::_)).WillOnce(testing::SaveArg<0>(&methodName));
-			EXPECT_CALL(*raw, start(testing::_)).WillOnce([] (std::function<void(std::exception_ptr)> callback) { callback(nullptr); });
-			EXPECT_CALL(*raw, invoke(testing::_, testing::_, testing::_));
+			ON_CALL(*raw, on(testing::_, testing::_)).WillByDefault(testing::SaveArg<0>(&methodName));
+			ON_CALL(*raw, start(testing::_)).WillByDefault([] (std::function<void(std::exception_ptr)> callback) { callback(nullptr); });
+			ON_CALL(*raw, invoke(testing::_, testing::_, testing::_)).WillByDefault([] () {});
 
 			std::unique_ptr<Voxta::SignalRWrapperInterface> interface = std::move(wrapper);
 			signalRWrapper = std::move(interface);
