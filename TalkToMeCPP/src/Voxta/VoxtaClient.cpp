@@ -3,8 +3,8 @@
 #pragma once
 #include "VoxtaClient.h"
 #include "VoxtaApiHandler.h"
-#include "../Logger/ThreadedLogger.h"
-#include "../Logger/HubConnectionLogger.h"
+#include "../Logging/ThreadedLogger.h"
+#include "../Logging/HubConnectionLogger.h"
 #include "DataTypes/CharData.h"
 #include "DataTypes/ChatSession.h"
 #include "DataTypes/ChatMessage.h"
@@ -22,6 +22,7 @@
 #include <vector>
 #include <signalrclient/hub_connection_builder.h>
 #include <signalrclient/signalr_value.h>
+#include <signalrclient/trace_level.h>
 #include <memory>
 #include <iostream>
 #include <functional>
@@ -30,35 +31,13 @@
 
 namespace Voxta
 {
-	VoxtaClient::VoxtaClient(Logger::ThreadedLogger& logger, std::string_view address, int port,
-		const std::function<void(VoxtaClientState newState)>& stateChange,
-		const std::function<std::string()>& requestingUserInputEvent,
-		const std::function<void(const DataTypes::ChatMessage*, const DataTypes::CharData*)>& charSpeakingEvent) :
-		m_connection(signalr::hub_connection_builder::create(std::format("http://{}:{}/hub", address, std::to_string(port)))
-			.with_logging(std::make_shared<Logger::HubConnectionLogger>(logger), signalr::trace_level::verbose).build()),
-		m_stateChange(stateChange), m_logger(logger), m_charSpeakingEvent(charSpeakingEvent), m_requestingUserInputEvent(requestingUserInputEvent)
+	VoxtaClient::VoxtaClient(std::unique_ptr<SignalRWrapperInterface> connectionBuilder, Logging::ThreadedLogger& logger,
+			const std::function<void(VoxtaClientState newState)>& stateChange,
+			const std::function<std::string()>& requestingUserInputEvent,
+			const std::function<void(const DataTypes::ChatMessage*, const DataTypes::CharData*)>& charSpeakingEvent) :
+		m_connection(std::move(connectionBuilder)), m_stateChange(stateChange), m_requestingUserInputEvent(requestingUserInputEvent),
+		m_charSpeakingEvent(charSpeakingEvent), m_logger(logger)
 	{
-		m_connection.on("ReceiveMessage", [this] (const std::vector<signalr::value>& messageContainer)
-			{
-				if (messageContainer[0].type() != signalr::value_type::map)
-				{
-					HandleBadResponse(messageContainer[0]);
-				}
-				else try
-				{
-					if (!HandleResponse(messageContainer[0].as_map()))
-					{
-						m_logger.Log(Logger::ThreadedLogger::LogLevel::ERROR,
-							"Received server response that is not (yet) supported.");
-					}
-				}
-				catch (const std::exception& ex)
-				{
-					std::string error("Something went wrong while parsing the server response:  ");
-					error += ex.what();
-					m_logger.Log(Logger::ThreadedLogger::LogLevel::ERROR, error);
-				}
-			});
 	}
 
 	std::string_view VoxtaClient::GetUsername() const
@@ -82,12 +61,14 @@ namespace Voxta
 
 	void VoxtaClient::Connect()
 	{
+		StartListeningToServer();
+
 		std::promise<void> startTask;
-		m_connection.start([this, &startTask] (std::exception_ptr exception)
+		m_connection->start([this, &startTask] (std::exception_ptr exception)
 			{
 				SafeInvoke([this] ()
 					{
-						m_logger.Log(Logger::ThreadedLogger::LogLevel::INFO, "VoxtaClient connected successfully");
+						m_logger.Log(Logging::ThreadedLogger::LogLevel::INFO, "VoxtaClient connected successfully");
 						SendMessage(m_voxtaCommData.GetRequestData(VoxtaApiHandler::VoxtaGenericRequestType::AUTHENTICATE));
 					}, exception);
 				startTask.set_value();
@@ -99,16 +80,41 @@ namespace Voxta
 	void VoxtaClient::Disconnect()
 	{
 		std::promise<void> stopTask;
-		m_connection.stop([this, &stopTask] (std::exception_ptr exception)
+		m_connection->stop([this, &stopTask] (std::exception_ptr exception)
 			{
 				SafeInvoke([this] ()
 					{
-						m_logger.Log(Logger::ThreadedLogger::LogLevel::INFO, "VoxtaClient stopped successfully");
+						m_logger.Log(Logging::ThreadedLogger::LogLevel::INFO, "VoxtaClient stopped successfully");
 					}, exception);
 				stopTask.set_value();
 			});
 
 		stopTask.get_future().get();
+	}
+
+	void VoxtaClient::StartListeningToServer()
+	{
+		m_connection->on("ReceiveMessage", [this] (const std::vector<signalr::value>& messageContainer)
+			{
+				if (messageContainer[0].type() != signalr::value_type::map)
+				{
+					HandleBadResponse(messageContainer[0]);
+				}
+				else try
+				{
+					if (!HandleResponse(messageContainer[0].as_map()))
+					{
+						m_logger.Log(Logging::ThreadedLogger::LogLevel::ERROR,
+							"Received server response that is not (yet) supported.");
+					}
+				}
+				catch (const std::exception& ex)
+				{
+					std::string error("Something went wrong while parsing the server response:  ");
+					error += ex.what();
+					m_logger.Log(Logging::ThreadedLogger::LogLevel::ERROR, error);
+				}
+			});
 	}
 
 	void VoxtaClient::LoadCharacter(std::string_view characterId)
@@ -118,7 +124,7 @@ namespace Voxta
 
 	void VoxtaClient::SendMessage(const signalr::value& message)
 	{
-		m_connection.invoke("SendMessage", std::vector<signalr::value> { message },
+		m_connection->invoke("SendMessage", std::vector<signalr::value> { message },
 			[this] (const signalr::value& value, std::exception_ptr exception)
 			{
 				SafeInvoke([this, value] ()
@@ -127,7 +133,7 @@ namespace Voxta
 						{
 							std::string logMsg = "Received: ";
 							logMsg.append(value.as_string());
-							m_logger.Log(Logger::ThreadedLogger::LogLevel::INFO, logMsg);
+							m_logger.Log(Logging::ThreadedLogger::LogLevel::INFO, logMsg);
 						}
 					}, exception);
 			});
@@ -148,7 +154,7 @@ namespace Voxta
 			{
 				case WELCOME:
 				{
-					m_logger.Log(Logger::ThreadedLogger::LogLevel::INFO, "Logged in sucessfully");
+					m_logger.Log(Logging::ThreadedLogger::LogLevel::INFO, "Logged in sucessfully");
 					auto derivedResponse = dynamic_cast<DataTypes::ServerResponses::ServerResponseWelcome*>(response.get());
 					m_userData = std::make_unique<DataTypes::CharData>(derivedResponse->m_user);
 					SendMessage(m_voxtaCommData.GetRequestData(VoxtaApiHandler::VoxtaGenericRequestType::LOAD_CHARACTERS_LIST));
@@ -156,7 +162,7 @@ namespace Voxta
 				}
 				case CHARACTER_LIST:
 				{
-					m_logger.Log(Logger::ThreadedLogger::LogLevel::INFO, "Fetched character list sucessfully");
+					m_logger.Log(Logging::ThreadedLogger::LogLevel::INFO, "Fetched character list sucessfully");
 					auto derivedResponse = dynamic_cast<DataTypes::ServerResponses::ServerResponseCharacterList*>(response.get());
 					m_characterList.clear();
 					for (auto& charElement : derivedResponse->m_characters)
@@ -168,7 +174,7 @@ namespace Voxta
 				}
 				case CHARACTER_LOADED:
 				{
-					m_logger.Log(Logger::ThreadedLogger::LogLevel::INFO, "Loaded selected character sucessfully");
+					m_logger.Log(Logging::ThreadedLogger::LogLevel::INFO, "Loaded selected character sucessfully");
 					auto derivedResponse = dynamic_cast<DataTypes::ServerResponses::ServerResponseCharacterLoaded*>(response.get());
 					if (auto characterIt = std::ranges::find_if(m_characterList.begin(), m_characterList.end(),
 						DataTypes::CharDataIdComparer(derivedResponse->m_characterId)); characterIt != std::end(m_characterList))
@@ -177,14 +183,14 @@ namespace Voxta
 					}
 					else
 					{
-						m_logger.Log(Logger::ThreadedLogger::LogLevel::ERROR,
+						m_logger.Log(Logging::ThreadedLogger::LogLevel::ERROR,
 							"Loaded a character that doesn't exist in the list? This should never happen.");
 					}
 					return true;
 				}
 				case CHAT_STARTED:
 				{
-					m_logger.Log(Logger::ThreadedLogger::LogLevel::INFO, "Started chat session sucessfully");
+					m_logger.Log(Logging::ThreadedLogger::LogLevel::INFO, "Started chat session sucessfully");
 					auto derivedResponse = dynamic_cast<DataTypes::ServerResponses::ServerResponseChatStarted*>(response.get());
 
 					std::vector<const DataTypes::CharData*> characters;
@@ -205,7 +211,7 @@ namespace Voxta
 				}
 				case CHAT_MESSAGE:
 				{
-					m_logger.Log(Logger::ThreadedLogger::LogLevel::INFO, "Received chat message update sucessfully");
+					m_logger.Log(Logging::ThreadedLogger::LogLevel::INFO, "Received chat message update sucessfully");
 					auto derivedResponse = dynamic_cast<DataTypes::ServerResponses::ServerResponseChatMessage*>(response.get());
 
 					auto& messages = m_chatSession->m_chatMessages;
@@ -242,7 +248,7 @@ namespace Voxta
 				}
 				case CHAT_UPDATE:
 				{
-					m_logger.Log(Logger::ThreadedLogger::LogLevel::INFO, "Chat has been updated (i.e. user message added)");
+					m_logger.Log(Logging::ThreadedLogger::LogLevel::INFO, "Chat has been updated (i.e. user message added)");
 					auto derivedResponse = dynamic_cast<DataTypes::ServerResponses::ServerResponseChatUpdate*>(response.get());
 
 					m_chatSession->m_chatMessages.emplace(std::make_unique<DataTypes::ChatMessage>(derivedResponse->m_messageId,
@@ -274,7 +280,7 @@ namespace Voxta
 			default:
 				type = "unkown?";  break;
 		}
-		m_logger.Log(Logger::ThreadedLogger::LogLevel::ERROR, std::format("Recieved a message of type "
+		m_logger.Log(Logging::ThreadedLogger::LogLevel::ERROR, std::format("Recieved a message of type "
 			"{} from Voxta server, which is currenlty not supported.", type));
 	}
 
@@ -291,7 +297,7 @@ namespace Voxta
 		}
 		catch (const std::exception& ex)
 		{
-			m_logger.Log(Logger::ThreadedLogger::LogLevel::ERROR, ex.what());
+			m_logger.Log(Logging::ThreadedLogger::LogLevel::ERROR, ex.what());
 		}
 	}
 }

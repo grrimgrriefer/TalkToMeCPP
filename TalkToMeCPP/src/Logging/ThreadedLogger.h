@@ -8,8 +8,9 @@
 #include <vector>
 #include <thread>
 #include <atomic>
+#include <iosfwd>
 
-namespace Logger
+namespace Logging
 {
 	class ThreadedLogger
 	{

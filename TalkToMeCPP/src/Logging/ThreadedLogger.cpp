@@ -11,8 +11,9 @@
 #include <type_traits>
 #include <iosfwd>
 #include <deque>
+#include <string>
 
-namespace Logger
+namespace Logging
 {
 	ThreadedLogger::ThreadedLogger(const std::string& path) : m_logFilePath(path)
 	{

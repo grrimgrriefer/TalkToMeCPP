@@ -6,11 +6,12 @@
 #include <signalrclient/signalr_value.h>
 #include <signalrclient/log_writer.h>
 
-namespace Logger
+namespace Logging
 {
 	HubConnectionLogger::HubConnectionLogger(ThreadedLogger& logger)
 		: m_logger(logger)
-	{}
+	{
+	}
 
 	void __cdecl HubConnectionLogger::write(const std::string& entry)
 	{

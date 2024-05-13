@@ -48,6 +48,9 @@
     <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseCharacterListTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="test\Voxta\VoxtaClientTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">

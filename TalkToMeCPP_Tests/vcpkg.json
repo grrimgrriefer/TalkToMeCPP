@@ -1,0 +1,11 @@
+{
+    "name": "talktomecpp",
+    "version-string": "7.2.0.4",
+    "port-version": 1,
+    "description": "None",
+    "dependencies": [
+	  "microsoft-signalr",
+	  "boost-uuid",
+	  "gtest"
+    ]
+}

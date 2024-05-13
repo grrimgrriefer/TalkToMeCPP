@@ -5,7 +5,7 @@
 #include <signalrclient/signalr_value.h>
 #include <signalrclient/log_writer.h>
 
-namespace Logger
+namespace Logging
 {
 	class HubConnectionLogger : public signalr::log_writer
 	{
@@ -15,6 +15,6 @@ namespace Logger
 		void __cdecl write(const std::string& entry) override;
 
 	private:
-		Logger::ThreadedLogger& m_logger;
+		Logging::ThreadedLogger& m_logger;
 	};
 }

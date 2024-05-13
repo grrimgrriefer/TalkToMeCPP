@@ -2,9 +2,10 @@
 
 #pragma once
 #include "Voxta/VoxtaClient.h"
-#include "Logger/ThreadedLogger.h"
+#include "Logging/ThreadedLogger.h"
 #include "Voxta/DataTypes/CharData.h"
 #include "Voxta/DataTypes/ChatMessage.h"
+#include "Voxta/SignalRWrapper.h"
 #include <iostream>
 #include <filesystem>
 #include <memory>
@@ -15,6 +16,7 @@
 #include <stdlib.h>
 #include <mutex>
 #include <istream>
+#include <type_traits>
 
 class MainThreadHogger
 {
@@ -23,8 +25,11 @@ public:
 	{
 		auto path = std::filesystem::current_path();
 		path /= "logfile.txt";
-		logger = std::make_unique<Logger::ThreadedLogger>(path.string());
-		voxtaClient = std::make_unique<Voxta::VoxtaClient>(*logger, "127.0.0.1", 5384,
+		logger = std::make_unique<Logging::ThreadedLogger>(path.string());
+
+		auto wrapper = std::make_unique<Voxta::SignalRWrapper>("127.0.0.1", 5384, *logger);
+		std::unique_ptr<Voxta::SignalRWrapperInterface> interfacePtr = std::move(wrapper);
+		voxtaClient = std::make_unique<Voxta::VoxtaClient>(std::move(interfacePtr), *logger,
 			[this] (Voxta::VoxtaClient::VoxtaClientState newState)
 			{
 				ClientCallback(newState);
@@ -50,7 +55,7 @@ public:
 	}
 
 private:
-	std::unique_ptr<Logger::ThreadedLogger> logger;
+	std::unique_ptr<Logging::ThreadedLogger> logger;
 	std::unique_ptr<Voxta::VoxtaClient> voxtaClient;
 	std::mutex mutexLock;
 	std::condition_variable quittinTimeCondition;
