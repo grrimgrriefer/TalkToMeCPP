@@ -121,7 +121,7 @@ namespace Voxta
 		});
 	}
 
-	const std::unique_ptr<DataTypes::ServerResponses::ServerResponseBase> VoxtaApiHandler::GetResponseData(
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseBase> VoxtaApiHandler::GetResponseData(
 		const std::map<std::string, signalr::value>& map) const
 	{
 		using enum DataTypes::ServerResponses::ServerResponseType;

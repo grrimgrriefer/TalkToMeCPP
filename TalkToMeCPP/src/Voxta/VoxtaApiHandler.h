@@ -34,7 +34,7 @@ namespace Voxta
 		// type: stopChat (to stop chat)
 		// type: deleteChat (to delete chat)
 
-		const std::unique_ptr<DataTypes::ServerResponses::ServerResponseBase> GetResponseData(const std::map<std::string, signalr::value>& map) const;
+		std::unique_ptr<DataTypes::ServerResponses::ServerResponseBase> GetResponseData(const std::map<std::string, signalr::value>& map) const;
 
 	private:
 		const std::unique_ptr<signalr::value> m_authenticateReqData;

@@ -7,13 +7,13 @@
 
 namespace Utility::Logging
 {
-	HubConnectionLogger::HubConnectionLogger(ThreadedLogger& logger)
+	HubConnectionLogger::HubConnectionLogger(LoggerInterface& logger)
 		: m_logger(logger)
 	{
 	}
 
 	void __cdecl HubConnectionLogger::write(const std::string& entry)
 	{
-		m_logger.LogMessage(ThreadedLogger::LogLevel::DEBUG, entry);
+		m_logger.LogMessage(LoggerInterface::LogLevel::DEBUG, entry);
 	}
 }

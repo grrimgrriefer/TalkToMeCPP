@@ -30,7 +30,7 @@ image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
 
 Either
 
-* Download the x64 windows build from latest run artifacts: https://github.com/grrimgrriefer/TalkToMeCPP/actions
+* Download the x64 windows .zip from latest workflow run: https://github.com/grrimgrriefer/TalkToMeCPP/actions
 
 OR
 
@@ -40,6 +40,9 @@ OR
 *** Activated vcpkg to install the req libs (classic mode, *not* manifest mode)
 
 *Note:* _I only target x64, so the x86 may or may not work._ :shrug:
+
+*Note2:* _You can run tests with this command, no idea why you would, but eh._ +
+` vstest.console.exe {path_to_repo_root}TalkToMeCPP_Tests\x64\Debug\TalkToMeCPP_Tests.dll /EnableCodeCoverage /Collect:"Code Coverage;Format=Xml" /ResultsDirectory:"coverage_results" `
   
 == Run
 
@@ -53,6 +56,6 @@ OR
 
 [qanda]
 Can I use this for my own project?:: Yes.
-Do I need to credit you?:: That would be kind, but I won't stop you if you don't. Do whatever you want. :shrug:
+Do I need to credit you?:: We'd appreciate it, but if you don't that's fine too. :shrug:
 Can I contribute to this repo?:: No.
-Can I donate/support this?:: No. _(IRL job exclusivity clause)_
+Can I donate/support this?:: No.  _(irl job exclusivity clause)_

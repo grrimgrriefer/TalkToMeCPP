@@ -31,7 +31,7 @@ namespace Voxta
 		~VoxtaClient() = default;
 
 		std::string_view GetUsername() const;
-		const std::vector<std::unique_ptr<DataTypes::CharData>>& GetCharacters() const;
+		const std::vector<std::unique_ptr<const DataTypes::CharData>>& GetCharacters() const;
 		const DataTypes::ChatSession* GetChatSession() const;
 
 		void Connect();
@@ -48,7 +48,7 @@ namespace Voxta
 
 		std::unique_ptr<DataTypes::CharData> m_userData = nullptr;
 		std::unique_ptr<DataTypes::ChatSession> m_chatSession = nullptr;
-		std::vector<std::unique_ptr<DataTypes::CharData>> m_characterList;
+		std::vector<std::unique_ptr<const DataTypes::CharData>> m_characterList;
 		VoxtaClientState m_currentState = VoxtaClient::VoxtaClientState::DISCONNECTED;
 
 		void StartListeningToServer();

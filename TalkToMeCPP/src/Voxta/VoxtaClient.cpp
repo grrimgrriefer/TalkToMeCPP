@@ -50,7 +50,7 @@ namespace Voxta
 		return "";
 	}
 
-	const std::vector<std::unique_ptr<DataTypes::CharData>>& VoxtaClient::GetCharacters() const
+	const std::vector<std::unique_ptr<const DataTypes::CharData>>& VoxtaClient::GetCharacters() const
 	{
 		return m_characterList;
 	}

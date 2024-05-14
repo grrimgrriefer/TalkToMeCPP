@@ -27,5 +27,10 @@ namespace Voxta::DataTypes
 		{
 			return element->m_id == m_charId;
 		}
+
+		bool operator()(const std::unique_ptr<const DataTypes::CharData>& element) const
+		{
+			return element->m_id == m_charId;
+		}
 	};
 }

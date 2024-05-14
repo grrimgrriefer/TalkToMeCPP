@@ -123,7 +123,7 @@ private:
 		while (true);
 	}
 
-	void ListCharacters(const std::vector<std::unique_ptr<Voxta::DataTypes::CharData>>& characters) const
+	void ListCharacters(const std::vector<std::unique_ptr<const Voxta::DataTypes::CharData>>& characters) const
 	{
 		auto charAmount = characters.size();
 
