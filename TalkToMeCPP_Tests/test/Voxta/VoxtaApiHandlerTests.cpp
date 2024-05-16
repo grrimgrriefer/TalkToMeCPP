@@ -25,9 +25,9 @@ namespace TalkToMeCPPTests
 	TEST_CLASS(VoxtaApiHandlerTests)
 	{
 	public:
-		TEST_METHOD(TestGetRequestDataAuthenticate)
+		TEST_METHOD(TestGetAuthenticateRequestData)
 		{
-			auto response = Voxta::VoxtaApiHandler().GetRequestData(Voxta::VoxtaApiHandler::VoxtaGenericRequestType::AUTHENTICATE);
+			auto response = Voxta::VoxtaApiHandler().GetAuthenticateRequestData();
 
 			Assert::IsTrue(response.is_map());
 			auto& responseMap = response.as_map();
@@ -50,9 +50,9 @@ namespace TalkToMeCPPTests
 			Assert::AreEqual(std::string("audio/x-wav"), acceptedAudioContentTypes[0].as_string());
 		}
 
-		TEST_METHOD(TestGetRequestDataLoadCharacterList)
+		TEST_METHOD(TestGetLoadCharactersListData)
 		{
-			auto response = Voxta::VoxtaApiHandler().GetRequestData(Voxta::VoxtaApiHandler::VoxtaGenericRequestType::LOAD_CHARACTERS_LIST);
+			auto response = Voxta::VoxtaApiHandler().GetLoadCharactersListData();
 
 			Assert::IsTrue(response.is_map());
 			auto& responseMap = response.as_map();
@@ -94,11 +94,11 @@ namespace TalkToMeCPPTests
 			// Todo: assertions for TTS settings
 		}
 
-		TEST_METHOD(TestConstructSendUserMessage)
+		TEST_METHOD(TestGetSendUserMessageData)
 		{
 			auto sessionId = GetRandomGuid();
 			std::string message = "justsometestmessage hola";
-			auto response = Voxta::VoxtaApiHandler().ConstructSendUserMessage(sessionId, message);
+			auto response = Voxta::VoxtaApiHandler().GetSendUserMessageData(sessionId, message);
 
 			Assert::IsTrue(response.is_map());
 			auto& responseMap = response.as_map();

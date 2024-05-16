@@ -7,6 +7,11 @@
 
 namespace Utility::Logging
 {
+	/// <summary>
+	/// Custom logger to redirect signalr messages to our Threadsafe logger.
+	/// Without this we can only see messages in the console but not in logfile.
+	/// Which is very fucking useful when debuggin complex nested jsons. Source: trust me bro.
+	/// </summary>
 	class HubConnectionLogger : public signalr::log_writer
 	{
 	public:

@@ -13,6 +13,10 @@
 
 namespace Utility::SignalR
 {
+	/// <summary>
+	/// Microsoft put their hubconnection behind a locked hubconnectionbuilder so we need this wrapper in order to
+	/// not leak their shitty bad practices into our nice dependency-injection style code.
+	/// </summary>
 	class SignalRWrapper : public SignalRWrapperInterface
 	{
 	public:
@@ -27,7 +31,7 @@ namespace Utility::SignalR
 		void Invoke(const std::string& method_name,
 			const std::vector<signalr::value>& arguments = std::vector<signalr::value>(),
 			std::function<void(const signalr::value&, std::exception_ptr)> callback =
-			[] (const signalr::value&, std::exception_ptr) {}) noexcept override;
+			[] (const signalr::value&, std::exception_ptr) { /*empty cuz optional*/ }) noexcept override;
 
 	private:
 		std::unique_ptr<signalr::hub_connection> m_connection;

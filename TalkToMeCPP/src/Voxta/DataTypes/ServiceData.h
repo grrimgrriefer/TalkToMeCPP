@@ -5,6 +5,12 @@
 
 namespace Voxta::DataTypes
 {
+	/// <summary>
+	/// Data struct representing a service.
+	///
+	/// TODO: check if stuff like serviceName is really needed or not.
+	/// Seems a bit wasteful of memory atm
+	/// </summary>
 	struct ServiceData
 	{
 		enum class ServiceType { TEXT_GEN, SPEECH_TO_TEXT, TEXT_TO_SPEECH };

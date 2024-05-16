@@ -6,6 +6,14 @@
 
 namespace Voxta::DataTypes::ServerResponses
 {
+	/// <summary>
+	/// Data struct for ChatMessage responses from the server.
+	///
+	/// Note: We use this same struct for Start, Chunk and End. It's a bit confusing here,
+	/// but it reduces confusion in the VoxtaClient, which is more important.
+	///
+	/// Warning: For the Start and the End version, it uses the first constructor so some fields are on default values.
+	/// </summary>
 	struct ServerResponseChatMessage : ServerResponseBase
 	{
 		enum class MessageType

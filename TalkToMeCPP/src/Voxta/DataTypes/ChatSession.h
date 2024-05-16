@@ -12,6 +12,12 @@
 
 namespace Voxta::DataTypes
 {
+	/// <summary>
+	/// Data struct that contains a chat session (created & managed by VoxtaClient)
+	///
+	/// TODO: verify that we actually need chatMessages for something, only usecase might be
+	/// to delete messages but not sure if thats a real usecase and worth the memorycost.
+	/// </summary>
 	struct ChatSession
 	{
 		explicit ChatSession(std::vector<const CharData*> characters, std::string_view chatId,
@@ -25,6 +31,7 @@ namespace Voxta::DataTypes
 		std::vector<const CharData*> m_characters;
 		const std::string m_chatId;
 		const std::string m_sessionId;
+		// TODO: might have to remove const at some point, cuz user can disable / enable services during chat.
 		const std::map<const ServiceData::ServiceType, const ServiceData> m_services;
 	};
 }

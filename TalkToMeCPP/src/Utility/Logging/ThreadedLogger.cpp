@@ -31,14 +31,6 @@ namespace Utility::Logging
 		}
 	}
 
-	ThreadedLogger::~ThreadedLogger()
-	{
-		if (writeThread.joinable())
-		{
-			writeThread.join();
-		}
-	}
-
 	void ThreadedLogger::LogMessage(LogLevel level, const std::string& message)
 	{
 		std::stringstream formattedMessage;

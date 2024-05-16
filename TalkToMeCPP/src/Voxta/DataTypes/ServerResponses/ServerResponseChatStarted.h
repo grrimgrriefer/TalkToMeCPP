@@ -9,6 +9,10 @@
 
 namespace Voxta::DataTypes::ServerResponses
 {
+	/// <summary>
+	/// Data struct for ChatStarted response from the server.
+	/// Should be pretty obvious
+	/// </summary>
 	struct ServerResponseChatStarted : ServerResponseBase
 	{
 		ServerResponseType GetType() final

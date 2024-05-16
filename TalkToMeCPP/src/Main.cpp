@@ -18,6 +18,11 @@
 #include <istream>
 #include <type_traits>
 
+/// <summary>
+/// Example implementation, all of this will be thrown out when porting to other stuff
+/// so I cba to clean this file up.
+/// SorryNotSorry
+/// </summary>
 class MainThreadHogger
 {
 public:

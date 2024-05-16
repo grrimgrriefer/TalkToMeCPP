@@ -28,26 +28,54 @@
 
 namespace Voxta
 {
-	VoxtaApiHandler::VoxtaApiHandler() :
-		m_authenticateReqData(std::make_unique<signalr::value>(ConstructAuthenticateReqData())),
-		m_loadCharacterListReqData(std::make_unique<signalr::value>(ConstructLoadCharacterListReqData()))
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseBase> VoxtaApiHandler::GetResponseData(
+		const std::map<std::string, signalr::value>& map) const
 	{
-	}
-
-	signalr::value VoxtaApiHandler::GetRequestData(const VoxtaGenericRequestType commData) const
-	{
-		switch (commData)
+		using enum DataTypes::ServerResponses::ServerResponseType;
+		std::string type = map.at("$type").as_string();
+		if (type == "welcome")
 		{
-			using enum Voxta::VoxtaApiHandler::VoxtaGenericRequestType;
-			case AUTHENTICATE:
-				return *m_authenticateReqData.get();
-			case LOAD_CHARACTERS_LIST:
-				return *m_loadCharacterListReqData.get();
+			return GetWelcomeResponse(map);
 		}
-		return nullptr;
+		else if (type == "charactersListLoaded")
+		{
+			return GetCharacterListLoadedResponse(map);
+		}
+		else if (type == "characterLoaded")
+		{
+			return GetCharacterLoadedResponse(map);
+		}
+		else if (type == "chatStarted")
+		{
+			return GetChatStartedResponse(map);
+		}
+		else if (type == "replyStart")
+		{
+			return GetReplyStartReponseResponse(map);
+		}
+		else if (type == "replyChunk")
+		{
+			return GetReplyChunkReponseResponse(map);
+		}
+		else if (type == "replyEnd")
+		{
+			return GetReplyEndReponseResponse(map);
+		}
+		else if (type == "update")
+		{
+			return GetChatUpdateResponse(map);
+		}
+		// TODO: maybe?
+		//		else if (type == "chatClosed") {}
+		//		else if (type == "chatInProgress") {}
+		//		else if (type == "chatSessionError") {}
+		else
+		{
+			return nullptr;
+		}
 	}
 
-	signalr::value VoxtaApiHandler::ConstructAuthenticateReqData() const
+	signalr::value VoxtaApiHandler::GetAuthenticateRequestData() const
 	{
 		return signalr::value(std::map<std::string, signalr::value> {
 			{ "$type", "authenticate" },
@@ -62,7 +90,7 @@ namespace Voxta
 		});
 	}
 
-	signalr::value VoxtaApiHandler::ConstructLoadCharacterListReqData() const
+	signalr::value VoxtaApiHandler::GetLoadCharactersListData() const
 	{
 		return signalr::value(std::map<std::string, signalr::value> {
 			{ "$type", "loadCharactersList" }
@@ -110,7 +138,7 @@ namespace Voxta
 		});
 	}
 
-	signalr::value VoxtaApiHandler::ConstructSendUserMessage(std::string_view sessionId, std::string_view userMessage) const
+	signalr::value VoxtaApiHandler::GetSendUserMessageData(std::string_view sessionId, std::string_view userMessage) const
 	{
 		return signalr::value(std::map<std::string, signalr::value> {
 			{ "$type", "send" },
@@ -121,83 +149,30 @@ namespace Voxta
 		});
 	}
 
-	std::unique_ptr<DataTypes::ServerResponses::ServerResponseBase> VoxtaApiHandler::GetResponseData(
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatUpdate> VoxtaApiHandler::GetChatUpdateResponse(
 		const std::map<std::string, signalr::value>& map) const
 	{
-		using enum DataTypes::ServerResponses::ServerResponseType;
-		std::string type = map.at("$type").as_string();
-		if (type == "welcome")
-		{
-			auto& user = map.at("user").as_map();
-			return std::make_unique<DataTypes::ServerResponses::ServerResponseWelcome>(
-				DataTypes::CharData(user.at("id").as_string(), user.at("name").as_string()));
-		}
-		else if (type == "charactersListLoaded")
-		{
-			auto& charArray = map.at("characters").as_array();
-			std::vector<DataTypes::CharData> chars;
-			chars.reserve(charArray.size());
-			for (auto& charElement : charArray)
-			{
-				auto& characterData = charElement.as_map();
-				auto character = DataTypes::CharData(characterData.at("id").as_string(), characterData.at("name").as_string());
-				character.m_creatorNotes = characterData.contains("creatorNotes") ? characterData.at("creatorNotes").as_string() : "";
-				character.m_explicitContent = characterData.contains("explicitContent") ? characterData.at("explicitContent").as_bool() : false;
-				character.m_favorite = characterData.contains("favorite") ? characterData.at("favorite").as_bool() : false;
-				chars.push_back(character);
-			}
-			return std::make_unique<DataTypes::ServerResponses::ServerResponseCharacterList>(chars);
-		}
-		else if (type == "characterLoaded")
-		{
-			auto& characterData = map.at("character").as_map();
-			return std::make_unique<DataTypes::ServerResponses::ServerResponseCharacterLoaded>(characterData.at("id").as_string(),
-				characterData.at("enableThinkingSpeech").as_bool());
-		}
-		else if (type == "chatStarted")
-		{
-			auto& user = map.at("user").as_map();
-			auto& charIdArray = map.at("characters").as_array();
-			std::vector<std::string> chars;
-			chars.reserve(charIdArray.size());
-			for (auto& charElement : charIdArray)
-			{
-				auto& characterData = charElement.as_map();
-				chars.push_back(characterData.at("id").as_string());
-			}
+		return std::make_unique<DataTypes::ServerResponses::ServerResponseChatUpdate>(
+				   map.at("messageId").as_string(),
+				   map.at("senderId").as_string(),
+				   map.at("text").as_string(),
+				   map.at("sessionId").as_string());
+	}
 
-			auto& servicesMap = map.at("services").as_map();
-			using enum DataTypes::ServiceData::ServiceType;
-			std::map<const DataTypes::ServiceData::ServiceType, const DataTypes::ServiceData> services;
-			std::map<DataTypes::ServiceData::ServiceType, std::string> serviceTypes = {
-				{ TEXT_GEN, "textGen" },
-				{ SPEECH_TO_TEXT, "speechToText" },
-				{ TEXT_TO_SPEECH, "textToSpeech" }
-			};
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatMessage> VoxtaApiHandler::GetReplyEndReponseResponse(
+		const std::map<std::string, signalr::value>& map) const
+	{
+		return std::make_unique<DataTypes::ServerResponses::ServerResponseChatMessage>(
+				   DataTypes::ServerResponses::ServerResponseChatMessage::MessageType::MESSAGE_END,
+				   map.at("messageId").as_string(),
+				   map.at("senderId").as_string(),
+				   map.at("sessionId").as_string());
+	}
 
-			for (const auto& [enumType, stringValue] : serviceTypes)
-			{
-				if (servicesMap.contains(stringValue))
-				{
-					auto& serviceData = servicesMap.at(stringValue).as_map();
-					services.try_emplace(enumType, enumType, serviceData.at("serviceName").as_string(),
-						serviceData.at("serviceId").as_string());
-				}
-			}
-			return std::make_unique<DataTypes::ServerResponses::ServerResponseChatStarted>(user.at("id").as_string(),
-				chars, services, map.at("chatId").as_string(), map.at("sessionId").as_string());
-		}
-		else if (type == "replyStart")
-		{
-			return std::make_unique<DataTypes::ServerResponses::ServerResponseChatMessage>(
-				DataTypes::ServerResponses::ServerResponseChatMessage::MessageType::MESSAGE_START,
-				map.at("messageId").as_string(),
-				map.at("senderId").as_string(),
-				map.at("sessionId").as_string());
-		}
-		else if (type == "replyChunk")
-		{
-			return std::make_unique<DataTypes::ServerResponses::ServerResponseChatMessage>(
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatMessage> VoxtaApiHandler::GetReplyChunkReponseResponse(
+		const std::map<std::string, signalr::value>& map) const
+	{
+		return std::make_unique<DataTypes::ServerResponses::ServerResponseChatMessage>(
 				   DataTypes::ServerResponses::ServerResponseChatMessage::MessageType::MESSAGE_CHUNK,
 				   map.at("messageId").as_string(),
 				   map.at("senderId").as_string(),
@@ -206,27 +181,84 @@ namespace Voxta
 				   static_cast<int>(map.at("endIndex").as_double()),
 				   map.at("text").as_string(),
 				   map.at("audioUrl").as_string());
-		}
-		else if (type == "replyEnd")
+	}
+
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatMessage> VoxtaApiHandler::GetReplyStartReponseResponse(
+		const std::map<std::string, signalr::value>& map) const
+	{
+		return std::make_unique<DataTypes::ServerResponses::ServerResponseChatMessage>(
+				DataTypes::ServerResponses::ServerResponseChatMessage::MessageType::MESSAGE_START,
+				map.at("messageId").as_string(),
+				map.at("senderId").as_string(),
+				map.at("sessionId").as_string());
+	}
+
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatStarted> VoxtaApiHandler::GetChatStartedResponse(
+		const std::map<std::string, signalr::value>& map) const
+	{
+		auto& user = map.at("user").as_map();
+		auto& charIdArray = map.at("characters").as_array();
+		std::vector<std::string> chars;
+		chars.reserve(charIdArray.size());
+		for (auto& charElement : charIdArray)
 		{
-			return std::make_unique<DataTypes::ServerResponses::ServerResponseChatMessage>(
-				   DataTypes::ServerResponses::ServerResponseChatMessage::MessageType::MESSAGE_END,
-				   map.at("messageId").as_string(),
-				   map.at("senderId").as_string(),
-				   map.at("sessionId").as_string());
+			auto& characterData = charElement.as_map();
+			chars.push_back(characterData.at("id").as_string());
 		}
-		else if (type == "update")
+
+		auto& servicesMap = map.at("services").as_map();
+		using enum DataTypes::ServiceData::ServiceType;
+		std::map<const DataTypes::ServiceData::ServiceType, const DataTypes::ServiceData> services;
+		std::map<DataTypes::ServiceData::ServiceType, std::string> serviceTypes = {
+			{ TEXT_GEN, "textGen" },
+			{ SPEECH_TO_TEXT, "speechToText" },
+			{ TEXT_TO_SPEECH, "textToSpeech" }
+		};
+
+		for (const auto& [enumType, stringValue] : serviceTypes)
 		{
-			return std::make_unique<DataTypes::ServerResponses::ServerResponseChatUpdate>(
-				   map.at("messageId").as_string(),
-				   map.at("senderId").as_string(),
-				   map.at("text").as_string(),
-				   map.at("sessionId").as_string());
+			if (servicesMap.contains(stringValue))
+			{
+				auto& serviceData = servicesMap.at(stringValue).as_map();
+				services.try_emplace(enumType, enumType, serviceData.at("serviceName").as_string(),
+					serviceData.at("serviceId").as_string());
+			}
 		}
-		// TODO: maybe?
-		//		else if (type == "chatClosed") {}
-		//		else if (type == "chatInProgress") {}
-		//		else if (type == "chatSessionError") {}
-		return nullptr;
+		return std::make_unique<DataTypes::ServerResponses::ServerResponseChatStarted>(user.at("id").as_string(),
+			chars, services, map.at("chatId").as_string(), map.at("sessionId").as_string());
+	}
+
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseCharacterLoaded> VoxtaApiHandler::GetCharacterLoadedResponse(
+		const std::map<std::string, signalr::value>& map) const
+	{
+		auto& characterData = map.at("character").as_map();
+		return std::make_unique<DataTypes::ServerResponses::ServerResponseCharacterLoaded>(characterData.at("id").as_string(),
+			characterData.at("enableThinkingSpeech").as_bool());
+	}
+
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseCharacterList> VoxtaApiHandler::GetCharacterListLoadedResponse(
+		const std::map<std::string, signalr::value>& map) const
+	{
+		auto& charArray = map.at("characters").as_array();
+		std::vector<DataTypes::CharData> chars;
+		chars.reserve(charArray.size());
+		for (auto& charElement : charArray)
+		{
+			auto& characterData = charElement.as_map();
+			auto character = DataTypes::CharData(characterData.at("id").as_string(), characterData.at("name").as_string());
+			character.m_creatorNotes = characterData.contains("creatorNotes") ? characterData.at("creatorNotes").as_string() : "";
+			character.m_explicitContent = characterData.contains("explicitContent") ? characterData.at("explicitContent").as_bool() : false;
+			character.m_favorite = characterData.contains("favorite") ? characterData.at("favorite").as_bool() : false;
+			chars.push_back(character);
+		}
+		return std::make_unique<DataTypes::ServerResponses::ServerResponseCharacterList>(chars);
+	}
+
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseWelcome> VoxtaApiHandler::GetWelcomeResponse(
+		const std::map<std::string, signalr::value>& map) const
+	{
+		auto& user = map.at("user").as_map();
+		return std::make_unique<DataTypes::ServerResponses::ServerResponseWelcome>(
+			DataTypes::CharData(user.at("id").as_string(), user.at("name").as_string()));
 	}
 }

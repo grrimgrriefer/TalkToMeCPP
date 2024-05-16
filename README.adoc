@@ -20,11 +20,14 @@ image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
 
 [ :heavy_check_mark:	]   Text chat with specific character(s)
 
-[ :fire:	]   Full code cleanup & proper test coverate  *MVP*
+[ :heavy_check_mark:		]   Full code cleanup & proper test coverage 
 
-[ :black_square_button:	]   Playback Voxta server generated audio
+[ :fire:	]   Playback Voxta server generated audio
 
 [ :black_square_button:	]   Provide Mic input to Voxta server
+
+[ :black_square_button:		]   Full code cleanup & proper test coverage 
+
 
 == Build
 

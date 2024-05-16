@@ -6,6 +6,10 @@
 
 namespace Voxta::DataTypes::ServerResponses
 {
+	/// <summary>
+	/// Data struct for ChatUpdate response from the server.
+	/// Should be pretty obvious
+	/// </summary>
 	struct ServerResponseChatUpdate : ServerResponseBase
 	{
 		ServerResponseType GetType() final

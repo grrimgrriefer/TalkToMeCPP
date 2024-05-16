@@ -45,14 +45,14 @@ namespace TalkToMeCPPTests
 
 		TEST_METHOD(TestCharDataIdComparerTrue)
 		{
-			auto character = std::make_unique<Voxta::DataTypes::CharData>("testID", "");
+			auto character = std::make_unique<const Voxta::DataTypes::CharData>("testID", "");
 			Voxta::DataTypes::CharDataIdComparer comparer("testID");
 			Assert::IsTrue(comparer(character));
 		}
 
 		TEST_METHOD(TestCharDataIdComparerFalse)
 		{
-			auto character = std::make_unique<Voxta::DataTypes::CharData>("testID", "");
+			auto character = std::make_unique<const Voxta::DataTypes::CharData>("testID", "");
 			Voxta::DataTypes::CharDataIdComparer comparer("wrongID");
 			Assert::IsFalse(comparer(character));
 		}
