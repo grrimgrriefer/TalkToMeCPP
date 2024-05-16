@@ -169,6 +169,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="test\MockProviders.cpp" />
     <ClCompile Include="test\Voxta\DataTypes\CharDataTests.cpp" />
     <ClCompile Include="test\Voxta\DataTypes\ChatMessageTests.cpp" />
     <ClCompile Include="test\Voxta\DataTypes\ChatSessionTests.cpp" />
@@ -179,6 +180,7 @@
     <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseChatUpdateTests.cpp" />
     <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseWelcomeTests.cpp" />
     <ClCompile Include="test\Voxta\DataTypes\ServiceDataTests.cpp" />
+    <ClCompile Include="test\Voxta\VoxtaApiHandlerTests.cpp" />
     <ClCompile Include="test\Voxta\VoxtaClientTests.cpp" />
   </ItemGroup>
   <ItemGroup>

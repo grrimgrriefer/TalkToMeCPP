@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "gmock/gmock.h"
 #include "CppUnitTest.h"
+#include "../MockProviders.cpp"
 #include "../TalkToMeCPP/src/Voxta/VoxtaClient.h"
 #include "../TalkToMeCPP/src/Voxta/VoxtaClient.cpp"
 #include "../TalkToMeCPP/src/Voxta/VoxtaApiHandler.h"
@@ -27,23 +28,8 @@
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-namespace VoxtaClientTests
+namespace TalkToMeCPPTests
 {
-	class MockHubConnection : public Utility::SignalR::SignalRWrapperInterface
-	{
-	public:
-		MOCK_METHOD(void, Start, (std::function<void(std::exception_ptr)>), (noexcept, override));
-		MOCK_METHOD(void, Stop, (std::function<void(std::exception_ptr)>), (noexcept, override));
-		MOCK_METHOD(void, On, (const std::string&, const std::function<void(const std::vector<signalr::value>&)>&), (override));
-		MOCK_METHOD(void, Invoke, (const std::string&, const std::vector<signalr::value>&, std::function<void(const signalr::value&, std::exception_ptr)>), (noexcept, override));
-	};
-
-	class MockLogger : public Utility::Logging::LoggerInterface
-	{
-	public:
-		MOCK_METHOD(void, LogMessage, (LogLevel level, const std::string& message), (noexcept, override));
-	};
-
 	TEST_CLASS(VoxtaClientTests)
 	{
 	public:
@@ -69,8 +55,8 @@ namespace VoxtaClientTests
 			};
 
 		// Mocks for SignalR and ThreadedLogger
-		std::unique_ptr<MockHubConnection> mockWrapper;
-		std::unique_ptr<MockLogger> mockLogger;
+		std::unique_ptr<MockProviders::MockHubConnection> mockWrapper;
+		std::unique_ptr<MockProviders::MockLogger> mockLogger;
 		std::unique_ptr<Utility::SignalR::SignalRWrapperInterface> signalRWrapper;
 		std::unique_ptr<Utility::Logging::LoggerInterface> loggerWrapper;
 
@@ -81,9 +67,10 @@ namespace VoxtaClientTests
 			lastChatMessage = nullptr;
 			lastCharData = nullptr;
 
-			mockWrapper = std::make_unique<MockHubConnection>();
-			mockLogger = std::make_unique<MockLogger>();
+			mockWrapper = std::make_unique<MockProviders::MockHubConnection>();
+			mockLogger = std::make_unique<MockProviders::MockLogger>();
 		}
+
 		TEST_METHOD(TestConnectStartListening)
 		{
 			std::string methodName;
@@ -225,29 +212,14 @@ namespace VoxtaClientTests
 			auto client = CreateClient();
 			client.Connect();
 
-			std::string id1 = "d9ef5777-3f04-e299-a7ac-3b9aad814da5", id2 = "67e139a4-e30e-4603-a083-6e89719a9bb1";
+			std::string id1 = MockProviders::GetRandomGuid(), id2 = MockProviders::GetRandomGuid();
 			std::string name1 = "Bella", name2 = "Catherine";
 			std::string creatorNotes1 = "Magnetic woman", creatorNotes2 = "Cute and flirty";
 			bool explicitContent1 = true, explicitContent2 = false;
 			bool favorite1 = false, favorite2 = false;
 
-			parameter(std::vector<signalr::value> { signalr::value(std::map<std::string, signalr::value> {
-				{ "$type", "charactersListLoaded" },
-				{ "characters", std::vector<signalr::value> {
-					std::map<std::string, signalr::value> {
-						{ "id", id1 },
-						{ "name", name1},
-						{ "creatorNotes", creatorNotes1 },
-						{ "explicitContent", explicitContent1 },
-						{ "favorite", favorite1 } },
-					std::map<std::string, signalr::value> {
-						{ "id", id2 },
-						{ "name", name2},
-						{ "creatorNotes", creatorNotes2 },
-						{ "explicitContent", explicitContent2 },
-						{ "favorite", favorite2 } }
-					}
-				}})});
+			parameter(std::vector<signalr::value> { MockProviders::GetCharactersListLoadedResponse({ id1 , id2 }, { name1 , name2 },
+				{ creatorNotes1 , creatorNotes2 }, { explicitContent1 , explicitContent2 }, { favorite1 , favorite2 })});
 
 			auto& chars = client.GetCharacters();
 			Assert::AreEqual(size_t(2), chars.size());
@@ -288,12 +260,7 @@ namespace VoxtaClientTests
 			client.Connect();
 			std::string userName("andsothenIsaid,that'snotanoven,that'smygrandma");
 
-			parameter(std::vector<signalr::value> { signalr::value(std::map<std::string, signalr::value> {
-				{ "$type", "welcome" },
-				{ "user", std::map<std::string, signalr::value> {
-					{ "id", "433d835f-296b-47f9-8475-5a993760bc1a" },
-					{ "name", userName }
-				} }})});
+			parameter(std::vector<signalr::value> { MockProviders::GetWelcomeResponse(MockProviders::GetRandomGuid(), userName) });
 
 			Assert::AreEqual(std::string_view(userName), client.GetUsername());
 		}
@@ -319,100 +286,35 @@ namespace VoxtaClientTests
 			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([] () {});
 			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault([] () {});
 
-			auto client = CreateClient();
-			client.Connect();
-
-			std::string id1 = "d9ef5777-3f04-e299-a7ac-3b9aad814da5";
-			std::string name1 = "Bella";
+			std::string charId = MockProviders::GetRandomGuid();
+			std::string charName = "Bella";
 			std::string creatorNotes1 = "Magnetic woman";
 			bool explicitContent1 = true;
 			bool favorite1 = false;
-			std::string chatId = "a33a4c12-df9d-427a-8f3e-c54adcd261ca";
-			std::string sessionId = "6fb7cfad-e38a-597f-e5c2-e63c6b0b7fc8";
-			std::string messageId1 = "e9ec8058-fda9-4b69-b266-fd88bdfcdd14";
+			std::string chatId = MockProviders::GetRandomGuid();
+			std::string sessionId = MockProviders::GetRandomGuid();
+			std::string messageId1 = MockProviders::GetRandomGuid();
 			std::string messageText1 = "Lmao I aint leaking my ai messages on github xd";
-			std::string messageText2 = "Not cool bro, not cool...";
-			std::string userId = "433d835f-296b-47f9-8475-5a993760bc1a";
+			std::string audioUrl1 = "/api/tts/gens/etc...";
+			std::string userId = MockProviders::GetRandomGuid();
 			std::string userName = "ayowtf";
+			std::string llmServiceId = MockProviders::GetRandomGuid();
+			std::string sttServiceId = MockProviders::GetRandomGuid();
+			std::string ttsServiceId = MockProviders::GetRandomGuid();
 
-			std::string llmServiceId = "1a6d869c-42a3-8b58-29a7-50b57974f53e";
-			std::string sttServiceId = "1a6d869c-42a3-8b58-29a7-50b57974f53e";
-			std::string ttsServiceId = "1a6d869c-42a3-8b58-29a7-50b57974f53e";
+			auto client = CreateClient();
+			client.Connect();
 
-			parameter(std::vector<signalr::value> { signalr::value(std::map<std::string, signalr::value> {
-				{ "$type", "welcome" },
-				{ "user", std::map<std::string, signalr::value> {
-					{ "id", userId },
-					{ "name", userName }
-				} }})});
-
-			parameter(std::vector<signalr::value> { signalr::value(std::map<std::string, signalr::value> {
-				{ "$type", "charactersListLoaded" },
-				{ "characters", std::vector<signalr::value> {
-					std::map<std::string, signalr::value> {
-						{ "id", id1 },
-						{ "name", name1},
-						{ "creatorNotes", creatorNotes1 },
-						{ "explicitContent", explicitContent1 },
-						{ "favorite", favorite1 } }
-					}
-				}})});
-
-			parameter(std::vector<signalr::value> { signalr::value(std::map<std::string, signalr::value> {
-				{ "$type", "startChat" },
-				{ "character", std::map<std::string, signalr::value> {
-					{ "id", id1 } } },
-				{ "characterId", id1 },
-				{ "chatId", chatId }
-			})});
-
-			parameter(std::vector<signalr::value> { signalr::value(std::map<std::string, signalr::value> {
-				{ "$type", "chatStarted" },
-				{ "chatId", chatId },
-				{ "services", std::map<std::string, signalr::value> {
-					{ "textGen", std::map<std::string, signalr::value> {
-						{ "serviceName", "VoxtaCloud" },
-						{ "serviceId", llmServiceId } } },
-					{ "speechToText", std::map<std::string, signalr::value> {
-						{ "serviceName", "VoxtaCloud" },
-						{ "serviceId", sttServiceId } } },
-					{ "textToSpeech", std::map<std::string, signalr::value> {
-						{ "serviceName", "Coqui" },
-						{ "serviceId", ttsServiceId } } }
-				} },
-				{ "characters", std::vector<signalr::value> {
-					std::map<std::string, signalr::value> {
-						{ "id", id1 },
-						{ "name", name1 }
-					}
-					} },
-				{ "sessionId", sessionId }
-			})});
-
-			parameter(std::vector<signalr::value> { signalr::value(std::map<std::string, signalr::value> {
-				{ "$type", "replyStart" },
-				{ "messageId", messageId1 },
-				{ "senderId", id1 },
-				{ "sessionId", sessionId },
-			})});
-
-			parameter(std::vector<signalr::value> { signalr::value(std::map<std::string, signalr::value> {
-				{ "$type", "replyChunk" },
-				{ "messageId", messageId1 },
-				{ "senderId", id1 },
-				{ "startIndex", 0 },
-				{ "endIndex", 47 },
-				{ "text", messageText1 },
-				{ "audioUrl", "/api/tts/gens/etc..." },
-				{ "sessionId", sessionId }
-			})});
-
-			parameter(std::vector<signalr::value> { signalr::value(std::map<std::string, signalr::value> {
-				{ "$type", "replyEnd" },
-				{ "messageId", messageId1 },
-				{ "senderId", id1 },
-				{ "sessionId", sessionId },
-			})});
+			parameter(std::vector<signalr::value> { MockProviders::GetWelcomeResponse(userId, userName) });
+			parameter(std::vector<signalr::value> { MockProviders::GetCharactersListLoadedResponse({ charId }, { charName },
+				{ creatorNotes1 }, { explicitContent1 }, { favorite1 })});
+			parameter(std::vector<signalr::value> { MockProviders::GetStartChatResponse(charId, chatId) });
+			parameter(std::vector<signalr::value> { MockProviders::GetChatStartedResponse(chatId, userId, userName,
+				llmServiceId, sttServiceId, ttsServiceId, charId, charName, sessionId) });
+			parameter(std::vector<signalr::value> { MockProviders::GetReplyStartResponse(messageId1, charId, sessionId) });
+			parameter(std::vector<signalr::value> { MockProviders::GetReplyChunkResponse(messageId1, charId, static_cast<double>(0),
+				static_cast<double>(47), messageText1, audioUrl1, sessionId) });
+			parameter(std::vector<signalr::value> { MockProviders::GetReplyEndResponse(messageId1, charId, sessionId) });
 
 			auto chatSession = client.GetChatSession();
 
@@ -420,7 +322,7 @@ namespace VoxtaClientTests
 			Assert::AreEqual(sessionId, chatSession->m_sessionId);
 
 			Assert::AreEqual(size_t(1), chatSession->m_characters.size());
-			Assert::AreSame(client.GetCharacters()[0].get(), chatSession->m_characters[0]);
+			Assert::IsTrue(client.GetCharacters()[0].get() == chatSession->m_characters[0]); // force compare pointers here, not using AreSame on purpose
 
 			Assert::AreEqual(size_t(3), chatSession->m_services.size());
 
@@ -430,11 +332,11 @@ namespace VoxtaClientTests
 
 			Assert::AreEqual(size_t(1), chatSession->m_chatMessages.size());
 			auto msg = chatSession->m_chatMessages.begin();
-
-			//std::string m_text = "";
-			//std::vector<std::string> m_audioUrls;
-			//const std::string m_messageId;
-			//const std::string m_charId;
+			Assert::AreEqual(messageText1, msg->get()->m_text);
+			Assert::AreEqual(size_t(1), msg->get()->m_audioUrls.size());
+			Assert::AreEqual(audioUrl1, msg->get()->m_audioUrls[0]);
+			Assert::AreEqual(messageId1, msg->get()->m_messageId);
+			Assert::AreEqual(charId, msg->get()->m_charId);
 		}
 
 		Voxta::VoxtaClient CreateClient()

@@ -233,13 +233,15 @@ namespace Voxta
 					switch (derivedResponse->m_messageType)
 					{
 						case MESSAGE_START:
-							m_chatSession->m_chatMessages.emplace(std::make_unique<DataTypes::ChatMessage>(derivedResponse->m_messageId, derivedResponse->m_senderId));
+							m_chatSession->m_chatMessages.emplace(std::make_unique<DataTypes::ChatMessage>(
+								derivedResponse->m_messageId, derivedResponse->m_senderId));
 							break;
 						case MESSAGE_CHUNK:
 							if (auto chatMessage = std::ranges::find_if(messages.begin(), messages.end(),
 								DataTypes::ChatMessageIdComparer(derivedResponse->m_messageId)); chatMessage != std::end(messages))
 							{
-								(*chatMessage)->m_text.append(std::format(" {}", derivedResponse->m_messageText));
+								(*chatMessage)->m_text.append((*chatMessage)->m_text.empty() ? derivedResponse->m_messageText
+									: std::format(" {}", derivedResponse->m_messageText));
 								(*chatMessage)->m_audioUrls.emplace_back(derivedResponse->m_audioUrlPath);
 							}
 							break;

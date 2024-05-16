@@ -40,13 +40,10 @@ OR
 *** Activated vcpkg to install the req libs (classic mode, *not* manifest mode)
 
 *Note:* _I only target x64, so the x86 may or may not work._ :shrug:
-
-*Note2:* _You can run tests with this command, no idea why you would, but eh._ +
-` vstest.console.exe {path_to_repo_root}TalkToMeCPP_Tests\x64\Debug\TalkToMeCPP_Tests.dll /EnableCodeCoverage /Collect:"Code Coverage;Format=Xml" /ResultsDirectory:"coverage_results" `
   
 == Run
 
-1. Run Voxta.Server.Exe (v1.0.0-beta.113)
+1. Run Voxta.Server.Exe (v1.0.0-beta.113, other versions may or may not work, I haven't checked)
   - Download from https://voxta.ai/
   - Ensure a valid Voxta service configuration (TTS, STT, LLM)
 2. Run TalkToMeCPP.exe
