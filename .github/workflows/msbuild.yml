@@ -10,7 +10,6 @@ env:
   BUILD_WRAPPER_OUT_DIR: BuildsArtifacts
   BUILD_PLATFORM: x64
   BUILD_CONFIGURATION: Release
-  COVERAGE_RESULTS: coverage_results
 
 permissions:
   contents: read
@@ -30,6 +29,11 @@ jobs:
 
     - name: Setup VSTest.console.exe
       uses: darenm/Setup-VSTest@v1.2
+      
+    - name: Install OpenCppCoverage # Needed to generate coverage
+      run: |
+        curl -L https://github.com/OpenCppCoverage/OpenCppCoverage/releases/download/release-0.9.9.0/OpenCppCoverageSetup-x64-0.9.9.0.exe -o OpenCppCoverageSetup.exe
+        Start-Process -FilePath .\OpenCppCoverageSetup.exe -ArgumentList "/SUPRESSMSGBOXES /NORESTART /VERYSILENT" -NoNewWindow -Wait
         
     - name: Restore vcpkg packages
       working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -48,10 +52,7 @@ jobs:
         
     - name: Run tests with coverage
       run: >
-        vstest.console.exe D:\a\TalkToMeCPP\TalkToMeCPP\TalkToMeCPP_Tests\x64\Debug\TalkToMeCPP_Tests.dll
-        /EnableCodeCoverage 
-        /Collect:"Code Coverage;Format=Xml" 
-        /ResultsDirectory:"${{ env.COVERAGE_RESULTS }}"
+        &"C:\Program Files\OpenCppCoverage\OpenCppCoverage.exe" --cover_children --sources=$(pwd) --modules TalkToMeCPP_Tests\x64\Debug\TalkToMeCPP_Tests.dll "--export_type=cobertura:cobertura.xml" -- vstest.console.exe TalkToMeCPP_Tests\x64\Debug\TalkToMeCPP_Tests.dll
           
     - name: Run sonar-scanner
       env:
@@ -59,8 +60,8 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: >
         sonar-scanner -X 
-        --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
-        --define sonar.cfamily.vscoveragexml.reportsPath="${{ env.COVERAGE_RESULTS }}/*/*.xml"
+        --define sonar.cfamily.compile-commands="${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"
+        --define sonar.cfamily.cobertura.reportPaths="cobertura.xml"
       
     - name: Archive
       uses: actions/upload-artifact@v4

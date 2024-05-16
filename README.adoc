@@ -43,7 +43,7 @@ OR
   
 == Run
 
-1. Run Voxta.Server.Exe (v1.0.0-beta.113, other versions may or may not work, I haven't checked)
+1. Run Voxta.Server.Exe (v1.0.0-beta.116)
   - Download from https://voxta.ai/
   - Ensure a valid Voxta service configuration (TTS, STT, LLM)
 2. Run TalkToMeCPP.exe
