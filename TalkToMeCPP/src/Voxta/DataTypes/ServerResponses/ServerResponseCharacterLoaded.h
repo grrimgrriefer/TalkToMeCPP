@@ -2,7 +2,9 @@
 
 #pragma once
 #include "ServerResponseBase.h"
+#include "../CharVoiceConfig.h"
 #include <string_view>
+#include <vector>
 
 namespace Voxta::DataTypes::ServerResponses
 {
@@ -17,12 +19,15 @@ namespace Voxta::DataTypes::ServerResponses
 			return ServerResponseType::CHARACTER_LOADED;
 		}
 
-		explicit ServerResponseCharacterLoaded(std::string_view characterId, bool enableThinkingSpeech) :
-			m_characterId(characterId), m_enableThinkingSpeech(enableThinkingSpeech)
+		explicit ServerResponseCharacterLoaded(std::string_view characterId, bool enableThinkingSpeech,
+			std::vector<CharVoiceConfig> voiceOverrideConfigs) :
+			m_characterId(characterId), m_enableThinkingSpeech(enableThinkingSpeech),
+			m_voiceOverrideConfigs(voiceOverrideConfigs)
 		{
 		}
 
 		const std::string m_characterId;
 		const bool m_enableThinkingSpeech;
+		const std::vector<CharVoiceConfig> m_voiceOverrideConfigs;
 	};
 }

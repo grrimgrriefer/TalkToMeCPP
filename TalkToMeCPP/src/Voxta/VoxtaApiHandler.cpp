@@ -11,6 +11,7 @@
 #include "DataTypes/ServerResponses/ServerResponseChatStarted.h"
 #include "DataTypes/ServerResponses/ServerResponseChatMessage.h"
 #include "DataTypes/ServerResponses/ServerResponseChatUpdate.h"
+#include "DataTypes/ServerResponses/HelperStructs/CharacterVoiceOverrideConfig.h"
 #include <signalrclient/signalr_value.h>
 #include <map>
 #include <string>
@@ -80,7 +81,7 @@ namespace Voxta
 		return signalr::value(std::map<std::string, signalr::value> {
 			{ "$type", "authenticate" },
 			{ "client", "TalkToMeCPP" },
-			{ "clientVersion", "0.0.1a" },
+			{ "clientVersion", "0.0.2a" },
 			{ "scope", std::vector<signalr::value> { "role:app", "broadcast:write" } },
 			{ "capabilities", std::map<std::string, signalr::value> {
 				{ "audioInput", "WebSocketStream" },
@@ -124,15 +125,15 @@ namespace Voxta
 						std::map<std::string, signalr::value> {
 							{ "voice", std::map<std::string, signalr::value> {
 								{ "parameters", std::map<std::string, signalr::value> {
-									{ "Filename", "female_03.wav" },
-									{ "Temperature", "0.7"},
-									{ "TopK", signalr::value() },
-									{ "TopP", signalr::value() } } },
-								{ "label", "female_03.wav" }
+									{ "Filename", charData->m_voiceService.m_parameters.m_filename },
+									{ "Temperature", charData->m_voiceService.m_parameters.m_temperature },
+									{ "TopK", charData->m_voiceService.m_parameters.m_topK },
+									{ "TopP", charData->m_voiceService.m_parameters.m_topP } } },
+								{ "label", charData->m_voiceService.m_parameters.m_filename }
 							} },
 							{ "service", std::map<std::string, signalr::value> {
-								{ "serviceName", "Coqui"},
-								{ "serviceId", "aef6d791-314f-f1e7-32f1-72b382dc7bd9" }	} }
+								{ "serviceName", charData->m_voiceService.m_name },
+								{ "serviceId", charData->m_voiceService.m_id }	} }
 					} } } }
 			}
 		});
@@ -232,8 +233,21 @@ namespace Voxta
 		const std::map<std::string, signalr::value>& map) const
 	{
 		auto& characterData = map.at("character").as_map();
+		auto& ttsConfig = characterData.at("textToSpeech").as_array();
+		auto configs = std::vector<DataTypes::ServerResponses::CharacterVoiceConfig>();
+
+		for (const auto& config : ttsConfig)
+		{
+			auto& configMap = config.as_map();
+			auto& configVoice = configMap.at("voice").as_map();
+			auto& configParams = configVoice.at("parameters").as_map();
+			configs.emplace_back(configParams.at("VoiceBackend").as_string(),
+				configParams.at("VoiceId").as_string(),
+				configVoice.at("label").as_string(),
+				configMap.at("service").as_map().at("serviceName").as_string());
+		}
 		return std::make_unique<DataTypes::ServerResponses::ServerResponseCharacterLoaded>(characterData.at("id").as_string(),
-			characterData.at("enableThinkingSpeech").as_bool());
+			characterData.at("enableThinkingSpeech").as_bool(), configs);
 	}
 
 	std::unique_ptr<DataTypes::ServerResponses::ServerResponseCharacterList> VoxtaApiHandler::GetCharacterListLoadedResponse(

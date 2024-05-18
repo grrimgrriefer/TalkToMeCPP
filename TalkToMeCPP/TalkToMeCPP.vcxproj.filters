@@ -89,5 +89,8 @@
     <ClInclude Include="src\Utility\Logging\LoggerInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Voxta\DataTypes\ServerResponses\HelperStructs\CharacterVoiceOverrideConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

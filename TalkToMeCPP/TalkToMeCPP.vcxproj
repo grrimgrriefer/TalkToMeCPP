@@ -150,6 +150,7 @@
     <ClInclude Include="src\Utility\Logging\HubConnectionLogger.h" />
     <ClInclude Include="src\Voxta\DataTypes\CharData.h" />
     <ClInclude Include="src\Voxta\DataTypes\ChatMessage.h" />
+    <ClInclude Include="src\Voxta\DataTypes\ServerResponses\HelperStructs\CharacterVoiceOverrideConfig.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseBase.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseCharacterLoaded.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseChatMessage.h" />
