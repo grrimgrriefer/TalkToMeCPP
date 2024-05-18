@@ -11,7 +11,6 @@
 #include "DataTypes/ServerResponses/ServerResponseChatStarted.h"
 #include "DataTypes/ServerResponses/ServerResponseChatMessage.h"
 #include "DataTypes/ServerResponses/ServerResponseChatUpdate.h"
-#include "DataTypes/ServerResponses/HelperStructs/CharacterVoiceOverrideConfig.h"
 #include <signalrclient/signalr_value.h>
 #include <map>
 #include <string>
@@ -111,31 +110,37 @@ namespace Voxta
 		boost::uuids::uuid guid = boost::uuids::random_generator()();
 		std::string guidString = boost::lexical_cast<std::string>(guid);
 
-		return signalr::value(std::map<std::string, signalr::value> {
+		auto characterParams = std::map<std::string, signalr::value>{
+			{ "id", charData->m_id },
+			{ "name", charData->m_name },
+			{ "explicitContent", charData->m_explicitContent ? "True" : "False" } };
+
+		if (charData->m_voiceService)
+		{
+			auto const& serviceData = *(charData->m_voiceService.get());
+			characterParams.try_emplace("textToSpeech", std::vector<signalr::value> {
+				std::map<std::string, signalr::value> {
+					{ "voice", std::map<std::string, signalr::value> {
+						{ "parameters", std::map<std::string, signalr::value> {
+							{ "Filename", serviceData.m_parameters.m_filename },
+							{ "Temperature", serviceData.m_parameters.m_temperature },
+							{ "TopK", serviceData.m_parameters.m_topK },
+							{ "TopP", serviceData.m_parameters.m_topP } } },
+						{ "label", serviceData.m_parameters.m_filename }
+					} },
+					{ "service", std::map<std::string, signalr::value> {
+						{ "serviceName", serviceData.m_name },
+						{ "serviceId", serviceData.m_id }	} }
+				} });
+		}
+
+		return signalr::value(std::map<std::string, signalr::value>{
 			{ "$type", "startChat" },
 			{ "contextKey", "" },
 			{ "context", "" },
 			{ "chatId", guidString },
 			{ "characterId", charData->m_id },
-			{ "character", std::map<std::string, signalr::value> {
-					{ "id", charData->m_id },
-					{ "name", charData->m_name },
-					{ "explicitContent", charData->m_explicitContent ? "True" : "False" },
-					{ "textToSpeech", std::vector<signalr::value> {
-						std::map<std::string, signalr::value> {
-							{ "voice", std::map<std::string, signalr::value> {
-								{ "parameters", std::map<std::string, signalr::value> {
-									{ "Filename", charData->m_voiceService.m_parameters.m_filename },
-									{ "Temperature", charData->m_voiceService.m_parameters.m_temperature },
-									{ "TopK", charData->m_voiceService.m_parameters.m_topK },
-									{ "TopP", charData->m_voiceService.m_parameters.m_topP } } },
-								{ "label", charData->m_voiceService.m_parameters.m_filename }
-							} },
-							{ "service", std::map<std::string, signalr::value> {
-								{ "serviceName", charData->m_voiceService.m_name },
-								{ "serviceId", charData->m_voiceService.m_id }	} }
-					} } } }
-			}
+			{ "character", characterParams }
 		});
 	}
 
@@ -234,17 +239,20 @@ namespace Voxta
 	{
 		auto& characterData = map.at("character").as_map();
 		auto& ttsConfig = characterData.at("textToSpeech").as_array();
-		auto configs = std::vector<DataTypes::ServerResponses::CharacterVoiceConfig>();
+		auto configs = std::vector<DataTypes::ServerResponses::CharacterLoadedVoiceData>();
 
 		for (const auto& config : ttsConfig)
 		{
 			auto& configMap = config.as_map();
 			auto& configVoice = configMap.at("voice").as_map();
-			auto& configParams = configVoice.at("parameters").as_map();
-			configs.emplace_back(configParams.at("VoiceBackend").as_string(),
-				configParams.at("VoiceId").as_string(),
-				configVoice.at("label").as_string(),
-				configMap.at("service").as_map().at("serviceName").as_string());
+			auto& originalParamsMap = configVoice.at("parameters").as_map();
+			std::map<std::string, std::string> converted_map;
+			for (const auto& pair : originalParamsMap)
+			{
+				converted_map[pair.first] = pair.second.as_string();
+			}
+			configs.emplace_back(converted_map, configVoice.contains("label")
+				? configVoice.at("label").as_string() : nullptr);
 		}
 		return std::make_unique<DataTypes::ServerResponses::ServerResponseCharacterLoaded>(characterData.at("id").as_string(),
 			characterData.at("enableThinkingSpeech").as_bool(), configs);

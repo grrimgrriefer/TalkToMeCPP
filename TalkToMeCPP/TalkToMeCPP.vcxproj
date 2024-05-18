@@ -137,14 +137,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Utility\Audio\ThreadedAudioPlayer.cpp" />
     <ClCompile Include="src\Utility\SignalR\SignalRWrapper.cpp" />
     <ClCompile Include="src\Utility\Logging\HubConnectionLogger.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Voxta\VoxtaClient.cpp" />
     <ClCompile Include="src\Utility\Logging\ThreadedLogger.cpp" />
     <ClCompile Include="src\Voxta\VoxtaApiHandler.cpp" />
+    <ClCompile Include="src\Utility\Audio\WavTools.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Utility\Audio\ThreadedAudioPlayer.h" />
     <ClInclude Include="src\Utility\Logging\LoggerInterface.h" />
     <ClInclude Include="src\Utility\SignalR\SignalRWrapper.h" />
     <ClInclude Include="src\Utility\Logging\HubConnectionLogger.h" />
@@ -159,11 +162,13 @@
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseWelcome.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServiceData.h" />
     <ClInclude Include="src\Utility\SignalR\SignalRWrapperInterface.h" />
+    <ClInclude Include="src\Voxta\DataTypes\VoiceServiceData.h" />
     <ClInclude Include="src\Voxta\VoxtaClient.h" />
     <ClInclude Include="src\Voxta\VoxtaApiHandler.h" />
     <ClInclude Include="src\Utility\Logging\ThreadedLogger.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseCharacterList.h" />
     <ClInclude Include="src\Voxta\DataTypes\ChatSession.h" />
+    <ClInclude Include="src\Utility\Audio\WavTools.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

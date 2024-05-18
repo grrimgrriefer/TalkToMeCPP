@@ -6,6 +6,8 @@
 #include "Voxta/DataTypes/CharData.h"
 #include "Voxta/DataTypes/ChatMessage.h"
 #include "Utility/SignalR/SignalRWrapper.h"
+#include "Utility/SignalR/SignalRWrapperInterface.h"
+#include "Utility/Audio/ThreadedAudioPlayer.h"
 #include <iostream>
 #include <filesystem>
 #include <memory>
@@ -32,6 +34,8 @@ public:
 		path /= "logfile.txt";
 		logger = std::make_unique<Utility::Logging::ThreadedLogger>(path.string());
 
+		audioPlayer.AddToQueue("https://www2.cs.uic.edu/~i101/SoundFiles/CantinaBand3.wav");
+
 		auto wrapper = std::make_unique<Utility::SignalR::SignalRWrapper>("127.0.0.1", 5384, *logger);
 		std::unique_ptr<Utility::SignalR::SignalRWrapperInterface> interfacePtr = std::move(wrapper);
 		voxtaClient = std::make_unique<Voxta::VoxtaClient>(std::move(interfacePtr), *logger,
@@ -46,6 +50,7 @@ public:
 			[this] (const Voxta::DataTypes::ChatMessage* message, const Voxta::DataTypes::CharData* charSource)
 			{
 				CharSpeaking(message, charSource);
+				audioPlayer.StartPlayback();
 			});
 
 		voxtaClient->Connect();
@@ -64,6 +69,7 @@ private:
 	std::unique_ptr<Voxta::VoxtaClient> voxtaClient;
 	std::mutex mutexLock;
 	std::condition_variable quittinTimeCondition;
+	Utility::Audio::ThreadedAudioPlayer audioPlayer;
 	bool itsQuittingTime;
 
 	void ClientCallback(const Voxta::VoxtaClient::VoxtaClientState& newState)

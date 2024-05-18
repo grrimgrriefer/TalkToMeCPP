@@ -33,6 +33,12 @@
     <ClCompile Include="src\Utility\SignalR\SignalRWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Utility\Audio\ThreadedAudioPlayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utility\Audio\WavTools.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Voxta\VoxtaClient.h">
@@ -90,6 +96,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\HelperStructs\CharacterVoiceOverrideConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Voxta\DataTypes\VoiceServiceData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\Audio\ThreadedAudioPlayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\Audio\WavTools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
