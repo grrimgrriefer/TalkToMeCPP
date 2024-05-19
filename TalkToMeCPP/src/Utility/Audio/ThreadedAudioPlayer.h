@@ -3,12 +3,14 @@
 #pragma once
 #include "WavTools.h"
 #include "../Logging/LoggerInterface.h"
+#include "../Http/HttpClient.h"
 #include <string>
 #include <filesystem>
 #include <thread>
 #include <queue>
 #include <mutex>
 #include <stop_token>
+#include <vector>
 
 namespace Utility::Audio
 {
@@ -25,14 +27,14 @@ namespace Utility::Audio
 
 	private:
 		std::jthread m_playbackThread;
-		std::queue<std::filesystem::path> m_audioQueue;
+		std::queue<std::vector<char>> m_audioQueue;
 		std::mutex m_queueMutex;
 		std::condition_variable m_cv;
 		WavTools m_wavTools;
 		Logging::LoggerInterface& m_logger;
+		HttpClient m_httpClient;
 
 		void PlaybackLoop(std::stop_token stopToken);
-		bool DownloadFileWithHeaders(const std::wstring& url, const std::wstring& filePath, const std::wstring& headers);
 		std::wstring ConvertToWideString(const std::string& narrow);
 	};
 }

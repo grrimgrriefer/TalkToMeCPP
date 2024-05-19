@@ -137,6 +137,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Utility\Http\HttpClient.cpp" />
     <ClCompile Include="src\Utility\Audio\ThreadedAudioPlayer.cpp" />
     <ClCompile Include="src\Utility\SignalR\SignalRWrapper.cpp" />
     <ClCompile Include="src\Utility\Logging\HubConnectionLogger.cpp" />
@@ -147,6 +148,7 @@
     <ClCompile Include="src\Utility\Audio\WavTools.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Utility\Http\HttpClient.h" />
     <ClInclude Include="src\Utility\Audio\ThreadedAudioPlayer.h" />
     <ClInclude Include="src\Utility\Logging\LoggerInterface.h" />
     <ClInclude Include="src\Utility\SignalR\SignalRWrapper.h" />

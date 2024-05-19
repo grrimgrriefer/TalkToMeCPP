@@ -15,31 +15,23 @@ namespace Utility::Audio
 	{
 	}
 
-	double WavTools::CalculateDuration(const std::string& localPath) const
+	double WavTools::CalculateDuration(const std::vector<char>& audioData) const
 	{
-		std::ifstream file(localPath, std::ios::binary);
-		if (!file.is_open())
-		{
-			std::cerr << "Error: Could not open WAV file." << std::endl;
-			return -1.0; // Error code
-		}
-
 		WAVHeader header;
-		file.read(reinterpret_cast<char*>(&header), sizeof(WAVHeader));
-		if (file.gcount() != sizeof(WAVHeader))
+		std::memcpy(&header, audioData.data(), sizeof(WAVHeader));
+
+		size_t dataOffset = sizeof(WAVHeader) + (header.subchunk1Size - 16);
+
+		// Check for the 'data' subchunk
+		char subchunk2ID[4];
+		if (audioData.size() < dataOffset + sizeof(subchunk2ID))
 		{
-			std::cerr << "Error: Could not read WAV header." << std::endl;
+			std::cerr << "Error: Incomplete WAV data." << std::endl;
 			return -1.0; // Error code
 		}
 
-		// Skip over any extra header information
-		file.seekg(header.subchunk1Size - 16, std::ios::cur);
-
-		// Read the Subchunk2ID and Subchunk2Size
-		char subchunk2ID[4];
 		uint32_t subchunk2Size;
-		file.read(subchunk2ID, sizeof(subchunk2ID));
-		file.read(reinterpret_cast<char*>(&subchunk2Size), sizeof(subchunk2Size));
+		std::memcpy(&subchunk2Size, audioData.data() + dataOffset + sizeof(subchunk2ID), sizeof(subchunk2Size));
 
 		double duration = static_cast<double>(subchunk2Size) / (header.sampleRate * header.numChannels * (header.bitsPerSample / 8.0));
 

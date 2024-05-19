@@ -39,6 +39,9 @@
     <ClCompile Include="src\Utility\Audio\WavTools.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Utility\Http\HttpClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Voxta\VoxtaClient.h">
@@ -105,6 +108,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Utility\Audio\WavTools.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\Http\HttpClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
