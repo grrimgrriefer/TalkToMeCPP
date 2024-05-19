@@ -2,18 +2,20 @@
 
 #pragma once
 #include "WavTools.h"
+#include "../Logging/LoggerInterface.h"
 #include <string>
 #include <filesystem>
 #include <thread>
 #include <queue>
 #include <mutex>
+#include <stop_token>
 
 namespace Utility::Audio
 {
 	class ThreadedAudioPlayer
 	{
 	public:
-		ThreadedAudioPlayer() = default;
+		explicit ThreadedAudioPlayer(Logging::LoggerInterface& logger);
 		~ThreadedAudioPlayer();
 
 		bool AddToQueue(const std::string& pathToFile);
@@ -22,12 +24,15 @@ namespace Utility::Audio
 		void StopPlayback();
 
 	private:
-		std::jthread playbackThread;
-		std::queue<std::filesystem::path> audioQueue;
-		std::mutex queueMutex;
-		std::condition_variable cv;
-		WavTools wavTools;
+		std::jthread m_playbackThread;
+		std::queue<std::filesystem::path> m_audioQueue;
+		std::mutex m_queueMutex;
+		std::condition_variable m_cv;
+		WavTools m_wavTools;
+		Logging::LoggerInterface& m_logger;
 
 		void PlaybackLoop(std::stop_token stopToken);
+		bool DownloadFileWithHeaders(const std::wstring& url, const std::wstring& filePath, const std::wstring& headers);
+		std::wstring ConvertToWideString(const std::string& narrow);
 	};
 }

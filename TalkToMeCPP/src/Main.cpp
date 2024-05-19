@@ -33,8 +33,7 @@ public:
 		auto path = std::filesystem::current_path();
 		path /= "logfile.txt";
 		logger = std::make_unique<Utility::Logging::ThreadedLogger>(path.string());
-
-		audioPlayer.AddToQueue("https://www2.cs.uic.edu/~i101/SoundFiles/CantinaBand3.wav");
+		audioPlayer = std::make_unique<Utility::Audio::ThreadedAudioPlayer>(*logger);
 
 		auto wrapper = std::make_unique<Utility::SignalR::SignalRWrapper>("127.0.0.1", 5384, *logger);
 		std::unique_ptr<Utility::SignalR::SignalRWrapperInterface> interfacePtr = std::move(wrapper);
@@ -50,7 +49,7 @@ public:
 			[this] (const Voxta::DataTypes::ChatMessage* message, const Voxta::DataTypes::CharData* charSource)
 			{
 				CharSpeaking(message, charSource);
-				audioPlayer.StartPlayback();
+				DoAudioPlayback(message->m_audioUrls);
 			});
 
 		voxtaClient->Connect();
@@ -69,7 +68,7 @@ private:
 	std::unique_ptr<Voxta::VoxtaClient> voxtaClient;
 	std::mutex mutexLock;
 	std::condition_variable quittinTimeCondition;
-	Utility::Audio::ThreadedAudioPlayer audioPlayer;
+	std::unique_ptr<Utility::Audio::ThreadedAudioPlayer> audioPlayer;
 	bool itsQuittingTime;
 
 	void ClientCallback(const Voxta::VoxtaClient::VoxtaClientState& newState)
@@ -165,6 +164,17 @@ private:
 		std::string line;
 		std::getline(std::cin >> std::ws, line);
 		return line;
+	}
+
+	void DoAudioPlayback(const std::vector<std::string>& audioUrls)
+	{
+		for (int i = 0; i < audioUrls.size(); i++)
+		{
+			audioPlayer->AddToQueue(std::format("http://{}:{}{}", "127.0.0.1", 5384, audioUrls[i]));
+			//audioPlayer->AddToQueue("https://www2.cs.uic.edu/~i101/SoundFiles/CantinaBand3.wav");
+			//audioPlayer->AddToQueue();
+		}
+		audioPlayer->StartPlayback();
 	}
 };
 
