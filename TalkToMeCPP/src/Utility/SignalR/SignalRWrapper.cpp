@@ -11,7 +11,7 @@
 namespace Utility::SignalR
 {
 	SignalRWrapper::SignalRWrapper(std::string_view address, int port, Logging::ThreadedLogger& logger) :
-		m_connection(std::make_unique<signalr::hub_connection>(signalr::hub_connection_builder::create(std::format("http://{}:{}/hub", address, std::to_string(port)))
+		m_connection(std::make_unique<signalr::hub_connection>(signalr::hub_connection_builder::create(std::format("ws://{}:{}/hub", address, std::to_string(port)))
 			.with_logging(std::make_shared<Logging::HubConnectionLogger>(logger), signalr::trace_level::verbose).build()))
 	{
 	}

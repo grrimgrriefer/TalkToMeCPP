@@ -7,8 +7,8 @@
 #include "Voxta/DataTypes/ChatMessage.h"
 #include "Utility/SignalR/SignalRWrapper.h"
 #include "Utility/SignalR/SignalRWrapperInterface.h"
-#include "Utility/Audio/ThreadedAudioPlayer.h"
-#include <iostream>
+#include "Utility/AudioPlayback/ThreadedAudioPlayer.h"
+#include <ostream>
 #include <filesystem>
 #include <memory>
 #include <format>
@@ -33,7 +33,7 @@ public:
 		auto path = std::filesystem::current_path();
 		path /= "logfile.txt";
 		logger = std::make_unique<Utility::Logging::ThreadedLogger>(path.string());
-		audioPlayer = std::make_unique<Utility::Audio::ThreadedAudioPlayer>(*logger);
+		audioPlayer = std::make_unique<Utility::AudioPlayback::ThreadedAudioPlayer>(*logger);
 
 		auto wrapper = std::make_unique<Utility::SignalR::SignalRWrapper>("127.0.0.1", 5384, *logger);
 		std::unique_ptr<Utility::SignalR::SignalRWrapperInterface> interfacePtr = std::move(wrapper);
@@ -68,7 +68,7 @@ private:
 	std::unique_ptr<Voxta::VoxtaClient> voxtaClient;
 	std::mutex mutexLock;
 	std::condition_variable quittinTimeCondition;
-	std::unique_ptr<Utility::Audio::ThreadedAudioPlayer> audioPlayer;
+	std::unique_ptr<Utility::AudioPlayback::ThreadedAudioPlayer> audioPlayer;
 	bool itsQuittingTime;
 
 	void ClientCallback(const Voxta::VoxtaClient::VoxtaClientState& newState)
@@ -171,8 +171,6 @@ private:
 		for (int i = 0; i < audioUrls.size(); i++)
 		{
 			audioPlayer->AddToQueue(std::format("http://{}:{}{}", "127.0.0.1", 5384, audioUrls[i]));
-			//audioPlayer->AddToQueue("https://www2.cs.uic.edu/~i101/SoundFiles/CantinaBand3.wav");
-			//audioPlayer->AddToQueue();
 		}
 		audioPlayer->StartPlayback();
 	}
@@ -180,6 +178,10 @@ private:
 
 int main()
 {
-	auto client = MainThreadHogger();
+	//auto client = MainThreadHogger();
+	auto microphoneTester = Utility::AudioInput::MicrophoneWebSocket::MicrophoneWebSocket();
+	microphoneTester.OpenSocket();
+
+	while (true) { ; }
 	return 0;
 }

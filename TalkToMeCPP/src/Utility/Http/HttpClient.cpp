@@ -35,7 +35,7 @@
 #pragma comment(lib, "Winmm.lib")
 #pragma comment(lib, "winhttp.lib")
 
-namespace Utility::Audio
+namespace Utility::AudioPlayback
 {
 	HttpClient::HttpClient()
 	{

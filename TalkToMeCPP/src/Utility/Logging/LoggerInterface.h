@@ -13,7 +13,7 @@ namespace Utility::Logging
 	class LoggerInterface
 	{
 	public:
-		enum class LogLevel { DEBUG, INFO, WARNING, ERROR };
+		enum class LogLevel { Debug, Info, Warning, Error };
 		virtual ~LoggerInterface() = default;
 
 		virtual void LogMessage(LogLevel level, const std::string& message) = 0;

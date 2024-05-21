@@ -34,7 +34,7 @@
 #pragma comment(lib, "Winmm.lib")
 #pragma comment(lib, "winhttp.lib")
 
-namespace Utility::Audio
+namespace Utility::AudioPlayback
 {
 	ThreadedAudioPlayer::ThreadedAudioPlayer(Logging::LoggerInterface& logger)
 		: m_wavTools(logger), m_logger(logger)
@@ -46,7 +46,7 @@ namespace Utility::Audio
 		StopPlayback();
 	}
 
-	bool Utility::Audio::ThreadedAudioPlayer::AddToQueue(const std::string& url)
+	bool Utility::AudioPlayback::ThreadedAudioPlayer::AddToQueue(const std::string& url)
 	{
 		std::wstring wurl = ConvertToWideString(url);
 

@@ -33,13 +33,19 @@
     <ClCompile Include="src\Utility\SignalR\SignalRWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utility\Audio\ThreadedAudioPlayer.cpp">
+    <ClCompile Include="src\Utility\AudioPlayback\ThreadedAudioPlayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utility\Audio\WavTools.cpp">
+    <ClCompile Include="src\Utility\AudioPlayback\WavTools.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Utility\Http\HttpClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utility\AudioInput\MicrophoneWebSocket.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utility\AudioInput\AudioCaptureDevice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -104,13 +110,19 @@
     <ClInclude Include="src\Voxta\DataTypes\VoiceServiceData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utility\Audio\ThreadedAudioPlayer.h">
+    <ClInclude Include="src\Utility\AudioPlayback\ThreadedAudioPlayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utility\Audio\WavTools.h">
+    <ClInclude Include="src\Utility\AudioPlayback\WavTools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Utility\Http\HttpClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\AudioInput\MicrophoneWebSocket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\AudioInput\AudioCaptureDevice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

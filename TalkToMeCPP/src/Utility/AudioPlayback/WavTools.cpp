@@ -8,7 +8,7 @@
 #include <string>
 #include <format>
 
-namespace Utility::Audio
+namespace Utility::AudioPlayback
 {
 	WavTools::WavTools(Logging::LoggerInterface& logger)
 		: m_logger(logger)

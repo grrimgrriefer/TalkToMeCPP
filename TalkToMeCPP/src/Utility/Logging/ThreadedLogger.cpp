@@ -37,16 +37,16 @@ namespace Utility::Logging
 		using enum LogLevel;
 		switch (level)
 		{
-			case DEBUG:
+			case Debug:
 				formattedMessage << "[DEBUG] ";
 				break;
-			case INFO:
+			case Info:
 				formattedMessage << "[INFO] ";
 				break;
-			case WARNING:
+			case Warning:
 				formattedMessage << "[WARNING] ";
 				break;
-			case ERROR:
+			case Error:
 				formattedMessage << "[ERROR] ";
 				break;
 		}
@@ -56,10 +56,10 @@ namespace Utility::Logging
 
 		formattedMessage << message;
 		std::string formattedStr = formattedMessage.str();
-		if (level == LogLevel::WARNING || level == LogLevel::ERROR)
+		if (level == LogLevel::Warning || level == LogLevel::Error)
 		{
 			// Only log errors and warnings to console, rest goes in the logfile
-			std::osyncstream((level == LogLevel::ERROR) ? std::cerr : std::cout) << formattedStr << std::endl;
+			std::osyncstream((level == LogLevel::Error) ? std::cerr : std::cout) << formattedStr << std::endl;
 		}
 
 		AddToFileWriteQueue(formattedStr);

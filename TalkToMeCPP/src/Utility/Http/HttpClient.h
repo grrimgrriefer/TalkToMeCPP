@@ -30,7 +30,7 @@
 #include <vector>
 #include <type_traits>
 
-namespace Utility::Audio
+namespace Utility::AudioPlayback
 {
 	class HttpClient
 	{

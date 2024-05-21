@@ -119,7 +119,7 @@ namespace TalkToMeCPPTests
 			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault(testing::SaveArg<0>(&logtype));
 
 			CreateClient().Connect();
-			Assert::AreEqual(static_cast<int>(Utility::Logging::LoggerInterface::LogLevel::ERROR), static_cast<int>(logtype));
+			Assert::AreEqual(static_cast<int>(Utility::Logging::LoggerInterface::LogLevel::Error), static_cast<int>(logtype));
 		}
 
 		TEST_METHOD(TestConnectRefuseWhenConnected)

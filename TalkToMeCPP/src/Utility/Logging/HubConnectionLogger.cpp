@@ -14,6 +14,6 @@ namespace Utility::Logging
 
 	void __cdecl HubConnectionLogger::write(const std::string& entry)
 	{
-		m_logger.LogMessage(LoggerInterface::LogLevel::DEBUG, entry);
+		m_logger.LogMessage(LoggerInterface::LogLevel::Debug, entry);
 	}
 }

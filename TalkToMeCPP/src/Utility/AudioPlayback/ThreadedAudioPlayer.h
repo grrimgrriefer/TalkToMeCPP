@@ -12,7 +12,7 @@
 #include <stop_token>
 #include <vector>
 
-namespace Utility::Audio
+namespace Utility::AudioPlayback
 {
 	class ThreadedAudioPlayer
 	{

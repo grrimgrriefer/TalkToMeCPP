@@ -5,6 +5,8 @@
     "description": "None",
     "dependencies": [
 	  "microsoft-signalr",
-	  "boost-uuid"
+	  "boost-uuid",
+	  "boost-beast",
+	  "rtaudio"
     ]
 }

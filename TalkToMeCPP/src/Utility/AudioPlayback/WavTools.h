@@ -6,7 +6,7 @@
 #include <string>
 #include "../Logging/ThreadedLogger.h"
 
-namespace Utility::Audio
+namespace Utility::AudioPlayback
 {
 	class WavTools
 	{
