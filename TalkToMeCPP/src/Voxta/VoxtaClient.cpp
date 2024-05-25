@@ -76,7 +76,7 @@ namespace Voxta
 				SafeInvoke([this] ()
 					{
 						m_logger.LogMessage(Utility::Logging::LoggerInterface::LogLevel::Info, "VoxtaClient connected successfully");
-						SendMessage(m_voxtaApi.GetAuthenticateRequestData());
+						SendMessageToServer(m_voxtaApi.GetAuthenticateRequestData());
 					}, exception);
 				startTask.set_value();
 			});
@@ -131,12 +131,22 @@ namespace Voxta
 			});
 	}
 
-	void VoxtaClient::LoadCharacter(std::string_view characterId)
+	void VoxtaClient::NotifyAudioPlaybackStart(std::string_view messageId, int startIndex, int endIndex, double duration)
 	{
-		SendMessage(m_voxtaApi.GetLoadCharacterRequestData(characterId));
+		SendMessageToServer(m_voxtaApi.GetNotifyAudioPlaybackStartData(m_chatSession->m_sessionId, messageId, startIndex, endIndex, duration));
 	}
 
-	void VoxtaClient::SendMessage(const signalr::value& message)
+	void VoxtaClient::NotifyAudioPlaybackComplete(std::string_view messageId)
+	{
+		SendMessageToServer(m_voxtaApi.GetNotifyAudioPlaybackCompleteData(m_chatSession->m_sessionId, messageId));
+	}
+
+	void VoxtaClient::LoadCharacter(std::string_view characterId)
+	{
+		SendMessageToServer(m_voxtaApi.GetLoadCharacterRequestData(characterId));
+	}
+
+	void VoxtaClient::SendMessageToServer(const signalr::value& message)
 	{
 		m_hubConnection->Invoke("SendMessage", std::vector<signalr::value> { message },
 			[this] (const signalr::value& value, std::exception_ptr exception)
@@ -202,7 +212,7 @@ namespace Voxta
 	{
 		auto derivedResponse = dynamic_cast<const DataTypes::ServerResponses::ServerResponseWelcome*>(&response);
 		m_userData = std::make_unique<DataTypes::CharData>(derivedResponse->m_user);
-		SendMessage(m_voxtaApi.GetLoadCharactersListData());
+		SendMessageToServer(m_voxtaApi.GetLoadCharactersListData());
 	}
 
 	void VoxtaClient::HandleCharacterListResponse(const DataTypes::ServerResponses::ServerResponseBase& response)
@@ -222,7 +232,7 @@ namespace Voxta
 		if (auto characterIt = std::ranges::find_if(m_characterList.begin(), m_characterList.end(),
 			DataTypes::CharDataIdComparer(derivedResponse->m_characterId)); characterIt != std::end(m_characterList))
 		{
-			SendMessage(m_voxtaApi.GetStartChatRequestData((*characterIt).get()));
+			SendMessageToServer(m_voxtaApi.GetStartChatRequestData((*characterIt).get()));
 			return true;
 		}
 		else
@@ -286,7 +296,7 @@ namespace Voxta
 				}
 
 				std::string userInputText = m_requestingUserInputEvent();
-				SendMessage(m_voxtaApi.GetSendUserMessageData(m_chatSession->m_sessionId, userInputText));
+				SendMessageToServer(m_voxtaApi.GetSendUserMessageData(m_chatSession->m_sessionId, userInputText));
 				break;
 		}
 	}

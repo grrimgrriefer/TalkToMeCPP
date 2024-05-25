@@ -29,6 +29,7 @@
 #include <boost/uuid/random_generator.hpp>
 #include <vector>
 #include <type_traits>
+#include <future>
 
 #pragma comment(lib, "urlmon.lib")
 #pragma comment(lib, "Winmm.lib")
@@ -74,9 +75,17 @@ namespace Utility::AudioPlayback
 		return wide;
 	}
 
-	void ThreadedAudioPlayer::StartPlayback()
+	void ThreadedAudioPlayer::StartPlayback(std::function<void()> onPlaybackFinished)
 	{
-		m_playbackThread = std::jthread(std::bind_front(&ThreadedAudioPlayer::PlaybackLoop, this));
+		if (m_playbackFinished)
+		{
+			std::cerr << "Can't start playback while playing" << std::endl;
+			return;
+		}
+		m_playbackFinished = onPlaybackFinished;
+		m_finishedPromise = std::promise<void>();
+		auto finishedFuture = m_finishedPromise.get_future();
+		m_playbackThread = std::jthread(std::bind_front(&ThreadedAudioPlayer::PlaybackLoop, this, std::move(finishedFuture)));
 	}
 
 	void ThreadedAudioPlayer::StopPlayback()
@@ -89,7 +98,7 @@ namespace Utility::AudioPlayback
 		}
 	}
 
-	void ThreadedAudioPlayer::PlaybackLoop(std::stop_token stopToken)
+	void ThreadedAudioPlayer::PlaybackLoop(std::stop_token stopToken, std::future<void> finishedFuture)
 	{
 		while (!stopToken.stop_requested())
 		{
@@ -109,6 +118,13 @@ namespace Utility::AudioPlayback
 			std::this_thread::sleep_for(std::chrono::duration<double>(m_wavTools.CalculateDuration(audioData)));
 			m_audioQueue.pop();
 			lock.unlock();
+		}
+
+		if (stopToken.stop_requested())
+		{
+			m_finishedPromise.set_value();
+			finishedFuture.wait();
+			m_playbackFinished();
 		}
 	}
 }

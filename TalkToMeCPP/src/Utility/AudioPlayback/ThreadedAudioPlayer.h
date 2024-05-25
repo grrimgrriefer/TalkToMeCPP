@@ -11,6 +11,7 @@
 #include <mutex>
 #include <stop_token>
 #include <vector>
+#include <future>
 
 namespace Utility::AudioPlayback
 {
@@ -22,7 +23,7 @@ namespace Utility::AudioPlayback
 
 		bool AddToQueue(const std::string& pathToFile);
 
-		void StartPlayback();
+		void StartPlayback(std::function<void()> onFinishedCallback);
 		void StopPlayback();
 
 	private:
@@ -33,8 +34,10 @@ namespace Utility::AudioPlayback
 		WavTools m_wavTools;
 		Logging::LoggerInterface& m_logger;
 		HttpClient m_httpClient;
+		std::function<void()> m_playbackFinished;
+		std::promise<void> m_finishedPromise;
 
-		void PlaybackLoop(std::stop_token stopToken);
+		void PlaybackLoop(std::stop_token stopToken, std::future<void> finishedFuture);
 		std::wstring ConvertToWideString(const std::string& narrow);
 	};
 }

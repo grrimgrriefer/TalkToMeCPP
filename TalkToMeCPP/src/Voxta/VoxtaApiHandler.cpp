@@ -155,6 +155,28 @@ namespace Voxta
 		});
 	}
 
+	signalr::value VoxtaApiHandler::GetNotifyAudioPlaybackStartData(std::string_view sessionId, std::string_view messageId,
+		int startIndex, int endIndex, double duration) const
+	{
+		return signalr::value(std::map<std::string, signalr::value> {
+			{ "$type", "speechPlaybackStart" },
+			{ "sessionId", sessionId.data() },
+			{ "messageId", messageId.data() },
+			{ "startIndex", signalr::value(static_cast<double>(startIndex)) },
+			{ "endIndex", signalr::value(static_cast<double>(endIndex)) },
+			{ "duration", signalr::value(static_cast<double>(duration)) }
+		});
+	}
+
+	signalr::value VoxtaApiHandler::GetNotifyAudioPlaybackCompleteData(std::string_view sessionId, std::string_view messageId) const
+	{
+		return signalr::value(std::map<std::string, signalr::value> {
+			{ "$type", "speechPlaybackComplete" },
+			{ "sessionId", sessionId.data() },
+			{ "messageId", messageId.data() }
+		});
+	}
+
 	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatUpdate> VoxtaApiHandler::GetChatUpdateResponse(
 		const std::map<std::string, signalr::value>& map) const
 	{

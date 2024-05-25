@@ -20,7 +20,7 @@ image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
 
 [ :heavy_check_mark:	]   Text chat with specific character(s)
 
-[ :heavy_check_mark:		]   Full code cleanup & proper test coverage (v0.0.1a)
+[ :heavy_check_mark:		]   Full code cleanup & proper test coverage *(v0.0.1a)*
 
 [ :heavy_check_mark:	]   Playback Voxta server generated audio
 
@@ -53,7 +53,7 @@ image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
 == Q&A
 
 [qanda]
+Can I use this for my own project?:: Yes.
 Can I contribute to this repo?:: No.
 Can I donate/support this?:: No. 
-Can I use this for my own project?:: Yes.
 Do I need to credit you?:: It'd be appreciated, but if you don't that's fine too. :shrug:

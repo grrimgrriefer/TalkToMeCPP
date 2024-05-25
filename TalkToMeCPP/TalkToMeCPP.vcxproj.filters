@@ -48,6 +48,9 @@
     <ClCompile Include="src\Utility\AudioInput\AudioCaptureDevice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Utility\AudioInput\AudioInputWrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Voxta\VoxtaClient.h">
@@ -123,6 +126,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Utility\AudioInput\AudioCaptureDevice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\AudioInput\AudioInputWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

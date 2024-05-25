@@ -1,10 +1,9 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
+#pragma once
 #include <cstdint>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include "../Logging/ThreadedLogger.h"
+#include <vector>
+#include "../Logging/LoggerInterface.h"
 
 namespace Utility::AudioPlayback
 {

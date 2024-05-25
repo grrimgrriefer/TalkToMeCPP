@@ -1,53 +1,55 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
+#pragma once
 #include "MicrophoneWebSocket.h"
 #include "AudioCaptureDevice.h"
+#include <memory>
 
 namespace Utility::AudioInput
 {
 	class AudioInputWrapper
 	{
 	public:
-		explicit AudioInputWrapper()
+		explicit AudioInputWrapper() : micWebSocket(std::make_shared<MicrophoneWebSocket>()),
+			audioDevice(micWebSocket)
 		{
-			micWebSocket.OpenSocket();
 		}
+
 		~AudioInputWrapper()
 		{
-			micWebSocket.CloseSocket();
+			micWebSocket->CloseSocket();
+		}
+
+		void Initialize()
+		{
+			micWebSocket->OpenSocket();
+			audioDevice.Initialize();
 		}
 
 		void StartStreaming()
 		{
 			if (!isStreaming)
 			{
-				audioDevice.startStream();
-				micWebSocket.StartStreaming(audioDevice);
+				audioDevice.startStream(&MicrophoneWebSocket::SendData);
 				isStreaming = true;
 			}
 		}
 
-		void StopStreaming()
-		{
-			if (isStreaming)
+		/*	void StopStreaming()
 			{
-				audioDevice.stopStream();
-				micWebSocket.StopStreaming();
-				isStreaming = false;
+				if (isStreaming)
+				{
+					audioDevice.stopStream();
+					isStreaming = false;
+				}
 			}
-		}
+		*/
 
 		// Additional methods to interact with the streaming process can be added here
 
 	private:
-		MicrophoneWebSocket micWebSocket;
+		std::shared_ptr<MicrophoneWebSocket> micWebSocket;
 		AudioCaptureDevice audioDevice;
 		bool isStreaming = false;
-
-		// This method will be used by MicrophoneWebSocket to get audio data from AudioCaptureDevice
-		static void OnAudioDataReceived(short* buffer, unsigned int nBufferFrames)
-		{
-			// Here you would add the logic to send the audio data through the WebSocket
-		}
 	};
 }

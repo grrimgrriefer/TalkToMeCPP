@@ -1,12 +1,10 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
+#pragma once
 #include "WavTools.h"
 #include <cstdint>
 #include <iostream>
-#include <fstream>
-#include <iosfwd>
-#include <string>
-#include <format>
+#include <vector>
 
 namespace Utility::AudioPlayback
 {

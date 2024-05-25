@@ -1,13 +1,11 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
-#include "AudioCaptureDevice.h"
 #include <SDKDDKVer.h>
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
 #include <boost/asio/connect.hpp>
 #include <boost/asio/ip/tcp.hpp>
-#include <cstdlib>
 #include <iostream>
 #include <string>
 
@@ -50,15 +48,27 @@ namespace Utility::AudioInput
 			ws->close(boost::beast::websocket::close_code::normal);
 		}
 
-		void StartStreaming(AudioCaptureDevice& audioDevice)
+		void SendData(const char* buffer, unsigned int nBufferFrames)
 		{
-			audioDevice.startStream();
-
-			// Continuously capture audio data and send it over the WebSocket
-		}
-
-		void StopStreaming()
-		{
+			if (ws->is_open())
+			{
+				try
+				{
+					//ws->write(boost::asio::buffer(buffer, nBufferFrames));
+				}
+				catch (const boost::system::system_error& e)
+				{
+					std::cerr << "Boost System Error: " << e.what() << std::endl;
+				}
+				catch (const std::exception& e)
+				{
+					std::cerr << "Standard Exception: " << e.what() << std::endl;
+				}
+				catch (...)
+				{
+					std::cerr << "An unknown error occurred." << std::endl;
+				}
+			}
 		}
 	};
 }

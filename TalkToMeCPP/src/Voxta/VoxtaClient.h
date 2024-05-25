@@ -7,7 +7,6 @@
 #include "Datatypes/ChatSession.h"
 #include "DataTypes/ChatMessage.h"
 #include "../Utility/SignalR/SignalRWrapperInterface.h"
-#include "../Utility/AudioInput/MicrophoneWebSocket.h"
 #include <signalrclient/signalr_value.h>
 #include <string>
 #include <vector>
@@ -43,13 +42,15 @@ namespace Voxta
 		const std::vector<std::unique_ptr<const DataTypes::CharData>>& GetCharacters() const;
 		const DataTypes::ChatSession* GetChatSession() const;
 
+		void NotifyAudioPlaybackStart(std::string_view messageId, int startIndex, int endIndex, double duration);
+		void NotifyAudioPlaybackComplete(std::string_view messageId);
+
 		void Connect();
 		void Disconnect();
 		void LoadCharacter(std::string_view characterId);
 
 	private:
 		std::unique_ptr<Utility::SignalR::SignalRWrapperInterface> m_hubConnection;
-		std::unique_ptr<Utility::AudioInput::MicrophoneWebSocket> m_sttConnection;
 		const VoxtaApiHandler m_voxtaApi;
 		const std::function<void(VoxtaClientState newState)> m_stateChange;
 		const std::function<std::string()> m_requestingUserInputEvent;
@@ -62,7 +63,7 @@ namespace Voxta
 		VoxtaClientState m_currentState = VoxtaClient::VoxtaClientState::DISCONNECTED;
 
 		void StartListeningToServer();
-		void SendMessage(const signalr::value& message);
+		void SendMessageToServer(const signalr::value& message);
 		bool HandleResponse(const std::map<std::string, signalr::value>& map);
 		void HandleBadResponse(const signalr::value& response);
 

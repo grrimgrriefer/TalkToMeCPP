@@ -1,6 +1,8 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
+#include "Utility/AudioInput/AudioInputWrapper.h"
+
 #include "Voxta/VoxtaClient.h"
 #include "Utility/Logging/ThreadedLogger.h"
 #include "Voxta/DataTypes/CharData.h"
@@ -34,6 +36,7 @@ public:
 		path /= "logfile.txt";
 		logger = std::make_unique<Utility::Logging::ThreadedLogger>(path.string());
 		audioPlayer = std::make_unique<Utility::AudioPlayback::ThreadedAudioPlayer>(*logger);
+		audioInput = std::make_unique<Utility::AudioInput::AudioInputWrapper>();
 
 		auto wrapper = std::make_unique<Utility::SignalR::SignalRWrapper>("127.0.0.1", 5384, *logger);
 		std::unique_ptr<Utility::SignalR::SignalRWrapperInterface> interfacePtr = std::move(wrapper);
@@ -49,7 +52,7 @@ public:
 			[this] (const Voxta::DataTypes::ChatMessage* message, const Voxta::DataTypes::CharData* charSource)
 			{
 				CharSpeaking(message, charSource);
-				DoAudioPlayback(message->m_audioUrls);
+				DoAudioPlayback(message);
 			});
 
 		voxtaClient->Connect();
@@ -69,6 +72,7 @@ private:
 	std::mutex mutexLock;
 	std::condition_variable quittinTimeCondition;
 	std::unique_ptr<Utility::AudioPlayback::ThreadedAudioPlayer> audioPlayer;
+	std::unique_ptr<Utility::AudioInput::AudioInputWrapper> audioInput;
 	bool itsQuittingTime;
 
 	void ClientCallback(const Voxta::VoxtaClient::VoxtaClientState& newState)
@@ -166,22 +170,20 @@ private:
 		return line;
 	}
 
-	void DoAudioPlayback(const std::vector<std::string>& audioUrls)
+	void DoAudioPlayback(const Voxta::DataTypes::ChatMessage* message)
 	{
-		for (int i = 0; i < audioUrls.size(); i++)
+		for (int i = 0; i < message->m_audioUrls.size(); i++)
 		{
-			audioPlayer->AddToQueue(std::format("http://{}:{}{}", "127.0.0.1", 5384, audioUrls[i]));
+			audioPlayer->AddToQueue(std::format("http://{}:{}{}", "127.0.0.1", 5384, message->m_audioUrls[i]));
 		}
-		audioPlayer->StartPlayback();
+		audioPlayer->StartPlayback([this, message] () { voxtaClient->NotifyAudioPlaybackComplete(message->m_messageId); });
+
+		//audioInput->Initialize();
+		//audioInput->StartStreaming();
 	}
 };
 
 int main()
 {
-	//auto client = MainThreadHogger();
-	auto microphoneTester = Utility::AudioInput::MicrophoneWebSocket::MicrophoneWebSocket();
-	microphoneTester.OpenSocket();
-
-	while (true) { ; }
-	return 0;
+	auto client = MainThreadHogger();
 }
