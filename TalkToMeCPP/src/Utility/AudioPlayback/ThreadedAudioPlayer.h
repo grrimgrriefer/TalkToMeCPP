@@ -11,14 +11,13 @@
 #include <mutex>
 #include <stop_token>
 #include <vector>
-#include <future>
 
 namespace Utility::AudioPlayback
 {
 	class ThreadedAudioPlayer
 	{
 	public:
-		explicit ThreadedAudioPlayer(Logging::LoggerInterface& logger);
+		explicit ThreadedAudioPlayer(Logging::LoggerInterface& logger, std::string_view serverIP, int serverPort);
 		~ThreadedAudioPlayer();
 
 		bool AddToQueue(const std::string& pathToFile);
@@ -35,9 +34,10 @@ namespace Utility::AudioPlayback
 		Logging::LoggerInterface& m_logger;
 		HttpClient m_httpClient;
 		std::function<void()> m_playbackFinished;
-		std::promise<void> m_finishedPromise;
+		std::string m_serverIP;
+		int m_serverPort;
 
-		void PlaybackLoop(std::stop_token stopToken, std::future<void> finishedFuture);
+		void PlaybackLoop(std::stop_token stopToken);
 		std::wstring ConvertToWideString(const std::string& narrow);
 	};
 }

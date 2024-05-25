@@ -30,15 +30,15 @@
 class MainThreadHogger
 {
 public:
-	MainThreadHogger()
+	MainThreadHogger(std::string_view serverIP, int serverPort)
 	{
 		auto path = std::filesystem::current_path();
 		path /= "logfile.txt";
 		logger = std::make_unique<Utility::Logging::ThreadedLogger>(path.string());
-		audioPlayer = std::make_unique<Utility::AudioPlayback::ThreadedAudioPlayer>(*logger);
-		audioInput = std::make_unique<Utility::AudioInput::AudioInputWrapper>();
+		audioPlayer = std::make_unique<Utility::AudioPlayback::ThreadedAudioPlayer>(*logger, serverIP, serverPort);
+		audioInput = std::make_unique<Utility::AudioInput::AudioInputWrapper>(serverIP, serverPort);
 
-		auto wrapper = std::make_unique<Utility::SignalR::SignalRWrapper>("127.0.0.1", 5384, *logger);
+		auto wrapper = std::make_unique<Utility::SignalR::SignalRWrapper>(serverIP, serverPort, *logger);
 		std::unique_ptr<Utility::SignalR::SignalRWrapperInterface> interfacePtr = std::move(wrapper);
 		voxtaClient = std::make_unique<Voxta::VoxtaClient>(std::move(interfacePtr), *logger,
 			[this] (Voxta::VoxtaClient::VoxtaClientState newState)
@@ -174,16 +174,17 @@ private:
 	{
 		for (int i = 0; i < message->m_audioUrls.size(); i++)
 		{
-			audioPlayer->AddToQueue(std::format("http://{}:{}{}", "127.0.0.1", 5384, message->m_audioUrls[i]));
+			audioPlayer->AddToQueue(message->m_audioUrls[i]);
 		}
-		audioPlayer->StartPlayback([this, message] () { voxtaClient->NotifyAudioPlaybackComplete(message->m_messageId); });
-
-		//audioInput->Initialize();
-		//audioInput->StartStreaming();
+		audioPlayer->StartPlayback([this, message] ()
+			{
+				voxtaClient->NotifyAudioPlaybackComplete(message->m_messageId);
+				audioInput->StartStreaming();
+			});
 	}
 };
 
 int main()
 {
-	auto client = MainThreadHogger();
+	auto client = MainThreadHogger("127.0.0.1", 5384);
 }

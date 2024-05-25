@@ -10,7 +10,8 @@ namespace Utility::AudioInput
 	class AudioInputWrapper
 	{
 	public:
-		explicit AudioInputWrapper() : micWebSocket(std::make_shared<MicrophoneWebSocket>()),
+		explicit AudioInputWrapper(std::string_view serverIP, int serverPort) :
+			micWebSocket(std::make_shared<MicrophoneWebSocket>(serverIP, serverPort)),
 			audioDevice(micWebSocket)
 		{
 		}
@@ -20,14 +21,13 @@ namespace Utility::AudioInput
 			micWebSocket->CloseSocket();
 		}
 
-		void Initialize()
-		{
-			micWebSocket->OpenSocket();
-			audioDevice.Initialize();
-		}
-
 		void StartStreaming()
 		{
+			if (!isInitialized)
+			{
+				Initialize();
+			}
+
 			if (!isStreaming)
 			{
 				audioDevice.startStream(&MicrophoneWebSocket::SendData);
@@ -35,21 +35,17 @@ namespace Utility::AudioInput
 			}
 		}
 
-		/*	void StopStreaming()
-			{
-				if (isStreaming)
-				{
-					audioDevice.stopStream();
-					isStreaming = false;
-				}
-			}
-		*/
-
-		// Additional methods to interact with the streaming process can be added here
-
 	private:
+		void Initialize() // Don't initialize in constructor, we wanna wait till Voxta client has authorized before opening socket
+		{
+			micWebSocket->OpenSocket();
+			audioDevice.Initialize();
+			isInitialized = true;
+		}
+
 		std::shared_ptr<MicrophoneWebSocket> micWebSocket;
 		AudioCaptureDevice audioDevice;
 		bool isStreaming = false;
+		bool isInitialized = false;
 	};
 }

@@ -48,6 +48,10 @@ namespace Utility::AudioInput
 			{
 				microphoneApi->openStream(nullptr, &parameters, RTAUDIO_SINT16,
 								sampleRate, &bufferFrames, &AudioCaptureDevice::audioCallback, this);
+
+				auto info = microphoneApi->getDeviceInfo(parameters.deviceId);
+				// Print, for example, the name and maximum number of output channels for each device
+				std::cout << std::format("Started audio input stream from device {}", info.name) << std::endl;
 			}
 			catch (std::exception& e)
 			{

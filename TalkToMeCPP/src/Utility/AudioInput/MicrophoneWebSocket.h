@@ -16,16 +16,18 @@ namespace Utility::AudioInput
 	public:
 		std::unique_ptr<boost::beast::websocket::stream<boost::asio::ip::tcp::socket>> ws;
 
+		MicrophoneWebSocket(std::string_view serverIP, int serverPort) : m_serverIP(serverIP), m_serverPort(serverPort)
+		{
+		}
+
 		void OpenSocket()
 		{
-			std::string host = "localhost";
 			boost::asio::io_context ioc;
 			boost::asio::ip::tcp::resolver resolver{ ioc };
 			ws = std::make_unique<boost::beast::websocket::stream<boost::asio::ip::tcp::socket>>(ioc);
-
-			auto const results = resolver.resolve(host, "5384");
+			auto const results = resolver.resolve(m_serverIP, std::to_string(m_serverPort));
 			auto ep = boost::asio::connect(ws->next_layer(), results);
-			host += ':' + std::to_string(ep.port());
+			std::string target = "/ws/audio/input/stream";
 
 			ws->set_option(boost::beast::websocket::stream_base::decorator(
 				[] (boost::beast::websocket::request_type& req)
@@ -35,7 +37,9 @@ namespace Utility::AudioInput
 					" websocket-client-coro");
 				}));
 
-			ws->handshake(host, "/ws/audio/input/stream");
+			ws->handshake(m_serverIP + ':' + std::to_string(ep.port()), target);
+			std::cout << std::format("Opening microphone socket: {}:{}{}", "ws://" + m_serverIP, m_serverPort, target) << std::endl;
+
 			ws->write(boost::asio::buffer(std::string("{\"contentType\":\"audio / wav\", \"sampleRate\" : 16000, \"channels\" : 1, \"bitsPerSample\" : 16, \"bufferMilliseconds\" : 30}")));
 		}
 
@@ -70,5 +74,8 @@ namespace Utility::AudioInput
 				}
 			}
 		}
+	private:
+		std::string m_serverIP;
+		int m_serverPort;
 	};
 }

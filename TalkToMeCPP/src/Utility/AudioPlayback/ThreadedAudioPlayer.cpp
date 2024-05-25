@@ -37,8 +37,8 @@
 
 namespace Utility::AudioPlayback
 {
-	ThreadedAudioPlayer::ThreadedAudioPlayer(Logging::LoggerInterface& logger)
-		: m_wavTools(logger), m_logger(logger)
+	ThreadedAudioPlayer::ThreadedAudioPlayer(Logging::LoggerInterface& logger, std::string_view serverIP, int serverPort)
+		: m_wavTools(logger), m_logger(logger), m_serverIP(serverIP), m_serverPort(serverPort)
 	{
 	}
 
@@ -49,8 +49,7 @@ namespace Utility::AudioPlayback
 
 	bool Utility::AudioPlayback::ThreadedAudioPlayer::AddToQueue(const std::string& url)
 	{
-		std::wstring wurl = ConvertToWideString(url);
-
+		std::wstring wurl = ConvertToWideString(std::format("http://{}:{}{}", m_serverIP, m_serverPort, url));
 		std::wstring headers = L"Accept: audio/x-wav, audio/mpeg\r\n"
 			L"Accept-Encoding: gzip, deflate, br, zstd\r\n"
 			L"Connection: keep-alive\r\n"
@@ -83,9 +82,7 @@ namespace Utility::AudioPlayback
 			return;
 		}
 		m_playbackFinished = onPlaybackFinished;
-		m_finishedPromise = std::promise<void>();
-		auto finishedFuture = m_finishedPromise.get_future();
-		m_playbackThread = std::jthread(std::bind_front(&ThreadedAudioPlayer::PlaybackLoop, this, std::move(finishedFuture)));
+		m_playbackThread = std::jthread(std::bind_front(&ThreadedAudioPlayer::PlaybackLoop, this));
 	}
 
 	void ThreadedAudioPlayer::StopPlayback()
@@ -98,33 +95,26 @@ namespace Utility::AudioPlayback
 		}
 	}
 
-	void ThreadedAudioPlayer::PlaybackLoop(std::stop_token stopToken, std::future<void> finishedFuture)
+	void ThreadedAudioPlayer::PlaybackLoop(std::stop_token stopToken)
 	{
 		while (!stopToken.stop_requested())
 		{
 			std::unique_lock<std::mutex> lock(m_queueMutex);
 			m_cv.wait(lock, [this, &stopToken]
 			{
-				return !m_audioQueue.empty() || stopToken.stop_requested();
+				bool weStillPlayin = !m_audioQueue.empty() || stopToken.stop_requested();
+				if (!weStillPlayin)
+				{
+					m_playbackFinished();
+				}
+				return weStillPlayin;
 			});
-
-			if (stopToken.stop_requested())
-			{
-				break;
-			}
 
 			auto& audioData = m_audioQueue.front();
 			PlaySoundA(reinterpret_cast<LPCSTR>(audioData.data()), nullptr, SND_MEMORY | SND_ASYNC);
 			std::this_thread::sleep_for(std::chrono::duration<double>(m_wavTools.CalculateDuration(audioData)));
 			m_audioQueue.pop();
 			lock.unlock();
-		}
-
-		if (stopToken.stop_requested())
-		{
-			m_finishedPromise.set_value();
-			finishedFuture.wait();
-			m_playbackFinished();
 		}
 	}
 }
