@@ -7,6 +7,7 @@
 	  "microsoft-signalr",
 	  "boost-uuid",
 	  "boost-beast",
-	  "rtaudio"
+	  "rtaudio",
+	  "websocketpp"
     ]
 }

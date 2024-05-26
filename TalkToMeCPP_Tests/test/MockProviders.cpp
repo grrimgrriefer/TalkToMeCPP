@@ -87,6 +87,20 @@ namespace TalkToMeCPPTests
 				{ "$type", "characterLoaded" },
 				{ "character", std::map<std::string, signalr::value> {
 					{ "id", signalr::value(characterId.data()) },
+					{ "textToSpeech", std::vector<signalr::value> {
+						std::map<std::string, signalr::value> {
+							{ "voice", std::map<std::string, signalr::value> {
+								{ "parameters", std::map<std::string, signalr::value> {
+									{ "VoiceBackend", "unrealspeech" },
+									{ "VoiceId", "Liv" }
+								} },
+								{ "label", "Liv" }
+							} },
+							{ "service", std::map<std::string, signalr::value> {
+								{ "serviceName", "VoxtaCloud" }
+							} }
+						}
+					}},
 					{ "enableThinkingSpeech", enableThinkingSpeech } } }
 			});
 		}

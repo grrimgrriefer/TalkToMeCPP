@@ -36,6 +36,8 @@ namespace TalkToMeCPPTests
 		// Mocks for the callback functions
 		Voxta::VoxtaClient::VoxtaClientState newState;
 		std::string userInput;
+		std::string sttTranscribedText;
+		bool sttIsFinalized;
 		const Voxta::DataTypes::ChatMessage* lastChatMessage;
 		const Voxta::DataTypes::CharData* lastCharData;
 
@@ -47,6 +49,11 @@ namespace TalkToMeCPPTests
 		std::function<std::string()> requestingUserInputEventMock = [this] ()
 			{
 				return userInput;
+			};
+		std::function<void(std::string_view, bool)> speechTranscribingEventMock = [this] (std::string_view transcribedText, bool isFinalized)
+			{
+				sttTranscribedText = transcribedText;
+				sttIsFinalized = isFinalized;
 			};
 		std::function<void(const Voxta::DataTypes::ChatMessage*, const Voxta::DataTypes::CharData*)> charSpeakingEventMock = [this] (const Voxta::DataTypes::ChatMessage* chatMsg, const Voxta::DataTypes::CharData* charData)
 			{
@@ -64,6 +71,8 @@ namespace TalkToMeCPPTests
 		{
 			newState = Voxta::VoxtaClient::VoxtaClientState::DISCONNECTED;
 			userInput = "";
+			sttTranscribedText = "";
+			sttIsFinalized = false;
 			lastChatMessage = nullptr;
 			lastCharData = nullptr;
 
@@ -112,7 +121,7 @@ namespace TalkToMeCPPTests
 
 		TEST_METHOD(TestConnectLogOnException)
 		{
-			Utility::Logging::LoggerInterface::LogLevel logtype = Utility::Logging::LoggerInterface::LogLevel::DEBUG;
+			Utility::Logging::LoggerInterface::LogLevel logtype = Utility::Logging::LoggerInterface::LogLevel::Debug;
 			ON_CALL(*mockWrapper.get(), On(testing::_, testing::_)).WillByDefault([] () {});
 			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (std::function<void(std::exception_ptr)> callback) { callback(std::move(std::make_exception_ptr("mock"))); });
 			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([] () {});
@@ -125,7 +134,7 @@ namespace TalkToMeCPPTests
 		TEST_METHOD(TestConnectRefuseWhenConnected)
 		{
 			bool triggered = false;
-			Utility::Logging::LoggerInterface::LogLevel logtype = Utility::Logging::LoggerInterface::LogLevel::DEBUG;
+			Utility::Logging::LoggerInterface::LogLevel logtype = Utility::Logging::LoggerInterface::LogLevel::Debug;
 			ON_CALL(*mockWrapper.get(), On(testing::_, testing::_)).WillByDefault([] () {});
 			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (std::function<void(std::exception_ptr)> callback) { triggered = true; callback(nullptr); });
 			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([] () {});
@@ -134,11 +143,11 @@ namespace TalkToMeCPPTests
 			auto client = CreateClient();
 			client.Connect();
 			triggered = false;
-			logtype = Utility::Logging::LoggerInterface::LogLevel::DEBUG;
+			logtype = Utility::Logging::LoggerInterface::LogLevel::Debug;
 
 			client.Connect();
 			Assert::IsFalse(triggered);
-			Assert::AreEqual(static_cast<int>(Utility::Logging::LoggerInterface::LogLevel::WARNING), static_cast<int>(logtype));
+			Assert::AreEqual(static_cast<int>(Utility::Logging::LoggerInterface::LogLevel::Warning), static_cast<int>(logtype));
 		}
 
 		TEST_METHOD(TestDisconnectStopInvoked)
@@ -343,7 +352,7 @@ namespace TalkToMeCPPTests
 		{
 			signalRWrapper = std::move(mockWrapper);
 			loggerWrapper = std::move(mockLogger);
-			return Voxta::VoxtaClient(std::move(signalRWrapper), *loggerWrapper, stateChangeMock, requestingUserInputEventMock, charSpeakingEventMock);
+			return Voxta::VoxtaClient(std::move(signalRWrapper), *loggerWrapper, stateChangeMock, requestingUserInputEventMock, speechTranscribingEventMock, charSpeakingEventMock);
 		}
 	};
 }

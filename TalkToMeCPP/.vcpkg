@@ -9,5 +9,7 @@ vcpkg install boost-beast:x86-windows
 vcpkg install boost-beast:x64-windows
 vcpkg install rtaudio:x86-windows
 vcpkg install rtaudio:x64-windows
+vcpkg install websocketpp:x86-windows
+vcpkg install websocketpp:x64-windows
 
 vcpkg integrate install
