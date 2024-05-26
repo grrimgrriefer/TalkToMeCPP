@@ -35,6 +35,15 @@ namespace Utility::AudioInput
 			}
 		}
 
+		void StopStreaming()
+		{
+			if (!isStreaming)
+			{
+				audioDevice.stopStream();
+				isStreaming = false;
+			}
+		}
+
 	private:
 		void Initialize() // Don't initialize in constructor, we wanna wait till Voxta client has authorized before opening socket
 		{

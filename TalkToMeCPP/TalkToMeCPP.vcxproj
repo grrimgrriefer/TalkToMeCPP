@@ -139,6 +139,7 @@
   <ItemGroup>
     <ClCompile Include="src\Utility\AudioInput\AudioCaptureDevice.cpp" />
     <ClCompile Include="src\Utility\AudioInput\AudioInputWrapper.cpp" />
+    <ClCompile Include="src\Utility\AudioInput\WebsocketPotato.cpp" />
     <ClCompile Include="src\Utility\Http\HttpClient.cpp" />
     <ClCompile Include="src\Utility\AudioPlayback\ThreadedAudioPlayer.cpp" />
     <ClCompile Include="src\Utility\SignalR\SignalRWrapper.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseChatMessage.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseChatStarted.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseChatUpdate.h" />
+    <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseSpeechTranscription.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseWelcome.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServiceData.h" />
     <ClInclude Include="src\Utility\SignalR\SignalRWrapperInterface.h" />

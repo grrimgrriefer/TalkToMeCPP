@@ -11,6 +11,7 @@
 #include "DataTypes/ServerResponses/ServerResponseChatStarted.h"
 #include "DataTypes/ServerResponses/ServerResponseChatMessage.h"
 #include "DataTypes/ServerResponses/ServerResponseChatUpdate.h"
+#include "DataTypes/ServerResponses/ServerResponseSpeechTranscription.h"
 #include <signalrclient/signalr_value.h>
 #include <map>
 #include <string>
@@ -64,6 +65,14 @@ namespace Voxta
 		else if (type == "update")
 		{
 			return GetChatUpdateResponse(map);
+		}
+		else if (type == "speechRecognitionPartial")
+		{
+			return GetSpeechRecognitionPartial(map);
+		}
+		else if (type == "speechRecognitionEnd")
+		{
+			return GetSpeechRecognitionEnd(map);
 		}
 		// TODO: maybe?
 		//		else if (type == "chatClosed") {}
@@ -181,44 +190,60 @@ namespace Voxta
 		const std::map<std::string, signalr::value>& map) const
 	{
 		return std::make_unique<DataTypes::ServerResponses::ServerResponseChatUpdate>(
-				   map.at("messageId").as_string(),
-				   map.at("senderId").as_string(),
-				   map.at("text").as_string(),
-				   map.at("sessionId").as_string());
+			map.at("messageId").as_string(),
+			map.at("senderId").as_string(),
+			map.at("text").as_string(),
+			map.at("sessionId").as_string());
+	}
+
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseSpeechTranscription> VoxtaApiHandler::GetSpeechRecognitionPartial(
+		const std::map<std::string, signalr::value>& map) const
+	{
+		return std::make_unique<DataTypes::ServerResponses::ServerResponseSpeechTranscription>(
+			map.at("text").as_string(), Voxta::DataTypes::ServerResponses::ServerResponseSpeechTranscription::TranscriptionState::PARTIAL);
+	}
+
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseSpeechTranscription> VoxtaApiHandler::GetSpeechRecognitionEnd(
+		const std::map<std::string, signalr::value>& map) const
+	{
+		return std::make_unique<DataTypes::ServerResponses::ServerResponseSpeechTranscription>(
+			map.contains("text") ? map.at("text").as_string() : "",
+			map.contains("text") ? Voxta::DataTypes::ServerResponses::ServerResponseSpeechTranscription::TranscriptionState::END :
+			Voxta::DataTypes::ServerResponses::ServerResponseSpeechTranscription::TranscriptionState::CANCELLED);
 	}
 
 	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatMessage> VoxtaApiHandler::GetReplyEndReponseResponse(
 		const std::map<std::string, signalr::value>& map) const
 	{
 		return std::make_unique<DataTypes::ServerResponses::ServerResponseChatMessage>(
-				   DataTypes::ServerResponses::ServerResponseChatMessage::MessageType::MESSAGE_END,
-				   map.at("messageId").as_string(),
-				   map.at("senderId").as_string(),
-				   map.at("sessionId").as_string());
+			DataTypes::ServerResponses::ServerResponseChatMessage::MessageType::MESSAGE_END,
+			map.at("messageId").as_string(),
+			map.at("senderId").as_string(),
+			map.at("sessionId").as_string());
 	}
 
 	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatMessage> VoxtaApiHandler::GetReplyChunkReponseResponse(
 		const std::map<std::string, signalr::value>& map) const
 	{
 		return std::make_unique<DataTypes::ServerResponses::ServerResponseChatMessage>(
-				   DataTypes::ServerResponses::ServerResponseChatMessage::MessageType::MESSAGE_CHUNK,
-				   map.at("messageId").as_string(),
-				   map.at("senderId").as_string(),
-				   map.at("sessionId").as_string(),
-				   static_cast<int>(map.at("startIndex").as_double()),
-				   static_cast<int>(map.at("endIndex").as_double()),
-				   map.at("text").as_string(),
-				   map.at("audioUrl").as_string());
+			DataTypes::ServerResponses::ServerResponseChatMessage::MessageType::MESSAGE_CHUNK,
+			map.at("messageId").as_string(),
+			map.at("senderId").as_string(),
+			map.at("sessionId").as_string(),
+			static_cast<int>(map.at("startIndex").as_double()),
+			static_cast<int>(map.at("endIndex").as_double()),
+			map.at("text").as_string(),
+			map.at("audioUrl").as_string());
 	}
 
 	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatMessage> VoxtaApiHandler::GetReplyStartReponseResponse(
 		const std::map<std::string, signalr::value>& map) const
 	{
 		return std::make_unique<DataTypes::ServerResponses::ServerResponseChatMessage>(
-				DataTypes::ServerResponses::ServerResponseChatMessage::MessageType::MESSAGE_START,
-				map.at("messageId").as_string(),
-				map.at("senderId").as_string(),
-				map.at("sessionId").as_string());
+			DataTypes::ServerResponses::ServerResponseChatMessage::MessageType::MESSAGE_START,
+			map.at("messageId").as_string(),
+			map.at("senderId").as_string(),
+			map.at("sessionId").as_string());
 	}
 
 	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatStarted> VoxtaApiHandler::GetChatStartedResponse(

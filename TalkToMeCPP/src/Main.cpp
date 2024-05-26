@@ -48,7 +48,11 @@ public:
 			},
 			[this] ()
 			{
-				return AskUserInput();
+				return GetWrittenUserInput();
+			},
+			[this] (std::string_view currentTranscription, bool finalized)
+			{
+				DisplaySpeechTranscription(currentTranscription, finalized);
 			},
 			[this] (const Voxta::DataTypes::ChatMessage* message, const Voxta::DataTypes::CharData* charSource)
 			{
@@ -81,9 +85,13 @@ private:
 	{
 		switch (newState)
 		{
-			case Voxta::VoxtaClient::VoxtaClientState::CHARACTER_LOBBY:
+			case Voxta::VoxtaClient::VoxtaClientState::AUTHENTICATED:
 			{
 				websocketPotato->connect("ws://127.0.0.1:5384/ws/audio/input/stream");
+				break;
+			}
+			case Voxta::VoxtaClient::VoxtaClientState::CHARACTER_LOBBY:
+			{
 				auto& characters = voxtaClient->GetCharacters();
 				int charAmount = characters.size() & INT_MAX;
 
@@ -115,6 +123,19 @@ private:
 	void CharSpeaking(const Voxta::DataTypes::ChatMessage* message, const Voxta::DataTypes::CharData* charSource) const
 	{
 		std::cout << std::endl << std::format("{}: {}", charSource->m_name, message->m_text) << std::endl;
+	}
+
+	void DisplaySpeechTranscription(std::string_view currentTranscription, bool finalized)
+	{
+		if (!finalized)
+		{
+			std::cout << "\r" << std::format("{} is busy speaking: {}", voxtaClient->GetUsername(), currentTranscription);
+		}
+		else
+		{
+			std::cout << "\r" << std::format("{}: {}", voxtaClient->GetUsername(), currentTranscription) << std::endl;
+			audioInput->StopStreaming();
+		}
 	}
 
 	int AskUserForCharacterSelection(int charAmount) const
@@ -164,7 +185,7 @@ private:
 		}
 	}
 
-	std::string AskUserInput() const
+	std::string GetWrittenUserInput() const
 	{
 		std::cout << std::format("{}: ", voxtaClient->GetUsername());
 

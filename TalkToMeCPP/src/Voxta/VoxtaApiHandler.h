@@ -8,6 +8,7 @@
 #include "DataTypes/ServerResponses/ServerResponseChatStarted.h"
 #include "DataTypes/ServerResponses/ServerResponseChatMessage.h"
 #include "DataTypes/ServerResponses/ServerResponseChatUpdate.h"
+#include "DataTypes/ServerResponses/ServerResponseSpeechTranscription.h"
 #include "DataTypes/CharData.h"
 #include <signalrclient/signalr_value.h>
 #include <memory>
@@ -26,7 +27,8 @@ namespace Voxta
 	public:
 		// Anything not in here & not implemented will throw an error
 		const std::set<std::string> c_ignoredMessageTypes{ "chatStarting", "chatLoadingMessage", "chatsSessionsUpdated",
-			"contextUpdated", "replyGenerating", "replyGenerating", "chatFlow" };
+			"contextUpdated", "replyGenerating", "replyGenerating", "chatFlow", "speechRecognitionStart", "recordingRequest",
+			"recordingStatus", "speechPlaybackComplete" };
 
 		// Used to convert server responses into data we can use.
 		std::unique_ptr<DataTypes::ServerResponses::ServerResponseBase> GetResponseData(
@@ -65,6 +67,10 @@ namespace Voxta
 		std::unique_ptr<DataTypes::ServerResponses::ServerResponseCharacterList> GetCharacterListLoadedResponse(
 			const std::map<std::string, signalr::value>& map) const;
 		std::unique_ptr<DataTypes::ServerResponses::ServerResponseWelcome> GetWelcomeResponse(
+			const std::map<std::string, signalr::value>& map) const;
+		std::unique_ptr<DataTypes::ServerResponses::ServerResponseSpeechTranscription> GetSpeechRecognitionPartial(
+			const std::map<std::string, signalr::value>& map) const;
+		std::unique_ptr<DataTypes::ServerResponses::ServerResponseSpeechTranscription> GetSpeechRecognitionEnd(
 			const std::map<std::string, signalr::value>& map) const;
 	};
 }

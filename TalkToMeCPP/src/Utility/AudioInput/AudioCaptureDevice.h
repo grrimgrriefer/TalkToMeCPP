@@ -73,6 +73,14 @@ namespace Utility::AudioInput
 			}
 		}
 
+		void stopStream()
+		{
+			if (microphoneApi && microphoneApi->isStreamRunning())
+			{
+				microphoneApi->stopStream();
+			}
+		}
+
 		static int audioCallback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames,
 								 double streamTime, RtAudioStreamStatus status, void* context)
 		{

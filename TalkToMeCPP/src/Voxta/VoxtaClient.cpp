@@ -14,6 +14,7 @@
 #include "DataTypes/ServerResponses/ServerResponseChatStarted.h"
 #include "DataTypes/ServerResponses/ServerResponseChatMessage.h"
 #include "DataTypes/ServerResponses/ServerResponseChatUpdate.h"
+#include "DataTypes/ServerResponses/ServerResponseSpeechTranscription.h"
 #include <format>
 #include <future>
 #include <exception>
@@ -32,10 +33,12 @@ namespace Voxta
 			Utility::Logging::LoggerInterface& logger,
 			const std::function<void(VoxtaClientState newState)>& stateChange,
 			const std::function<std::string()>& requestingUserInputEvent,
+			const std::function<void(std::string_view currentTranscription, bool finalized)>& transcribedSpeechUpdate,
 			const std::function<void(const DataTypes::ChatMessage*, const DataTypes::CharData*)>& charSpeakingEvent) :
 		m_hubConnection(std::move(connectionBuilder)),
 		m_stateChange(stateChange),
 		m_requestingUserInputEvent(requestingUserInputEvent),
+		m_transcribedSpeechUpdate(transcribedSpeechUpdate),
 		m_charSpeakingEvent(charSpeakingEvent),
 		m_logger(logger)
 	{
@@ -81,7 +84,7 @@ namespace Voxta
 				startTask.set_value();
 			});
 
-		m_currentState = VoxtaClientState::LOADING;
+		m_currentState = VoxtaClientState::CONNECTING;
 		startTask.get_future().get();
 	}
 
@@ -203,6 +206,10 @@ namespace Voxta
 				m_logger.LogMessage(Info, "Chat has been updated (i.e. user message added)");
 				HandleChatUpdateResponse(*response);
 				return true;
+			case SPEECH_TRANSCRIPTION:
+				m_logger.LogMessage(Info, "Server has recognised speech from the audioWebsocket");
+				HandleSpeechTranscriptionResponse(*response);
+				return true;
 			default:
 				return false;
 		}
@@ -212,6 +219,7 @@ namespace Voxta
 	{
 		auto derivedResponse = dynamic_cast<const DataTypes::ServerResponses::ServerResponseWelcome*>(&response);
 		m_userData = std::make_unique<DataTypes::CharData>(derivedResponse->m_user);
+		m_stateChange(VoxtaClientState::AUTHENTICATED);
 		SendMessageToServer(m_voxtaApi.GetLoadCharactersListData());
 	}
 
@@ -294,9 +302,12 @@ namespace Voxta
 						m_charSpeakingEvent((*chatMessage).get(), (*characterIt).get());
 					}
 				}
-
-				std::string userInputText = m_requestingUserInputEvent();
-				SendMessageToServer(m_voxtaApi.GetSendUserMessageData(m_chatSession->m_sessionId, userInputText));
+				m_sentFinalUserMessage = false; // reset flag for accepting a new finalized microphone sentence
+				if (!m_usingMicrophoneInput)
+				{
+					std::string userInputText = m_requestingUserInputEvent();
+					SendMessageToServer(m_voxtaApi.GetSendUserMessageData(m_chatSession->m_sessionId, userInputText));
+				}
 				break;
 		}
 	}
@@ -307,6 +318,31 @@ namespace Voxta
 
 		m_chatSession->m_chatMessages.emplace(std::make_unique<DataTypes::ChatMessage>(derivedResponse->m_messageId,
 			derivedResponse->m_senderId, derivedResponse->m_text));
+	}
+
+	void VoxtaClient::HandleSpeechTranscriptionResponse(const DataTypes::ServerResponses::ServerResponseBase& response)
+	{
+		auto derivedResponse = dynamic_cast<const DataTypes::ServerResponses::ServerResponseSpeechTranscription*>(&response);
+
+		using enum DataTypes::ServerResponses::ServerResponseSpeechTranscription::TranscriptionState;
+		switch (derivedResponse->m_transcriptionState)
+		{
+			case PARTIAL:
+				m_transcribedSpeechUpdate(derivedResponse->m_transcribedSpeech, false);
+				break;
+			case END:
+				if (!m_sentFinalUserMessage)
+				{
+					m_sentFinalUserMessage = true;
+					m_transcribedSpeechUpdate(derivedResponse->m_transcribedSpeech, true);
+					SendMessageToServer(m_voxtaApi.GetSendUserMessageData(m_chatSession->m_sessionId, derivedResponse->m_transcribedSpeech));
+				}
+				break;
+			case CANCELLED:
+				// Just ignore cancelled statuses right now,
+				// for some reason server says it's cancelled but then it picks back up again, idk why.
+				break;
+		}
 	}
 
 	void VoxtaClient::HandleBadResponse(const signalr::value& response)
