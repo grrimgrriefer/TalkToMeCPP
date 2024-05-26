@@ -60,23 +60,13 @@ namespace Utility::AudioInput
 			}
 		}
 
-		void startStream(void (MicrophoneWebSocket::* callback)(const char* buffer, unsigned int nBufferFrames))
+		void startStream()
 		{
 			if (microphoneApi && !microphoneApi->isStreamRunning())
 			{
-				m_callback = std::bind(&MicrophoneWebSocket::SendData, m_socket.get(), std::placeholders::_1, std::placeholders::_2);
 				microphoneApi->startStream();
 			}
 		}
-
-		/*void stopStream()
-		{
-			if (microphoneApi && microphoneApi->isStreamRunning())
-			{
-				m_callback = nullptr;
-				microphoneApi->stopStream();
-			}
-		}*/
 
 		static int audioCallback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames,
 								 double streamTime, RtAudioStreamStatus status, void* context)
@@ -94,16 +84,12 @@ namespace Utility::AudioInput
 
 		void ReceiveAudioInputData(const char* buffer, unsigned int nBufferFrames)
 		{
-			if (m_callback)
-			{
-				m_callback(buffer, nBufferFrames);
-			}
+			std::vector<char> data(buffer, buffer + nBufferFrames);
+			m_socket->SendData(data);
 		}
 
 	private:
 		std::unique_ptr<RtAudio> microphoneApi;
 		std::shared_ptr<MicrophoneWebSocket> m_socket;
-		std::function<void(const char*, unsigned int)> m_callback;
-		//void(MicrophoneWebSocket::* m_callback)(const char* buffer, unsigned int nBufferFrames);
 	};
 }

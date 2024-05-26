@@ -16,11 +16,6 @@ namespace Utility::AudioInput
 		{
 		}
 
-		~AudioInputWrapper()
-		{
-			micWebSocket->CloseSocket();
-		}
-
 		void StartStreaming()
 		{
 			if (!isInitialized)
@@ -30,7 +25,7 @@ namespace Utility::AudioInput
 
 			if (!isStreaming)
 			{
-				audioDevice.startStream(&MicrophoneWebSocket::SendData);
+				audioDevice.startStream();
 				isStreaming = true;
 			}
 		}
@@ -38,7 +33,7 @@ namespace Utility::AudioInput
 	private:
 		void Initialize() // Don't initialize in constructor, we wanna wait till Voxta client has authorized before opening socket
 		{
-			micWebSocket->OpenSocket();
+			micWebSocket->Start();
 			audioDevice.Initialize();
 			isInitialized = true;
 		}
