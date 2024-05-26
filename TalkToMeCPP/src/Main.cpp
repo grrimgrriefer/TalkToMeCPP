@@ -2,7 +2,7 @@
 
 #pragma once
 #include "Utility/AudioInput/AudioInputWrapper.h"
-
+#include "Utility/AudioInput/WebsocketPotato.h"
 #include "Voxta/VoxtaClient.h"
 #include "Utility/Logging/ThreadedLogger.h"
 #include "Voxta/DataTypes/CharData.h"
@@ -37,6 +37,7 @@ public:
 		logger = std::make_unique<Utility::Logging::ThreadedLogger>(path.string());
 		audioPlayer = std::make_unique<Utility::AudioPlayback::ThreadedAudioPlayer>(*logger, serverIP, serverPort);
 		audioInput = std::make_unique<Utility::AudioInput::AudioInputWrapper>(serverIP, serverPort);
+		websocketPotato = std::make_shared<Utility::AudioInput::websocket_endpoint>();
 
 		auto wrapper = std::make_unique<Utility::SignalR::SignalRWrapper>(serverIP, serverPort, *logger);
 		std::unique_ptr<Utility::SignalR::SignalRWrapperInterface> interfacePtr = std::move(wrapper);
@@ -73,6 +74,7 @@ private:
 	std::condition_variable quittinTimeCondition;
 	std::unique_ptr<Utility::AudioPlayback::ThreadedAudioPlayer> audioPlayer;
 	std::unique_ptr<Utility::AudioInput::AudioInputWrapper> audioInput;
+	std::shared_ptr<Utility::AudioInput::websocket_endpoint> websocketPotato;
 	bool itsQuittingTime;
 
 	void ClientCallback(const Voxta::VoxtaClient::VoxtaClientState& newState)
@@ -81,6 +83,7 @@ private:
 		{
 			case Voxta::VoxtaClient::VoxtaClientState::CHARACTER_LOBBY:
 			{
+				websocketPotato->connect("ws://127.0.0.1:5384/ws/audio/input/stream");
 				auto& characters = voxtaClient->GetCharacters();
 				int charAmount = characters.size() & INT_MAX;
 
@@ -179,6 +182,10 @@ private:
 		audioPlayer->StartPlayback([this, message] ()
 			{
 				voxtaClient->NotifyAudioPlaybackComplete(message->m_messageId);
+				std::string message = "{\"contentType\":\"audio/wav\", \"sampleRate\" : 16000, \"channels\" : 1, \"bitsPerSample\" : 16, \"bufferMilliseconds\" : 30}";
+				websocketPotato->send(0, message);
+
+				audioInput->RegisterPotato(websocketPotato);
 				audioInput->StartStreaming();
 			});
 	}

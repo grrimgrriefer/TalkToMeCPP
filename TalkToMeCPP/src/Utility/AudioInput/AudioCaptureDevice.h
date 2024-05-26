@@ -1,7 +1,7 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
-#include "MicrophoneWebSocket.h"
+#include "WebsocketPotato.h"
 #include <iostream>
 #include <rtaudio/RtAudio.h>
 #include <memory>
@@ -13,9 +13,9 @@ namespace Utility::AudioInput
 	class AudioCaptureDevice
 	{
 	public:
-		AudioCaptureDevice(std::shared_ptr<MicrophoneWebSocket> socket) :
-			microphoneApi(std::make_unique<RtAudio>()),
-			m_socket(socket)
+		AudioCaptureDevice() :
+			microphoneApi(std::make_unique<RtAudio>())
+			//m_socket(socket)
 		{
 		}
 
@@ -26,6 +26,11 @@ namespace Utility::AudioInput
 				microphoneApi->stopStream();
 				if (microphoneApi->isStreamOpen()) microphoneApi->closeStream();
 			}
+		}
+
+		void RegisterSocket(std::shared_ptr<Utility::AudioInput::websocket_endpoint> socket)
+		{
+			m_socket = socket;
 		}
 
 		void Initialize()
@@ -84,12 +89,11 @@ namespace Utility::AudioInput
 
 		void ReceiveAudioInputData(const char* buffer, unsigned int nBufferFrames)
 		{
-			std::vector<char> data(buffer, buffer + nBufferFrames);
-			m_socket->SendData(data);
+			m_socket->send(0, buffer, nBufferFrames);
 		}
 
 	private:
 		std::unique_ptr<RtAudio> microphoneApi;
-		std::shared_ptr<MicrophoneWebSocket> m_socket;
+		std::shared_ptr<Utility::AudioInput::websocket_endpoint> m_socket;
 	};
 }

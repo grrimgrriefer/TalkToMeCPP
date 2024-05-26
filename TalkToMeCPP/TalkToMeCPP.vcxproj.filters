@@ -42,9 +42,6 @@
     <ClCompile Include="src\Utility\Http\HttpClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utility\AudioInput\MicrophoneWebSocket.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Utility\AudioInput\AudioCaptureDevice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -122,7 +119,7 @@
     <ClInclude Include="src\Utility\Http\HttpClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utility\AudioInput\MicrophoneWebSocket.h">
+    <ClInclude Include="src\Utility\AudioInput\WebsocketPotato.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Utility\AudioInput\AudioCaptureDevice.h">
