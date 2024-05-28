@@ -3,23 +3,24 @@
 #pragma once
 #include "ExampleImplementation.h"
 #include "Utility/AudioInput/AudioInputWrapper.h"
-#include "Voxta/VoxtaClient.h"
+#include "Utility/AudioPlayback/ThreadedAudioPlayer.h"
 #include "Utility/Logging/ThreadedLogger.h"
-#include "Voxta/DataTypes/CharData.h"
-#include "Voxta/DataTypes/ChatMessage.h"
 #include "Utility/SignalR/SignalRWrapper.h"
 #include "Utility/SignalR/SignalRWrapperInterface.h"
-#include "Utility/AudioPlayback/ThreadedAudioPlayer.h"
-#include <ostream>
-#include <filesystem>
-#include <memory>
-#include <format>
-#include <string>
-#include <vector>
+#include "Voxta/DataTypes/CharData.h"
+#include "Voxta/DataTypes/ChatMessage.h"
+#include "Voxta/VoxtaClient.h"
 #include <climits>
-#include <stdlib.h>
+#include <filesystem>
+#include <format>
+#include <iostream>
 #include <istream>
+#include <memory>
+#include <ostream>
+#include <stdlib.h>
+#include <string>
 #include <type_traits>
+#include <vector>
 
 ExampleImplementation::ExampleImplementation(std::string_view serverIP, int serverPort)
 {
@@ -68,11 +69,6 @@ void ExampleImplementation::ClientCallback(const Voxta::VoxtaClient::VoxtaClient
 {
 	switch (newState)
 	{
-		case Voxta::VoxtaClient::VoxtaClientState::AUTHENTICATED:
-		{
-			audioInput->OpenAudioSocket();
-			break;
-		}
 		case Voxta::VoxtaClient::VoxtaClientState::CHARACTER_LOBBY:
 		{
 			auto& characters = voxtaClient->GetCharacters();
@@ -186,8 +182,6 @@ void ExampleImplementation::DoAudioPlayback(const Voxta::DataTypes::ChatMessage*
 	audioPlayer->StartPlayback([this, message] ()
 		{
 			voxtaClient->NotifyAudioPlaybackComplete(message->m_messageId);
-
-			audioInput->RegisterPotato();
 			audioInput->StartStreaming();
 		});
 }

@@ -1,11 +1,11 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
-#include "ServerResponseBase.h"
 #include "../ServiceData.h"
+#include "ServerResponseBase.h"
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 namespace Voxta::DataTypes::ServerResponses
 {

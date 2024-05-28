@@ -2,9 +2,10 @@
 
 #pragma once
 #include "ServerResponseBase.h"
+#include <map>
+#include <string>
 #include <string_view>
 #include <vector>
-#include <map>
 
 namespace Voxta::DataTypes::ServerResponses
 {

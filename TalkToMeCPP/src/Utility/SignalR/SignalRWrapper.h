@@ -1,15 +1,15 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
+#include "../Logging/LoggerInterface.h"
 #include "SignalRWrapperInterface.h"
-#include "../Logging/ThreadedLogger.h"
-#include <string>
 #include <exception>
 #include <functional>
 #include <memory>
-#include <vector>
-#include <signalrclient/signalr_value.h>
 #include <signalrclient/hub_connection.h>
+#include <signalrclient/signalr_value.h>
+#include <string>
+#include <vector>
 
 namespace Utility::SignalR
 {
@@ -20,7 +20,7 @@ namespace Utility::SignalR
 	class SignalRWrapper : public SignalRWrapperInterface
 	{
 	public:
-		explicit SignalRWrapper(std::string_view address, int port, Logging::ThreadedLogger& logger);
+		explicit SignalRWrapper(std::string_view address, int port, Logging::LoggerInterface& logger);
 		~SignalRWrapper() override = default;
 
 		void Start(std::function<void(std::exception_ptr)> callback) noexcept override;

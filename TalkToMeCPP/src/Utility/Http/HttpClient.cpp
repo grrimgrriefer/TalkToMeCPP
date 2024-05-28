@@ -1,38 +1,15 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
-//TODO: clean up this include list lmao
 #pragma once
 #include "HttpClient.h"
-#include "../Logging/LoggerInterface.h"
-#include <windows.h>
-#include <urlmon.h>
-#include <string>
-#include <filesystem>
-#include <thread>
-#include <queue>
-#include <mutex>
-#include <condition_variable>
-#include <playsoundapi.h>
-#include <chrono>
-#include <stop_token>
-#include <functional>
-#include <winhttp.h>
 #include <errhandlingapi.h>
-#include <fileapi.h>
-#include <handleapi.h>
-#include <stringapiset.h>
-#include <WinNls.h>
-#include <cstdio>
-#include <cstring>
-#include <format>
 #include <iostream>
 #include <ostream>
-#include <boost/uuid/random_generator.hpp>
+#include <string>
 #include <vector>
-#include <type_traits>
+#include <windows.h>
+#include <winhttp.h>
 
-#pragma comment(lib, "urlmon.lib")
-#pragma comment(lib, "Winmm.lib")
 #pragma comment(lib, "winhttp.lib")
 
 namespace Utility::AudioPlayback
@@ -138,7 +115,7 @@ namespace Utility::AudioPlayback
 			return false;
 		}
 
-		return WinHttpAddRequestHeaders(hRequest, headers.c_str(), (DWORD)headers.length(), WINHTTP_ADDREQ_FLAG_ADD);
+		return WinHttpAddRequestHeaders(hRequest, headers.c_str(), -1, WINHTTP_ADDREQ_FLAG_ADD);
 	}
 
 	bool HttpClient::SendRequest(const HINTERNET& hRequest) const

@@ -1,44 +1,28 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
-#include "ThreadedAudioPlayer.h"
 #include "../Logging/LoggerInterface.h"
-#include <windows.h>
-#include <urlmon.h>
-#include <string>
-#include <filesystem>
-#include <thread>
-#include <queue>
-#include <mutex>
-#include <condition_variable>
-#include <playsoundapi.h>
+#include "ThreadedAudioPlayer.h"
 #include <chrono>
-#include <stop_token>
-#include <functional>
-#include <winhttp.h>
-#include <errhandlingapi.h>
-#include <fileapi.h>
-#include <handleapi.h>
-#include <stringapiset.h>
-#include <WinNls.h>
-#include <cstdio>
-#include <cstring>
 #include <format>
+#include <functional>
 #include <iostream>
+#include <mutex>
 #include <ostream>
-#include <boost/uuid/random_generator.hpp>
-#include <vector>
-#include <type_traits>
-#include <future>
+#include <playsoundapi.h>
+#include <stop_token>
+#include <string>
+#include <stringapiset.h>
+#include <thread>
+#include <windows.h>
+#include <WinNls.h>
 
-#pragma comment(lib, "urlmon.lib")
 #pragma comment(lib, "Winmm.lib")
-#pragma comment(lib, "winhttp.lib")
 
 namespace Utility::AudioPlayback
 {
 	ThreadedAudioPlayer::ThreadedAudioPlayer(Logging::LoggerInterface& logger, std::string_view serverIP, int serverPort)
-		: m_wavTools(logger), m_logger(logger), m_serverIP(ConvertToWideString(serverIP)), m_serverPort(serverPort)
+		: m_wavTools(logger), m_logger(logger), m_serverIP(serverIP), m_serverPort(serverPort)
 	{
 	}
 
@@ -49,13 +33,13 @@ namespace Utility::AudioPlayback
 
 	bool Utility::AudioPlayback::ThreadedAudioPlayer::AddToQueue(std::string_view url)
 	{
-		std::wstring wurl = std::format(L"http://{}:{}{}", m_serverIP, std::to_wstring(m_serverPort), ConvertToWideString(url));
 		std::wstring headers = L"Accept: audio/x-wav, audio/mpeg\r\n"
 			L"Accept-Encoding: gzip, deflate, br, zstd\r\n"
-			L"Connection: keep-alive\r\n";
-		headers.append(std::format(L"Host: {}:{}\r\n", m_serverIP, m_serverPort));
+			L"Connection: keep-alive\r\n"
+			L"Host: " + ConvertToWideString(std::format("{}:{}", m_serverIP, m_serverPort)) + L"\r\n";
 
-		auto audioData = m_httpClient.DownloadIntoMemory(wurl, headers);
+		auto audioData = m_httpClient.DownloadIntoMemory(ConvertToWideString(std::format("http://{}:{}{}", m_serverIP, m_serverPort, url)), headers);
+
 		if (audioData.size() > 0)
 		{
 			std::lock_guard<std::mutex> lock(m_queueMutex);

@@ -10,6 +10,7 @@
 #include "../TalkToMeCPP/src/Voxta/DataTypes/CharData.h"
 #include "../TalkToMeCPP/src/Voxta/DataTypes/ChatMessage.h"
 #include "../TalkToMeCPP/src/Utility/SignalR/SignalRWrapperInterface.h"
+#include "../TalkToMeCPP/src/Utility/GuidUtility.h"
 #include <functional>
 #include <string>
 #include <gmock/gmock-function-mocker.h>
@@ -23,10 +24,6 @@
 #include <vector>
 #include <gmock/gmock-matchers.h>
 #include <signalrclient/signalr_value.h>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/lexical_cast.hpp>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -49,12 +46,6 @@ namespace TalkToMeCPPTests
 		public:
 			MOCK_METHOD(void, LogMessage, (LogLevel level, const std::string& message), (noexcept, override));
 		};
-
-		static std::string GetRandomGuid()
-		{
-			boost::uuids::uuid guid = boost::uuids::random_generator()();
-			return boost::lexical_cast<std::string>(guid);
-		}
 
 		static signalr::value GetCharactersListLoadedResponse(const std::vector<std::string_view>& characterIds, const std::vector<std::string_view>& characterNames,
 			const std::vector<std::string_view>& creatorNotes, const std::vector<bool>& isExplicit, const std::vector<bool>& favorite)

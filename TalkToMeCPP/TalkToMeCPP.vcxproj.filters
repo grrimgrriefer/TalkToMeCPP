@@ -146,5 +146,8 @@
     <ClInclude Include="src\Utility\AudioInput\AudioWebSocketStateData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Utility\GuidUtility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

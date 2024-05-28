@@ -1,8 +1,8 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
-#include "ServerResponseBase.h"
 #include "../CharData.h"
+#include "ServerResponseBase.h"
 
 namespace Voxta::DataTypes::ServerResponses
 {

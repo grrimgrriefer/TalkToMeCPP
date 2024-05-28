@@ -2,7 +2,7 @@
 
 #pragma once
 #include "HubConnectionLogger.h"
-#include "ThreadedLogger.h"
+#include "LoggerInterface.h"
 #include <string>
 
 namespace Utility::Logging

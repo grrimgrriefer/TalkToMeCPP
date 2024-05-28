@@ -1,9 +1,9 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
+#include "../Logging/LoggerInterface.h"
 #include <cstdint>
 #include <vector>
-#include "../Logging/LoggerInterface.h"
 
 namespace Utility::AudioPlayback
 {

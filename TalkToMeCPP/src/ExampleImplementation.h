@@ -2,15 +2,15 @@
 
 #pragma once
 #include "Utility/AudioInput/AudioInputWrapper.h"
-#include "Voxta/VoxtaClient.h"
-#include "Utility/Logging/ThreadedLogger.h"
+#include "Utility/AudioPlayback/ThreadedAudioPlayer.h"
+#include "Utility/Logging/LoggerInterface.h"
 #include "Voxta/DataTypes/CharData.h"
 #include "Voxta/DataTypes/ChatMessage.h"
-#include "Utility/AudioPlayback/ThreadedAudioPlayer.h"
+#include "Voxta/VoxtaClient.h"
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
-#include <mutex>
 
 /// <summary>
 /// Simple implementation that uses the Voxta C++ utility.
@@ -24,7 +24,7 @@ public:
 	void ForceStop();
 
 private:
-	std::unique_ptr<Utility::Logging::ThreadedLogger> logger;
+	std::unique_ptr<Utility::Logging::LoggerInterface> logger;
 	std::unique_ptr<Voxta::VoxtaClient> voxtaClient;
 	std::mutex mutexLock;
 	std::condition_variable quittinTimeCondition;

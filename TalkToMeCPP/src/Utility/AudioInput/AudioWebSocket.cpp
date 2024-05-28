@@ -2,16 +2,20 @@
 
 #pragma once
 #include "AudioWebSocket.h"
+#include "AudioWebSocketStateData.h"
+#pragma warning(push)
+#pragma warning(disable : 4267)
 #include <websocketpp/config/asio_no_tls_client.hpp>
-#include <websocketpp/client.hpp>
+#include <websocketpp/close.hpp>
+#include <websocketpp/frame.hpp>
+#include <websocketpp/logger/levels.hpp>
+#include <websocketpp/roles/client_endpoint.hpp>
+#pragma warning(pop)
 #include <iostream>
 #include <string>
 #include <thread>
-#include <chrono>
-#include <cstdlib>
 #include <functional>
 #include <format>
-#include <iosfwd>
 #include <memory>
 #include <system_error>
 
@@ -78,7 +82,6 @@ namespace Utility::AudioInput
 		));
 
 		m_endpoint.connect(con);
-
 		return true;
 	}
 
@@ -95,7 +98,7 @@ namespace Utility::AudioInput
 		m_connection->record_sent_message(std::format("binary data bytes: {}", nBufferFrames));
 	}
 
-	void AudioWebSocket::send(std::string message)
+	void AudioWebSocket::send(const std::string& message)
 	{
 		websocketpp::lib::error_code ec;
 		m_endpoint.send(m_connection->get_hdl(), message, websocketpp::frame::opcode::text, ec);

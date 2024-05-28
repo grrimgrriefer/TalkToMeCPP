@@ -2,11 +2,8 @@
 
 #pragma once
 #include "AudioWebSocket.h"
-#include <iostream>
-#include <rtaudio/RtAudio.h>
 #include <memory>
-#include <exception>
-#include <functional>
+#include <rtaudio/RtAudio.h>
 
 namespace Utility::AudioInput
 {

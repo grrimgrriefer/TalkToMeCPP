@@ -1,20 +1,20 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
+#include "DataTypes/CharData.h"
 #include "DataTypes/ServerResponses/ServerResponseBase.h"
-#include "DataTypes/ServerResponses/ServerResponseWelcome.h"
 #include "DataTypes/ServerResponses/ServerResponseCharacterList.h"
 #include "DataTypes/ServerResponses/ServerResponseCharacterLoaded.h"
-#include "DataTypes/ServerResponses/ServerResponseChatStarted.h"
 #include "DataTypes/ServerResponses/ServerResponseChatMessage.h"
+#include "DataTypes/ServerResponses/ServerResponseChatStarted.h"
 #include "DataTypes/ServerResponses/ServerResponseChatUpdate.h"
 #include "DataTypes/ServerResponses/ServerResponseSpeechTranscription.h"
-#include "DataTypes/CharData.h"
-#include <signalrclient/signalr_value.h>
-#include <memory>
-#include <string>
+#include "DataTypes/ServerResponses/ServerResponseWelcome.h"
 #include <map>
+#include <memory>
 #include <set>
+#include <signalrclient/signalr_value.h>
+#include <string>
 
 namespace Voxta
 {

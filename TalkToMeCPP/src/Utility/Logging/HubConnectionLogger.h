@@ -2,8 +2,8 @@
 
 #pragma once
 #include "LoggerInterface.h"
-#include <string>
 #include <signalrclient/log_writer.h>
+#include <string>
 
 namespace Utility::Logging
 {

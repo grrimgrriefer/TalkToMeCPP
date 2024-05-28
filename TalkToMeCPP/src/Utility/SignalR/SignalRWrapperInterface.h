@@ -1,11 +1,11 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
-#include <string>
 #include <exception>
 #include <functional>
-#include <vector>
 #include <signalrclient/signalr_value.h>
+#include <string>
+#include <vector>
 
 namespace Utility::SignalR
 {

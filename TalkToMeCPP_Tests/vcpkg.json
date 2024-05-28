@@ -5,10 +5,9 @@
     "description": "None",
     "dependencies": [
 	  "microsoft-signalr",
-	  "boost-uuid",
-	  "boost-beast",
-	  "rtaudio",
 	  "websocketpp",
+	  "asio",
+	  "rtaudio",
 	  "gtest"
     ]
 }

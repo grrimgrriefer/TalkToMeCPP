@@ -153,6 +153,7 @@
     <ClCompile Include="src\Utility\AudioPlayback\WavTools.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Utility\GuidUtility.h" />
     <ClInclude Include="src\Utility\AudioInput\AudioWebSocketStateData.h" />
     <ClInclude Include="src\ExampleImplementation.h" />
     <ClInclude Include="src\Utility\AudioInput\AudioCaptureDevice.h" />

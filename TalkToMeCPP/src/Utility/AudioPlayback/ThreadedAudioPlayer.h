@@ -1,16 +1,16 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
-#include "WavTools.h"
-#include "../Logging/LoggerInterface.h"
 #include "../Http/HttpClient.h"
+#include "../Logging/LoggerInterface.h"
+#include "WavTools.h"
+#include <functional>
+#include <mutex>
+#include <queue>
+#include <stop_token>
 #include <string>
 #include <thread>
-#include <queue>
-#include <mutex>
-#include <stop_token>
 #include <vector>
-#include <functional>
 
 namespace Utility::AudioPlayback
 {
@@ -34,7 +34,7 @@ namespace Utility::AudioPlayback
 		Logging::LoggerInterface& m_logger;
 		HttpClient m_httpClient;
 		std::function<void()> m_playbackFinished;
-		std::wstring m_serverIP;
+		std::string m_serverIP;
 		int m_serverPort;
 
 		void PlaybackLoop(std::stop_token stopToken);

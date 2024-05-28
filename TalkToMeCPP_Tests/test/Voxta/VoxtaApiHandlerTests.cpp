@@ -1,5 +1,6 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
+#pragma once
 #include "pch.h"
 #include "gmock/gmock.h"
 #include "CppUnitTest.h"
@@ -12,11 +13,8 @@
 #include "../TalkToMeCPP/src/Voxta/DataTypes/ServerResponses/ServerResponseChatStarted.h"
 #include "../TalkToMeCPP/src/Voxta/DataTypes/ServerResponses/ServerResponseChatUpdate.h"
 #include "../TalkToMeCPP/src/Voxta/DataTypes/ServerResponses/ServerResponseWelcome.h"
+#include "../TalkToMeCPP/src/Utility/GuidUtility.h"
 #include <string>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/lexical_cast.hpp>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -61,7 +59,7 @@ namespace TalkToMeCPPTests
 
 		TEST_METHOD(TestGetLoadCharacterRequestData)
 		{
-			auto guid = GetRandomGuid();
+			auto guid = Utility::GuidUtility::GenerateGuid();
 			auto response = Voxta::VoxtaApiHandler().GetLoadCharacterRequestData(guid);
 
 			Assert::IsTrue(response.is_map());
@@ -72,7 +70,7 @@ namespace TalkToMeCPPTests
 
 		TEST_METHOD(TestGetStartChatRequestData)
 		{
-			const auto charData = Voxta::DataTypes::CharData(GetRandomGuid(), "HuhWeird");
+			const auto charData = Voxta::DataTypes::CharData(Utility::GuidUtility::GenerateGuid(), "HuhWeird");
 			auto response = Voxta::VoxtaApiHandler().GetStartChatRequestData(&charData);
 
 			Assert::IsTrue(response.is_map());
@@ -80,7 +78,7 @@ namespace TalkToMeCPPTests
 			Assert::AreEqual(std::string("startChat"), responseMap.at("$type").as_string());
 
 			Assert::AreNotEqual(std::string(""), responseMap.at("chatId").as_string());
-			Assert::AreEqual(GetRandomGuid().size(), responseMap.at("chatId").as_string().size());
+			Assert::AreEqual(Utility::GuidUtility::GenerateGuid().size(), responseMap.at("chatId").as_string().size());
 
 			Assert::AreEqual(charData.m_id, responseMap.at("characterId").as_string());
 
@@ -96,7 +94,7 @@ namespace TalkToMeCPPTests
 
 		TEST_METHOD(TestGetSendUserMessageData)
 		{
-			auto sessionId = GetRandomGuid();
+			auto sessionId = Utility::GuidUtility::GenerateGuid();
 			std::string message = "justsometestmessage hola";
 			auto response = Voxta::VoxtaApiHandler().GetSendUserMessageData(sessionId, message);
 
@@ -112,7 +110,7 @@ namespace TalkToMeCPPTests
 		TEST_METHOD(TestGetResponseDataGetServerResponseWelcome)
 		{
 			std::string userName("waitwat?");
-			std::string userId(MockProviders::GetRandomGuid());
+			std::string userId(Utility::GuidUtility::GenerateGuid());
 			auto response = Voxta::VoxtaApiHandler().GetResponseData(MockProviders::GetWelcomeResponse(userId, userName).as_map());
 			auto derivedResponse = dynamic_cast<Voxta::DataTypes::ServerResponses::ServerResponseWelcome*>(response.get());
 
@@ -123,7 +121,7 @@ namespace TalkToMeCPPTests
 
 		TEST_METHOD(TestGetResponseDataGetServerResponseCharacterList)
 		{
-			std::string id1 = MockProviders::GetRandomGuid(), id2 = MockProviders::GetRandomGuid();
+			std::string id1 = Utility::GuidUtility::GenerateGuid(), id2 = Utility::GuidUtility::GenerateGuid();
 			std::string name1 = "Bella", name2 = "Catherine";
 			std::string creatorNotes1 = "Magnetic woman", creatorNotes2 = "Cute and flirty";
 			bool explicitContent1 = true, explicitContent2 = false;
@@ -149,7 +147,7 @@ namespace TalkToMeCPPTests
 
 		TEST_METHOD(TestGetResponseDataGetServerResponseCharacterLoaded)
 		{
-			std::string characterId(MockProviders::GetRandomGuid());
+			std::string characterId(Utility::GuidUtility::GenerateGuid());
 			bool enableThinkingSpeech(true);
 			auto response = Voxta::VoxtaApiHandler().GetResponseData(MockProviders::GetCharacterLoadedResponse(characterId, enableThinkingSpeech).as_map());
 			auto derivedResponse = dynamic_cast<Voxta::DataTypes::ServerResponses::ServerResponseCharacterLoaded*>(response.get());
@@ -161,13 +159,13 @@ namespace TalkToMeCPPTests
 
 		TEST_METHOD(TestGetResponseDataGetServerResponseChatStarted)
 		{
-			std::string charId = MockProviders::GetRandomGuid();
-			std::string chatId = MockProviders::GetRandomGuid();
-			std::string sessionId = MockProviders::GetRandomGuid();
-			std::string userId = MockProviders::GetRandomGuid();
-			std::string llmServiceId = MockProviders::GetRandomGuid();
-			std::string sttServiceId = MockProviders::GetRandomGuid();
-			std::string ttsServiceId = MockProviders::GetRandomGuid();
+			std::string charId = Utility::GuidUtility::GenerateGuid();
+			std::string chatId = Utility::GuidUtility::GenerateGuid();
+			std::string sessionId = Utility::GuidUtility::GenerateGuid();
+			std::string userId = Utility::GuidUtility::GenerateGuid();
+			std::string llmServiceId = Utility::GuidUtility::GenerateGuid();
+			std::string sttServiceId = Utility::GuidUtility::GenerateGuid();
+			std::string ttsServiceId = Utility::GuidUtility::GenerateGuid();
 
 			auto response = Voxta::VoxtaApiHandler().GetResponseData(MockProviders::GetChatStartedResponse(chatId, userId, "",
 				llmServiceId, sttServiceId, ttsServiceId, charId, "", sessionId).as_map());
@@ -187,9 +185,9 @@ namespace TalkToMeCPPTests
 
 		TEST_METHOD(TestGetResponseDataGetServerResponseChatMessageStart)
 		{
-			std::string charId = MockProviders::GetRandomGuid();
-			std::string sessionId = MockProviders::GetRandomGuid();
-			std::string messageId = MockProviders::GetRandomGuid();
+			std::string charId = Utility::GuidUtility::GenerateGuid();
+			std::string sessionId = Utility::GuidUtility::GenerateGuid();
+			std::string messageId = Utility::GuidUtility::GenerateGuid();
 			auto response = Voxta::VoxtaApiHandler().GetResponseData(MockProviders::GetReplyStartResponse(messageId, charId, sessionId).as_map());
 			auto derivedResponse = dynamic_cast<Voxta::DataTypes::ServerResponses::ServerResponseChatMessage*>(response.get());
 
@@ -201,9 +199,9 @@ namespace TalkToMeCPPTests
 
 		TEST_METHOD(TestGetResponseDataGetServerResponseChatMessageChunk)
 		{
-			std::string charId = MockProviders::GetRandomGuid();
-			std::string sessionId = MockProviders::GetRandomGuid();
-			std::string messageId = MockProviders::GetRandomGuid();
+			std::string charId = Utility::GuidUtility::GenerateGuid();
+			std::string sessionId = Utility::GuidUtility::GenerateGuid();
+			std::string messageId = Utility::GuidUtility::GenerateGuid();
 			std::string messageText = "Lmao I aint leaking my ai messages on github xd";
 			std::string audioUrl = "/api/tts/gens/etc...";
 
@@ -221,9 +219,9 @@ namespace TalkToMeCPPTests
 
 		TEST_METHOD(TestGetResponseDataGetServerResponseChatMessageEnd)
 		{
-			std::string charId = MockProviders::GetRandomGuid();
-			std::string sessionId = MockProviders::GetRandomGuid();
-			std::string messageId = MockProviders::GetRandomGuid();
+			std::string charId = Utility::GuidUtility::GenerateGuid();
+			std::string sessionId = Utility::GuidUtility::GenerateGuid();
+			std::string messageId = Utility::GuidUtility::GenerateGuid();
 
 			auto response = Voxta::VoxtaApiHandler().GetResponseData(MockProviders::GetReplyEndResponse(messageId, charId, sessionId).as_map());
 			auto derivedResponse = dynamic_cast<Voxta::DataTypes::ServerResponses::ServerResponseChatMessage*>(response.get());
@@ -236,10 +234,10 @@ namespace TalkToMeCPPTests
 
 		TEST_METHOD(TestGetResponseDataGetServerResponseChatUpdate)
 		{
-			std::string charId = MockProviders::GetRandomGuid();
-			std::string sessionId = MockProviders::GetRandomGuid();
+			std::string charId = Utility::GuidUtility::GenerateGuid();
+			std::string sessionId = Utility::GuidUtility::GenerateGuid();
 			std::string text = "just some random message idk";
-			std::string messageId = MockProviders::GetRandomGuid();
+			std::string messageId = Utility::GuidUtility::GenerateGuid();
 
 			auto response = Voxta::VoxtaApiHandler().GetResponseData(MockProviders::GetUpdateChatResponse(messageId, charId, text, sessionId).as_map());
 			auto derivedResponse = dynamic_cast<Voxta::DataTypes::ServerResponses::ServerResponseChatUpdate*>(response.get());
@@ -249,12 +247,6 @@ namespace TalkToMeCPPTests
 			Assert::AreEqual(sessionId, derivedResponse->m_sessionId);
 			Assert::AreEqual(text, derivedResponse->m_text);
 			Assert::AreEqual(messageId, derivedResponse->m_messageId);
-		}
-
-		std::string GetRandomGuid() const
-		{
-			boost::uuids::uuid guid = boost::uuids::random_generator()();
-			return boost::lexical_cast<std::string>(guid);
 		}
 	};
 }

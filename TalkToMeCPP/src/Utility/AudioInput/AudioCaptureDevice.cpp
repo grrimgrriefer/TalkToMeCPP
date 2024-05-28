@@ -3,11 +3,11 @@
 #pragma once
 #include "AudioCaptureDevice.h"
 #include "AudioWebSocket.h"
-#include <iostream>
-#include <rtaudio/RtAudio.h>
-#include <memory>
 #include <exception>
-#include <functional>
+#include <format>
+#include <iostream>
+#include <memory>
+#include <rtaudio/RtAudio.h>
 
 namespace Utility::AudioInput
 {

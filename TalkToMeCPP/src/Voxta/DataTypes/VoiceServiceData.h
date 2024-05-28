@@ -2,8 +2,8 @@
 
 #pragma once
 #include "ServiceData.h"
-#include <string>
 #include <map>
+#include <string>
 
 namespace Voxta::DataTypes
 {

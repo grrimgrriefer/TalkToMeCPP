@@ -2,13 +2,13 @@
 
 #pragma once
 #include "CharData.h"
-#include "ServiceData.h"
 #include "ChatMessage.h"
-#include <string>
+#include "ServiceData.h"
 #include <map>
 #include <memory>
-#include <vector>
 #include <set>
+#include <string>
+#include <vector>
 
 namespace Voxta::DataTypes
 {

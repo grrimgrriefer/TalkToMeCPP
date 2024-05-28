@@ -1,17 +1,17 @@
 // 2024 - Creative Commons Zero v1.0 Universal
 
 #pragma once
-#include "ThreadedLogger.h"
 #include "LoggerInterface.h"
+#include "ThreadedLogger.h"
 #include <chrono>
-#include <iostream>
-#include <mutex>
-#include <iterator>
-#include <thread>
-#include <iosfwd>
 #include <deque>
-#include <string>
+#include <iosfwd>
+#include <iostream>
 #include <syncstream>
+#include <iterator>
+#include <mutex>
+#include <string>
+#include <thread>
 
 namespace Utility::Logging
 {

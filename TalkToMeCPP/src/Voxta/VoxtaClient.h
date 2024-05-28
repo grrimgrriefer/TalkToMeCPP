@@ -2,18 +2,19 @@
 
 #pragma once
 #include "../Utility/Logging/LoggerInterface.h"
-#include "DataTypes/CharData.h"
-#include "VoxtaApiHandler.h"
-#include "Datatypes/ChatSession.h"
-#include "DataTypes/ChatMessage.h"
 #include "../Utility/SignalR/SignalRWrapperInterface.h"
-#include <signalrclient/signalr_value.h>
-#include <string>
-#include <vector>
+#include "DataTypes/CharData.h"
+#include "DataTypes/ChatMessage.h"
+#include "Datatypes/ChatSession.h"
+#include "DataTypes/ServerResponses/ServerResponseBase.h"
+#include "VoxtaApiHandler.h"
 #include <exception>
 #include <functional>
 #include <map>
 #include <memory>
+#include <signalrclient/signalr_value.h>
+#include <string>
+#include <vector>
 
 namespace Voxta
 {

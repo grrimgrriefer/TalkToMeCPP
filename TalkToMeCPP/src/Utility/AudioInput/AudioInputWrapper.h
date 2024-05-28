@@ -1,9 +1,10 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
-#include "AudioWebSocket.h"
 #include "AudioCaptureDevice.h"
+#include "AudioWebSocket.h"
 #include <memory>
+#include <string>
 
 namespace Utility::AudioInput
 {
@@ -12,9 +13,6 @@ namespace Utility::AudioInput
 	public:
 		explicit AudioInputWrapper(std::string_view serverIP, int serverPort);
 
-		void OpenAudioSocket();
-		void ConnectMicrophoneSocket();
-		void RegisterPotato();
 		void StartStreaming();
 		void StopStreaming();
 
@@ -22,6 +20,6 @@ namespace Utility::AudioInput
 		std::shared_ptr<Utility::AudioInput::AudioWebSocket> websocketPotato;
 		AudioCaptureDevice audioDevice;
 		bool isStreaming = false;
-		bool isInitialized = false;
+		bool isStartingUp = false;
 	};
 }

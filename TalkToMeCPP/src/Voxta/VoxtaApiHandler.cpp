@@ -1,31 +1,23 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
-#include "VoxtaApiHandler.h"
+#include "../Utility/GuidUtility.h"
 #include "DataTypes/CharData.h"
-#include "DataTypes/ServiceData.h"
 #include "DataTypes/ServerResponses/ServerResponseBase.h"
-#include "DataTypes/ServerResponses/ServerResponseWelcome.h"
 #include "DataTypes/ServerResponses/ServerResponseCharacterList.h"
 #include "DataTypes/ServerResponses/ServerResponseCharacterLoaded.h"
-#include "DataTypes/ServerResponses/ServerResponseChatStarted.h"
 #include "DataTypes/ServerResponses/ServerResponseChatMessage.h"
+#include "DataTypes/ServerResponses/ServerResponseChatStarted.h"
 #include "DataTypes/ServerResponses/ServerResponseChatUpdate.h"
 #include "DataTypes/ServerResponses/ServerResponseSpeechTranscription.h"
-#include <signalrclient/signalr_value.h>
+#include "DataTypes/ServerResponses/ServerResponseWelcome.h"
+#include "DataTypes/ServiceData.h"
+#include "VoxtaApiHandler.h"
 #include <map>
+#include <memory>
+#include <signalrclient/signalr_value.h>
 #include <string>
 #include <vector>
-#include <memory>
-#include <type_traits>
-#include <format>
-#include <stdexcept>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/lexical_cast.hpp>
-
-#pragma comment(lib, "bcrypt.lib")
 
 namespace Voxta
 {
@@ -116,8 +108,7 @@ namespace Voxta
 
 	signalr::value VoxtaApiHandler::GetStartChatRequestData(const DataTypes::CharData* charData) const
 	{
-		boost::uuids::uuid guid = boost::uuids::random_generator()();
-		std::string guidString = boost::lexical_cast<std::string>(guid);
+		std::string guidString = Utility::GuidUtility::GenerateGuid();
 
 		auto characterParams = std::map<std::string, signalr::value>{
 			{ "id", charData->m_id },

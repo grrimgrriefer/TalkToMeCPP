@@ -1,6 +1,7 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
+#include "../Logging/LoggerInterface.h"
 #include "WavTools.h"
 #include <cstdint>
 #include <iostream>

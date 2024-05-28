@@ -1,8 +1,8 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
-#include <string>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace Voxta::DataTypes

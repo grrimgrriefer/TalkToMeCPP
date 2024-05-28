@@ -3,14 +3,12 @@
 
 vcpkg install microsoft-signalr:x86-windows
 vcpkg install microsoft-signalr:x64-windows
-vcpkg install boost-uuid:x86-windows
-vcpkg install boost-uuid:x64-windows
-vcpkg install boost-beast:x86-windows
-vcpkg install boost-beast:x64-windows
 vcpkg install rtaudio:x86-windows
 vcpkg install rtaudio:x64-windows
 vcpkg install websocketpp:x86-windows
 vcpkg install websocketpp:x64-windows
+vcpkg install asio:x86-windows
+vcpkg install asio:x64-windows
 vcpkg install gtest:x86-windows
 vcpkg install gtest:x64-windows
 

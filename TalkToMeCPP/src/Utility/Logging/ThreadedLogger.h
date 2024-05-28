@@ -2,14 +2,14 @@
 
 #pragma once
 #include "LoggerInterface.h"
-#include <fstream>
-#include <string>
-#include <mutex>
 #include <deque>
-#include <vector>
-#include <thread>
-#include <atomic>
 #include <iosfwd>
+#include <mutex>
+#include <string>
+#include <thread>
+#include <vector>
+#include <fstream>
+#include <atomic>
 
 namespace Utility::Logging
 {

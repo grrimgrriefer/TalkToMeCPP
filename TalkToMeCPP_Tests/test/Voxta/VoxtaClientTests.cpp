@@ -1,5 +1,6 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
+#pragma once
 #include "pch.h"
 #include "gmock/gmock.h"
 #include "CppUnitTest.h"
@@ -12,6 +13,7 @@
 #include "../TalkToMeCPP/src/Voxta/DataTypes/CharData.h"
 #include "../TalkToMeCPP/src/Voxta/DataTypes/ChatMessage.h"
 #include "../TalkToMeCPP/src/Utility/SignalR/SignalRWrapperInterface.h"
+#include "../TalkToMeCPP/src/Utility/GuidUtility.h"
 #include <functional>
 #include <string>
 #include <gmock/gmock-function-mocker.h>
@@ -221,7 +223,7 @@ namespace TalkToMeCPPTests
 			auto client = CreateClient();
 			client.Connect();
 
-			std::string id1 = MockProviders::GetRandomGuid(), id2 = MockProviders::GetRandomGuid();
+			std::string id1 = Utility::GuidUtility::GenerateGuid(), id2 = Utility::GuidUtility::GenerateGuid();
 			std::string name1 = "Bella", name2 = "Catherine";
 			std::string creatorNotes1 = "Magnetic woman", creatorNotes2 = "Cute and flirty";
 			bool explicitContent1 = true, explicitContent2 = false;
@@ -269,7 +271,7 @@ namespace TalkToMeCPPTests
 			client.Connect();
 			std::string userName("andsothenIsaid,that'snotanoven,that'smygrandma");
 
-			parameter(std::vector<signalr::value> { MockProviders::GetWelcomeResponse(MockProviders::GetRandomGuid(), userName) });
+			parameter(std::vector<signalr::value> { MockProviders::GetWelcomeResponse(Utility::GuidUtility::GenerateGuid(), userName) });
 
 			Assert::AreEqual(std::string_view(userName), client.GetUsername());
 		}
@@ -295,21 +297,21 @@ namespace TalkToMeCPPTests
 			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([] () {});
 			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault([] () {});
 
-			std::string charId = MockProviders::GetRandomGuid();
+			std::string charId = Utility::GuidUtility::GenerateGuid();
 			std::string charName = "Bella";
 			std::string creatorNotes1 = "Magnetic woman";
 			bool explicitContent1 = true;
 			bool favorite1 = false;
-			std::string chatId = MockProviders::GetRandomGuid();
-			std::string sessionId = MockProviders::GetRandomGuid();
-			std::string messageId1 = MockProviders::GetRandomGuid();
+			std::string chatId = Utility::GuidUtility::GenerateGuid();
+			std::string sessionId = Utility::GuidUtility::GenerateGuid();
+			std::string messageId1 = Utility::GuidUtility::GenerateGuid();
 			std::string messageText1 = "Lmao I aint leaking my ai messages on github xd";
 			std::string audioUrl1 = "/api/tts/gens/etc...";
-			std::string userId = MockProviders::GetRandomGuid();
+			std::string userId = Utility::GuidUtility::GenerateGuid();
 			std::string userName = "ayowtf";
-			std::string llmServiceId = MockProviders::GetRandomGuid();
-			std::string sttServiceId = MockProviders::GetRandomGuid();
-			std::string ttsServiceId = MockProviders::GetRandomGuid();
+			std::string llmServiceId = Utility::GuidUtility::GenerateGuid();
+			std::string sttServiceId = Utility::GuidUtility::GenerateGuid();
+			std::string ttsServiceId = Utility::GuidUtility::GenerateGuid();
 
 			auto client = CreateClient();
 			client.Connect();

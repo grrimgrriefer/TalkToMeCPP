@@ -1,31 +1,29 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
-#include "VoxtaClient.h"
-#include "VoxtaApiHandler.h"
 #include "../Utility/Logging/LoggerInterface.h"
+#include "../Utility/SignalR/SignalRWrapperInterface.h"
 #include "DataTypes/CharData.h"
-#include "DataTypes/ChatSession.h"
 #include "DataTypes/ChatMessage.h"
+#include "DataTypes/ChatSession.h"
 #include "DataTypes/ServerResponses/ServerResponseBase.h"
-#include "DataTypes/ServerResponses/ServerResponseWelcome.h"
 #include "DataTypes/ServerResponses/ServerResponseCharacterList.h"
 #include "DataTypes/ServerResponses/ServerResponseCharacterLoaded.h"
-#include "DataTypes/ServerResponses/ServerResponseChatStarted.h"
 #include "DataTypes/ServerResponses/ServerResponseChatMessage.h"
+#include "DataTypes/ServerResponses/ServerResponseChatStarted.h"
 #include "DataTypes/ServerResponses/ServerResponseChatUpdate.h"
 #include "DataTypes/ServerResponses/ServerResponseSpeechTranscription.h"
-#include <format>
-#include <future>
+#include "DataTypes/ServerResponses/ServerResponseWelcome.h"
+#include "VoxtaClient.h"
 #include <exception>
-#include <string>
-#include <vector>
-#include <signalrclient/signalr_value.h>
-#include <memory>
-#include <iostream>
+#include <format>
 #include <functional>
-#include <map>
+#include <future>
+#include <memory>
+#include <signalrclient/signalr_value.h>
+#include <string>
 #include <type_traits>
+#include <vector>
 
 namespace Voxta
 {
