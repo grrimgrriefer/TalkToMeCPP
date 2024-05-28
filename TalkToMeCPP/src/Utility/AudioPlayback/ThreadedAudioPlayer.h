@@ -5,12 +5,12 @@
 #include "../Logging/LoggerInterface.h"
 #include "../Http/HttpClient.h"
 #include <string>
-#include <filesystem>
 #include <thread>
 #include <queue>
 #include <mutex>
 #include <stop_token>
 #include <vector>
+#include <functional>
 
 namespace Utility::AudioPlayback
 {
@@ -20,7 +20,7 @@ namespace Utility::AudioPlayback
 		explicit ThreadedAudioPlayer(Logging::LoggerInterface& logger, std::string_view serverIP, int serverPort);
 		~ThreadedAudioPlayer();
 
-		bool AddToQueue(const std::string& pathToFile);
+		bool AddToQueue(std::string_view pathToFile);
 
 		void StartPlayback(std::function<void()> onFinishedCallback);
 		void StopPlayback();
@@ -34,10 +34,10 @@ namespace Utility::AudioPlayback
 		Logging::LoggerInterface& m_logger;
 		HttpClient m_httpClient;
 		std::function<void()> m_playbackFinished;
-		std::string m_serverIP;
+		std::wstring m_serverIP;
 		int m_serverPort;
 
 		void PlaybackLoop(std::stop_token stopToken);
-		std::wstring ConvertToWideString(const std::string& narrow);
+		std::wstring ConvertToWideString(std::string_view narrow) const;
 	};
 }

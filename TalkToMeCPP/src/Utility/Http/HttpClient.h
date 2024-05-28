@@ -1,6 +1,5 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
-//TODO: clean up this include list lmao
 #pragma once
 #include "../Logging/LoggerInterface.h"
 #include <windows.h>

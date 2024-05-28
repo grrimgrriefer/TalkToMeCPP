@@ -137,9 +137,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Utility\AudioInput\AudioWebSocketStateData.cpp" />
+    <ClCompile Include="src\ExampleImplementation.cpp" />
     <ClCompile Include="src\Utility\AudioInput\AudioCaptureDevice.cpp" />
     <ClCompile Include="src\Utility\AudioInput\AudioInputWrapper.cpp" />
-    <ClCompile Include="src\Utility\AudioInput\WebsocketPotato.cpp" />
+    <ClCompile Include="src\Utility\AudioInput\AudioWebSocket.cpp" />
     <ClCompile Include="src\Utility\Http\HttpClient.cpp" />
     <ClCompile Include="src\Utility\AudioPlayback\ThreadedAudioPlayer.cpp" />
     <ClCompile Include="src\Utility\SignalR\SignalRWrapper.cpp" />
@@ -151,9 +153,11 @@
     <ClCompile Include="src\Utility\AudioPlayback\WavTools.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Utility\AudioInput\AudioWebSocketStateData.h" />
+    <ClInclude Include="src\ExampleImplementation.h" />
     <ClInclude Include="src\Utility\AudioInput\AudioCaptureDevice.h" />
     <ClInclude Include="src\Utility\AudioInput\AudioInputWrapper.h" />
-    <ClInclude Include="src\Utility\AudioInput\WebsocketPotato.h" />
+    <ClInclude Include="src\Utility\AudioInput\AudioWebSocket.h" />
     <ClInclude Include="src\Utility\Http\HttpClient.h" />
     <ClInclude Include="src\Utility\AudioPlayback\ThreadedAudioPlayer.h" />
     <ClInclude Include="src\Utility\Logging\LoggerInterface.h" />

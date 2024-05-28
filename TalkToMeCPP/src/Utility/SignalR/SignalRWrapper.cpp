@@ -28,12 +28,12 @@ namespace Utility::SignalR
 
 	void SignalRWrapper::On(const std::string& event_name, const std::function<void(const std::vector<signalr::value>&)>& handler)
 	{
-		m_connection->on(event_name, handler);
+		m_connection->on(event_name.data(), handler);
 	}
 
 	void SignalRWrapper::Invoke(const std::string& method_name, const std::vector<signalr::value>& arguments,
 		std::function<void(const signalr::value&, std::exception_ptr)> callback) noexcept
 	{
-		m_connection->invoke(method_name, arguments, callback);
+		m_connection->invoke(method_name.data(), arguments, callback);
 	}
 }

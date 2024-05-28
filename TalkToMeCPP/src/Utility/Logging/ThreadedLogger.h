@@ -22,7 +22,7 @@ namespace Utility::Logging
 	class ThreadedLogger : public LoggerInterface
 	{
 	public:
-		explicit ThreadedLogger(const std::string& filename);
+		explicit ThreadedLogger(std::string_view filename);
 
 		void LogMessage(LogLevel level, const std::string& message) override;
 
@@ -33,10 +33,10 @@ namespace Utility::Logging
 		std::ofstream m_logFile;
 		std::deque<std::string> m_logQueue;
 		std::vector<std::string> m_logBuffer;
-		std::jthread writeThread; // C++20 auto joins jthreads on destruction, so no need for destructor anymore, pretty hype
+		std::jthread writeThread;
 		std::atomic_bool m_writeRequested;
 
-		void AddToFileWriteQueue(std::string formattedMessage);
+		void AddToFileWriteQueue(std::string_view formattedMessage);
 		void CopyQueueIntoBuffer();
 		void WriteToFileDelayed();
 	};

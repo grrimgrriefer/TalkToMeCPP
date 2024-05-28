@@ -38,7 +38,7 @@
 namespace Utility::AudioPlayback
 {
 	ThreadedAudioPlayer::ThreadedAudioPlayer(Logging::LoggerInterface& logger, std::string_view serverIP, int serverPort)
-		: m_wavTools(logger), m_logger(logger), m_serverIP(serverIP), m_serverPort(serverPort)
+		: m_wavTools(logger), m_logger(logger), m_serverIP(ConvertToWideString(serverIP)), m_serverPort(serverPort)
 	{
 	}
 
@@ -47,13 +47,13 @@ namespace Utility::AudioPlayback
 		StopPlayback();
 	}
 
-	bool Utility::AudioPlayback::ThreadedAudioPlayer::AddToQueue(const std::string& url)
+	bool Utility::AudioPlayback::ThreadedAudioPlayer::AddToQueue(std::string_view url)
 	{
-		std::wstring wurl = ConvertToWideString(std::format("http://{}:{}{}", m_serverIP, m_serverPort, url));
+		std::wstring wurl = std::format(L"http://{}:{}{}", m_serverIP, std::to_wstring(m_serverPort), ConvertToWideString(url));
 		std::wstring headers = L"Accept: audio/x-wav, audio/mpeg\r\n"
 			L"Accept-Encoding: gzip, deflate, br, zstd\r\n"
-			L"Connection: keep-alive\r\n"
-			L"Host: localhost:5384\r\n";
+			L"Connection: keep-alive\r\n";
+		headers.append(std::format(L"Host: {}:{}\r\n", m_serverIP, m_serverPort));
 
 		auto audioData = m_httpClient.DownloadIntoMemory(wurl, headers);
 		if (audioData.size() > 0)
@@ -66,11 +66,11 @@ namespace Utility::AudioPlayback
 		return false;
 	}
 
-	std::wstring ThreadedAudioPlayer::ConvertToWideString(const std::string& narrow)
+	std::wstring ThreadedAudioPlayer::ConvertToWideString(std::string_view narrow) const
 	{
-		int len = MultiByteToWideChar(CP_UTF8, 0, narrow.c_str(), -1, nullptr, 0);
+		int len = MultiByteToWideChar(CP_UTF8, 0, narrow.data(), -1, nullptr, 0);
 		std::wstring wide(len, L'\0');
-		MultiByteToWideChar(CP_UTF8, 0, narrow.c_str(), -1, wide.data(), len);
+		MultiByteToWideChar(CP_UTF8, 0, narrow.data(), -1, wide.data(), len);
 		return wide;
 	}
 

@@ -15,9 +15,9 @@
 
 namespace Utility::Logging
 {
-	ThreadedLogger::ThreadedLogger(const std::string& path) : m_logFilePath(path)
+	ThreadedLogger::ThreadedLogger(std::string_view path) : m_logFilePath(path)
 	{
-		std::ofstream newFile(path, std::ios::trunc);
+		std::ofstream newFile(m_logFilePath, std::ios::trunc);
 		if (newFile.is_open())
 		{
 			newFile << "Log started" << std::endl;
@@ -65,7 +65,7 @@ namespace Utility::Logging
 		AddToFileWriteQueue(formattedStr);
 	}
 
-	void ThreadedLogger::AddToFileWriteQueue(std::string formattedMessage)
+	void ThreadedLogger::AddToFileWriteQueue(std::string_view formattedMessage)
 	{
 		std::scoped_lock<std::mutex> lock(m_mutex);
 		m_logQueue.emplace_back(formattedMessage);

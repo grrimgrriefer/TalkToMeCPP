@@ -2,6 +2,14 @@
 
 _Made in collaboration with https://twitter.com/DZnnah[DZnnah]_
 
+== Note
+- server IPadres (main.cpp) +
+hardcoded to 127.0.0.1, you will need to change it if you run the server on a different machine in your LAN.
+- Microphone (AudioCaptureDevice.cpp) +
+hardcoded to use deviceID 0 & forced to 16khz, change this if your hardware setup is different.
+- Text-input (VoxtaClient.h) +
+m_usingMicrophoneInput is enabled, to use text-input put this bool to false
+
 == Dev Progress
 
 :uri-qg-status: https://sonarcloud.io/dashboard?id=grrimgrriefer_TalkToMeCPP
