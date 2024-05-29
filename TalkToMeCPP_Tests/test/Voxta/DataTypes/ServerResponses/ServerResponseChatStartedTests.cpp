@@ -52,7 +52,7 @@ namespace TalkToMeCPPTests
 			std::map<const Voxta::DataTypes::ServiceData::ServiceType, const Voxta::DataTypes::ServiceData> serviceIds;
 
 			Voxta::DataTypes::ServerResponses::ServerResponseChatStarted chatStartedResponse("user001", characterIds, serviceIds, "chat001", "session001");
-			Assert::AreEqual(size_t(0), chatStartedResponse.m_serviceIds.size());
+			Assert::AreEqual(size_t(0), chatStartedResponse.m_services.size());
 		}
 
 		TEST_METHOD(TestServerResponseChatStartedChatId)

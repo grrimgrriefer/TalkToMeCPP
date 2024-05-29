@@ -45,6 +45,12 @@ ExampleImplementation::ExampleImplementation(std::string_view serverIP, int serv
 		{
 			DisplaySpeechTranscription(currentTranscription, finalized);
 		},
+		[this] (std::string_view fatalError)
+		{
+			std::cout << fatalError << std::endl;
+			ForceStop();
+			std::cin.get();
+		},
 		[this] (const Voxta::DataTypes::ChatMessage* message, const Voxta::DataTypes::CharData* charSource)
 		{
 			CharSpeaking(message, charSource);
@@ -61,6 +67,7 @@ void ExampleImplementation::Start()
 
 void ExampleImplementation::ForceStop()
 {
+	voxtaClient->ForceStop();
 	itsQuittingTime = true;
 	quittinTimeCondition.notify_one();
 }
@@ -175,13 +182,14 @@ std::string ExampleImplementation::GetWrittenUserInput() const
 
 void ExampleImplementation::DoAudioPlayback(const Voxta::DataTypes::ChatMessage* message)
 {
-	for (int i = 0; i < message->m_audioUrls.size(); i++)
-	{
-		audioPlayer->AddToQueue(message->m_audioUrls[i]);
-	}
-	audioPlayer->StartPlayback([this, message] ()
+	audioPlayer->RegisterFinishedPlaybackTrigger([this, message] ()
 		{
 			voxtaClient->NotifyAudioPlaybackComplete(message->m_messageId);
 			audioInput->StartStreaming();
 		});
+
+	for (int i = 0; i < message->m_audioUrls.size(); i++)
+	{
+		audioPlayer->RequestQueuedPlayback(message->m_audioUrls[i]);
+	}
 }

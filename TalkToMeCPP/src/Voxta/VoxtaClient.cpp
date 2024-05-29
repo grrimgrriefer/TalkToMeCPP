@@ -32,12 +32,14 @@ namespace Voxta
 			const std::function<void(VoxtaClientState newState)>& stateChange,
 			const std::function<std::string()>& requestingUserInputEvent,
 			const std::function<void(std::string_view currentTranscription, bool finalized)>& transcribedSpeechUpdate,
+			const std::function<void(std::string_view fatalError)>& fatalErrorTriggered,
 			const std::function<void(const DataTypes::ChatMessage*, const DataTypes::CharData*)>& charSpeakingEvent) :
 		m_hubConnection(std::move(connectionBuilder)),
 		m_stateChange(stateChange),
 		m_requestingUserInputEvent(requestingUserInputEvent),
 		m_transcribedSpeechUpdate(transcribedSpeechUpdate),
 		m_charSpeakingEvent(charSpeakingEvent),
+		m_fatalErrorTriggered(fatalErrorTriggered),
 		m_logger(logger)
 	{
 	}
@@ -105,6 +107,13 @@ namespace Voxta
 			});
 
 		stopTask.get_future().get();
+	}
+
+	void VoxtaClient::ForceStop()
+	{
+		m_logger.LogMessage(Utility::Logging::LoggerInterface::LogLevel::Error, "Something requested immediate termination of the connection,"
+			" any running background threads will crash. Please restart the application.");
+		delete m_hubConnection.release();
 	}
 
 	void VoxtaClient::StartListeningToServer()
@@ -264,9 +273,36 @@ namespace Voxta
 			}
 		}
 
-		m_chatSession = std::make_unique<DataTypes::ChatSession>(characters, derivedResponse->m_chatId,
-			derivedResponse->m_sessionId, derivedResponse->m_serviceIds);
-		m_stateChange(VoxtaClientState::CHATTING);
+		std::string errors = "";
+		if (!derivedResponse->m_services.contains(Voxta::DataTypes::ServiceData::ServiceType::SPEECH_TO_TEXT))
+		{
+			std::string error = "No valid Speech_To_Text service is active on the server. ";
+			m_logger.LogMessage(Utility::Logging::LoggerInterface::LogLevel::Error, error);
+			errors.append(error);
+		}
+		if (!derivedResponse->m_services.contains(Voxta::DataTypes::ServiceData::ServiceType::TEXT_GEN))
+		{
+			std::string error = "No valid Text_Gen service is active on the server. ";
+			m_logger.LogMessage(Utility::Logging::LoggerInterface::LogLevel::Error, error);
+			errors.append(error);
+		}
+		if (!derivedResponse->m_services.contains(Voxta::DataTypes::ServiceData::ServiceType::TEXT_TO_SPEECH))
+		{
+			std::string error = "No valid Text_To_Speech service is active on the server. ";
+			m_logger.LogMessage(Utility::Logging::LoggerInterface::LogLevel::Error, error);
+			errors.append(error);
+		}
+
+		if (errors.empty())
+		{
+			m_chatSession = std::make_unique<DataTypes::ChatSession>(characters, derivedResponse->m_chatId,
+				derivedResponse->m_sessionId, derivedResponse->m_services);
+			m_stateChange(VoxtaClientState::CHATTING);
+		}
+		else
+		{
+			m_fatalErrorTriggered(errors);
+		}
 	}
 
 	void VoxtaClient::HandleChatMessageResponse(const DataTypes::ServerResponses::ServerResponseBase& response)

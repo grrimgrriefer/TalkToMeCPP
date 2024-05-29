@@ -2,11 +2,13 @@
 
 _Made in collaboration with https://twitter.com/DZnnah[DZnnah]_
 
-Notes:
-- *Server IPadres* +
-Currently hardcoded to 127.0.0.1, change it in _(main.cpp)_ if you run the server on a different machine in your LAN.
-- *Microphone*  +
-Currently hardcoded to use deviceID 0 & 16khz, change it in _(AudioCaptureDevice.cpp)_ if your hardware setup is different.
+:warning: +
+*Server IPadres* +
+Currently hardcoded to 127.0.0.1 + 
+change it in _(main.cpp)_ if you run the server on a different machine in your LAN. +
+*Microphone*  +
+Currently hardcoded to use deviceID 0 & 16khz + 
+change it in _(AudioCaptureDevice.cpp)_ if your hardware setup is different.
 
 == Dev Progress
 

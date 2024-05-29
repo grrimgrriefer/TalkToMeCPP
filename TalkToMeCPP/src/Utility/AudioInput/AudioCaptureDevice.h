@@ -17,9 +17,12 @@ namespace Utility::AudioInput
 						 double streamTime, RtAudioStreamStatus status, void* context);
 
 		void RegisterSocket(std::shared_ptr<Utility::AudioInput::AudioWebSocket> socket);
-		void Initialize();
-		void startStream();
-		void stopStream();
+
+		bool TryInitialize();
+		bool IsInitialized();
+
+		void StartStream();
+		void StopStream();
 		void ReceiveAudioInputData(const char* buffer, unsigned int nBufferFrames);
 
 	private:

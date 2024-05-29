@@ -177,10 +177,10 @@ namespace TalkToMeCPPTests
 			Assert::AreEqual(chatId, derivedResponse->m_chatId);
 			Assert::AreEqual(sessionId, derivedResponse->m_sessionId);
 			Assert::AreEqual(userId, derivedResponse->m_userId);
-			Assert::AreEqual(size_t(3), derivedResponse->m_serviceIds.size());
-			Assert::AreEqual(llmServiceId, derivedResponse->m_serviceIds.at(Voxta::DataTypes::ServiceData::ServiceType::TEXT_GEN).m_serviceId);
-			Assert::AreEqual(sttServiceId, derivedResponse->m_serviceIds.at(Voxta::DataTypes::ServiceData::ServiceType::SPEECH_TO_TEXT).m_serviceId);
-			Assert::AreEqual(ttsServiceId, derivedResponse->m_serviceIds.at(Voxta::DataTypes::ServiceData::ServiceType::TEXT_TO_SPEECH).m_serviceId);
+			Assert::AreEqual(size_t(3), derivedResponse->m_services.size());
+			Assert::AreEqual(llmServiceId, derivedResponse->m_services.at(Voxta::DataTypes::ServiceData::ServiceType::TEXT_GEN).m_serviceId);
+			Assert::AreEqual(sttServiceId, derivedResponse->m_services.at(Voxta::DataTypes::ServiceData::ServiceType::SPEECH_TO_TEXT).m_serviceId);
+			Assert::AreEqual(ttsServiceId, derivedResponse->m_services.at(Voxta::DataTypes::ServiceData::ServiceType::TEXT_TO_SPEECH).m_serviceId);
 		}
 
 		TEST_METHOD(TestGetResponseDataGetServerResponseChatMessageStart)

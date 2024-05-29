@@ -7,6 +7,7 @@
 #include <memory>
 #include <string>
 #include <thread>
+#include <type_traits>
 
 namespace Utility::AudioInput
 {
@@ -21,26 +22,33 @@ namespace Utility::AudioInput
 		{
 			return;
 		}
-		isStartingUp = true;
 
-		std::jthread thread([this] ()
+		if (!audioDevice.IsInitialized())
 		{
-			websocketPotato->connect();
-			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+			isStartingUp = true;
+			startupThread = std::move(std::jthread([this] ()
+				{
+					websocketPotato->connect();
+					std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-			websocketPotato->send("{\"contentType\":\"audio/wav\",\"sampleRate\":16000,"
-				"\"channels\":1,\"bitsPerSample\": 16,\"bufferMilliseconds\":30}");
-			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+					websocketPotato->send("{\"contentType\":\"audio/wav\",\"sampleRate\":16000,"
+						"\"channels\":1,\"bitsPerSample\": 16,\"bufferMilliseconds\":30}");
+					std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-			audioDevice.RegisterSocket(websocketPotato);
-			audioDevice.Initialize();
-			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+					audioDevice.RegisterSocket(websocketPotato);
+					audioDevice.TryInitialize();
+					std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-			audioDevice.startStream();
+					audioDevice.StartStream();
+					isStreaming = true;
+					isStartingUp = false;
+				}));
+		}
+		else
+		{
+			audioDevice.StartStream();
 			isStreaming = true;
-			isStartingUp = false;
-		});
-		thread.detach();
+		}
 	}
 
 	void AudioInputWrapper::StopStreaming()
@@ -50,7 +58,7 @@ namespace Utility::AudioInput
 			return;
 		}
 
-		audioDevice.stopStream();
+		audioDevice.StopStream();
 		isStreaming = false;
 	}
 }

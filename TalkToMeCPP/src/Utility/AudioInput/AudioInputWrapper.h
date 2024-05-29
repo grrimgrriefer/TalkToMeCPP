@@ -19,6 +19,7 @@ namespace Utility::AudioInput
 	private:
 		std::shared_ptr<Utility::AudioInput::AudioWebSocket> websocketPotato;
 		AudioCaptureDevice audioDevice;
+		std::jthread startupThread;
 		bool isStreaming = false;
 		bool isStartingUp = false;
 	};

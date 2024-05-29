@@ -21,14 +21,14 @@ namespace Voxta::DataTypes::ServerResponses
 		}
 
 		explicit ServerResponseChatStarted(std::string_view userId, const std::vector<std::string>& characterIds,
-			const std::map<const Voxta::DataTypes::ServiceData::ServiceType, const DataTypes::ServiceData>& serviceIds,
+			const std::map<const Voxta::DataTypes::ServiceData::ServiceType, const DataTypes::ServiceData>& services,
 			std::string_view chatId, std::string_view sessionId) :
-			m_characterIds(characterIds), m_serviceIds(serviceIds), m_userId(userId), m_chatId(chatId), m_sessionId(sessionId)
+			m_characterIds(characterIds), m_services(services), m_userId(userId), m_chatId(chatId), m_sessionId(sessionId)
 		{
 		}
 
 		std::vector<std::string> m_characterIds;
-		std::map<const DataTypes::ServiceData::ServiceType, const DataTypes::ServiceData> m_serviceIds;
+		std::map<const DataTypes::ServiceData::ServiceType, const DataTypes::ServiceData> m_services;
 		const std::string m_userId;
 		const std::string m_chatId;
 		const std::string m_sessionId;

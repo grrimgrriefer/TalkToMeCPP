@@ -24,6 +24,7 @@ namespace Utility::AudioPlayback
 	ThreadedAudioPlayer::ThreadedAudioPlayer(Logging::LoggerInterface& logger, std::string_view serverIP, int serverPort)
 		: m_wavTools(logger), m_logger(logger), m_serverIP(serverIP), m_serverPort(serverPort)
 	{
+		StartPlayback();
 	}
 
 	ThreadedAudioPlayer::~ThreadedAudioPlayer()
@@ -31,7 +32,22 @@ namespace Utility::AudioPlayback
 		StopPlayback();
 	}
 
-	bool Utility::AudioPlayback::ThreadedAudioPlayer::AddToQueue(std::string_view url)
+	void ThreadedAudioPlayer::StartPlayback()
+	{
+		m_playbackThread = std::jthread(std::bind_front(&ThreadedAudioPlayer::PlaybackLoop, this));
+	}
+
+	void ThreadedAudioPlayer::StopPlayback()
+	{
+		if (m_playbackThread.joinable())
+		{
+			m_playbackThread.request_stop();
+			m_cv.notify_one();
+			m_playbackThread.join();
+		}
+	}
+
+	bool Utility::AudioPlayback::ThreadedAudioPlayer::RequestQueuedPlayback(std::string_view url)
 	{
 		std::wstring headers = L"Accept: audio/x-wav, audio/mpeg\r\n"
 			L"Accept-Encoding: gzip, deflate, br, zstd\r\n"
@@ -58,25 +74,9 @@ namespace Utility::AudioPlayback
 		return wide;
 	}
 
-	void ThreadedAudioPlayer::StartPlayback(std::function<void()> onPlaybackFinished)
+	void ThreadedAudioPlayer::RegisterFinishedPlaybackTrigger(std::function<void()> onPlaybackFinished)
 	{
-		if (m_playbackFinished)
-		{
-			std::cerr << "Can't start playback while playing" << std::endl;
-			return;
-		}
 		m_playbackFinished = onPlaybackFinished;
-		m_playbackThread = std::jthread(std::bind_front(&ThreadedAudioPlayer::PlaybackLoop, this));
-	}
-
-	void ThreadedAudioPlayer::StopPlayback()
-	{
-		if (m_playbackThread.joinable())
-		{
-			m_playbackThread.request_stop();
-			m_cv.notify_one();
-			m_playbackThread.join();
-		}
 	}
 
 	void ThreadedAudioPlayer::PlaybackLoop(std::stop_token stopToken)
@@ -87,7 +87,7 @@ namespace Utility::AudioPlayback
 			m_cv.wait(lock, [this, &stopToken]
 			{
 				bool weStillPlayin = !m_audioQueue.empty() || stopToken.stop_requested();
-				if (!weStillPlayin)
+				if (!weStillPlayin && m_playbackFinished)
 				{
 					m_playbackFinished();
 				}

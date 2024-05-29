@@ -20,10 +20,8 @@ namespace Utility::AudioPlayback
 		explicit ThreadedAudioPlayer(Logging::LoggerInterface& logger, std::string_view serverIP, int serverPort);
 		~ThreadedAudioPlayer();
 
-		bool AddToQueue(std::string_view pathToFile);
-
-		void StartPlayback(std::function<void()> onFinishedCallback);
-		void StopPlayback();
+		bool RequestQueuedPlayback(std::string_view pathToFile);
+		void RegisterFinishedPlaybackTrigger(std::function<void()> onPlaybackFinished);
 
 	private:
 		std::jthread m_playbackThread;
@@ -37,6 +35,8 @@ namespace Utility::AudioPlayback
 		std::string m_serverIP;
 		int m_serverPort;
 
+		void StartPlayback();
+		void StopPlayback();
 		void PlaybackLoop(std::stop_token stopToken);
 		std::wstring ConvertToWideString(std::string_view narrow) const;
 	};

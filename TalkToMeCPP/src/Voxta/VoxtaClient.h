@@ -34,6 +34,7 @@ namespace Voxta
 			const std::function<void(VoxtaClientState newState)>& stateChange,
 			const std::function<std::string()>& requestingUserInputEvent,
 			const std::function<void(std::string_view currentTranscription, bool finalized)>& transcribedSpeechUpdate,
+			const std::function<void(std::string_view errorMsg)>& fatalErrorTriggered,
 			const std::function<void(const DataTypes::ChatMessage*, const DataTypes::CharData*)>& charSpeakingEvent);
 
 		~VoxtaClient() = default;
@@ -49,6 +50,7 @@ namespace Voxta
 
 		void Connect();
 		void Disconnect();
+		void ForceStop();
 		void LoadCharacter(std::string_view characterId);
 
 	private:
@@ -57,6 +59,7 @@ namespace Voxta
 		const std::function<void(VoxtaClientState newState)> m_stateChange;
 		const std::function<std::string()> m_requestingUserInputEvent;
 		const std::function<void(std::string_view currentTranscription, bool finalized)> m_transcribedSpeechUpdate;
+		const std::function<void(std::string_view errorMsg)> m_fatalErrorTriggered;
 		const std::function<void(const DataTypes::ChatMessage*, const DataTypes::CharData*)> m_charSpeakingEvent;
 		Utility::Logging::LoggerInterface& m_logger;
 		bool m_usingMicrophoneInput = true;

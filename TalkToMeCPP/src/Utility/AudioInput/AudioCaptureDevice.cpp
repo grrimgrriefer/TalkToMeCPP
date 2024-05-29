@@ -29,39 +29,48 @@ namespace Utility::AudioInput
 		m_socket = socket;
 	}
 
-	void AudioCaptureDevice::Initialize()
+	bool AudioCaptureDevice::IsInitialized()
+	{
+		return microphoneApi->isStreamOpen();
+	}
+
+	bool AudioCaptureDevice::TryInitialize()
 	{
 		if (microphoneApi->getDeviceCount() == 0)
 		{
 			std::cerr << "No audio devices available\n";
-			return;
+			return false;
+		}
+
+		if (microphoneApi->isStreamOpen())
+		{
+			std::cerr << "Audio input stream is already open, concurrent audio streams are not allowed.\n";
+			return false;
 		}
 
 		RtAudio::StreamParameters parameters;
 		parameters.deviceId = microphoneApi->getDefaultInputDevice();
 		parameters.nChannels = 1;
 		parameters.firstChannel = 0;
-
 		unsigned int sampleRate = 16000;
-		unsigned int bufferFrames = 256; // 256 sample frames
+		unsigned int bufferFrames = 256;
 
 		try
 		{
 			microphoneApi->openStream(nullptr, &parameters, RTAUDIO_SINT16,
 							sampleRate, &bufferFrames, &AudioCaptureDevice::audioCallback, this);
-
 			auto info = microphoneApi->getDeviceInfo(parameters.deviceId);
-			// Print, for example, the name and maximum number of output channels for each device
 			std::cout << std::format("Started audio input stream from device {}", info.name) << std::endl;
+			return true;
 		}
 		catch (std::exception& e)
 		{
 			std::cout << e.what();
-			return;
+			return false;
 		}
 	}
 
-	void AudioCaptureDevice::startStream()
+	void AudioCaptureDevice::StartStream()
 	{
 		if (microphoneApi && !microphoneApi->isStreamRunning())
 		{
@@ -69,7 +78,7 @@ namespace Utility::AudioInput
 		}
 	}
 
-	void AudioCaptureDevice::stopStream()
+	void AudioCaptureDevice::StopStream()
 	{
 		if (microphoneApi && microphoneApi->isStreamRunning())
 		{
