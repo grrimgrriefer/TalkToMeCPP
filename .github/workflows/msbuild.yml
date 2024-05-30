@@ -35,9 +35,13 @@ jobs:
         curl -L https://github.com/OpenCppCoverage/OpenCppCoverage/releases/download/release-0.9.9.0/OpenCppCoverageSetup-x64-0.9.9.0.exe -o OpenCppCoverageSetup.exe
         Start-Process -FilePath .\OpenCppCoverageSetup.exe -ArgumentList "/SUPRESSMSGBOXES /NORESTART /VERYSILENT" -NoNewWindow -Wait
         
+    - name: update port recipes
+      working-directory: C:\vcpkg\
+      run: git pull
+            
     - name: Restore vcpkg packages
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: vcpkg integrate install
+      run: vcpkg update && vcpkg upgrade --no-dry-run && vcpkg integrate install
       
     - name: Install sonar-scanner and build-wrapper
       uses: SonarSource/sonarcloud-github-c-cpp@v2
