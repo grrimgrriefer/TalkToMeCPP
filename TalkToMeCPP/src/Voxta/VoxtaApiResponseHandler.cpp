@@ -1,7 +1,6 @@
 // Copyright(c) 2024 grrimgrriefer & DZnnah, see LICENSE for details.
 
 #pragma once
-#include "../Utility/GuidUtility.h"
 #include "DataTypes/CharData.h"
 #include "DataTypes/ServerResponses/ServerResponseBase.h"
 #include "DataTypes/ServerResponses/ServerResponseCharacterList.h"
@@ -12,7 +11,7 @@
 #include "DataTypes/ServerResponses/ServerResponseSpeechTranscription.h"
 #include "DataTypes/ServerResponses/ServerResponseWelcome.h"
 #include "DataTypes/ServiceData.h"
-#include "VoxtaApiHandler.h"
+#include "VoxtaApiResponseHandler.h"
 #include <map>
 #include <memory>
 #include <signalrclient/signalr_value.h>
@@ -21,7 +20,7 @@
 
 namespace Voxta
 {
-	std::unique_ptr<DataTypes::ServerResponses::ServerResponseBase> VoxtaApiHandler::GetResponseData(
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseBase> VoxtaApiResponseHandler::GetResponseData(
 		const std::map<std::string, signalr::value>& map) const
 	{
 		using enum DataTypes::ServerResponses::ServerResponseType;
@@ -66,118 +65,13 @@ namespace Voxta
 		{
 			return GetSpeechRecognitionEnd(map);
 		}
-		// TODO: maybe?
-		//		else if (type == "chatClosed") {}
-		//		else if (type == "chatInProgress") {}
-		//		else if (type == "chatSessionError") {}
 		else
 		{
 			return nullptr;
 		}
 	}
 
-	signalr::value VoxtaApiHandler::GetAuthenticateRequestData() const
-	{
-		return signalr::value(std::map<std::string, signalr::value> {
-			{ "$type", "authenticate" },
-			{ "client", "TalkToMeCPP" },
-			{ "clientVersion", "0.0.2a" },
-			{ "scope", std::vector<signalr::value> { "role:app", "broadcast:write" } },
-			{ "capabilities", std::map<std::string, signalr::value> {
-				{ "audioInput", "WebSocketStream" },
-				{ "audioOutput", "Url" },
-				{ "acceptedAudioContentTypes", std::vector<signalr::value> { "audio/x-wav" } }
-			} }
-		});
-	}
-
-	signalr::value VoxtaApiHandler::GetLoadCharactersListData() const
-	{
-		return signalr::value(std::map<std::string, signalr::value> {
-			{ "$type", "loadCharactersList" }
-		});
-	}
-
-	signalr::value VoxtaApiHandler::GetLoadCharacterRequestData(std::string_view characterId) const
-	{
-		return signalr::value(std::map<std::string, signalr::value> {
-			{ "$type", "loadCharacter" },
-			{ "characterId", characterId.data() }
-		});
-	}
-
-	signalr::value VoxtaApiHandler::GetStartChatRequestData(const DataTypes::CharData* charData) const
-	{
-		std::string guidString = Utility::GuidUtility::GenerateGuid();
-
-		auto characterParams = std::map<std::string, signalr::value>{
-			{ "id", charData->m_id },
-			{ "name", charData->m_name },
-			{ "explicitContent", charData->m_explicitContent ? "True" : "False" } };
-
-		if (charData->m_voiceService)
-		{
-			auto const& serviceData = *(charData->m_voiceService.get());
-			characterParams.try_emplace("textToSpeech", std::vector<signalr::value> {
-				std::map<std::string, signalr::value> {
-					{ "voice", std::map<std::string, signalr::value> {
-						{ "parameters", std::map<std::string, signalr::value> {
-							{ "Filename", serviceData.m_parameters.m_filename },
-							{ "Temperature", serviceData.m_parameters.m_temperature },
-							{ "TopK", serviceData.m_parameters.m_topK },
-							{ "TopP", serviceData.m_parameters.m_topP } } },
-						{ "label", serviceData.m_parameters.m_filename }
-					} },
-					{ "service", std::map<std::string, signalr::value> {
-						{ "serviceName", serviceData.m_name },
-						{ "serviceId", serviceData.m_id }	} }
-				} });
-		}
-
-		return signalr::value(std::map<std::string, signalr::value>{
-			{ "$type", "startChat" },
-			{ "contextKey", "" },
-			{ "context", "" },
-			{ "chatId", guidString },
-			{ "characterId", charData->m_id },
-			{ "character", characterParams }
-		});
-	}
-
-	signalr::value VoxtaApiHandler::GetSendUserMessageData(std::string_view sessionId, std::string_view userMessage) const
-	{
-		return signalr::value(std::map<std::string, signalr::value> {
-			{ "$type", "send" },
-			{ "sessionId", sessionId.data() },
-			{ "text", userMessage.data() },
-			{ "doReply", "true" },
-			{ "doCharacterActionInference", "false" }
-		});
-	}
-
-	signalr::value VoxtaApiHandler::GetNotifyAudioPlaybackStartData(std::string_view sessionId, std::string_view messageId,
-		int startIndex, int endIndex, double duration) const
-	{
-		return signalr::value(std::map<std::string, signalr::value> {
-			{ "$type", "speechPlaybackStart" },
-			{ "sessionId", sessionId.data() },
-			{ "messageId", messageId.data() },
-			{ "startIndex", signalr::value(static_cast<double>(startIndex)) },
-			{ "endIndex", signalr::value(static_cast<double>(endIndex)) },
-			{ "duration", signalr::value(static_cast<double>(duration)) }
-		});
-	}
-
-	signalr::value VoxtaApiHandler::GetNotifyAudioPlaybackCompleteData(std::string_view sessionId, std::string_view messageId) const
-	{
-		return signalr::value(std::map<std::string, signalr::value> {
-			{ "$type", "speechPlaybackComplete" },
-			{ "sessionId", sessionId.data() },
-			{ "messageId", messageId.data() }
-		});
-	}
-
-	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatUpdate> VoxtaApiHandler::GetChatUpdateResponse(
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatUpdate> VoxtaApiResponseHandler::GetChatUpdateResponse(
 		const std::map<std::string, signalr::value>& map) const
 	{
 		return std::make_unique<DataTypes::ServerResponses::ServerResponseChatUpdate>(
@@ -187,14 +81,14 @@ namespace Voxta
 			map.at("sessionId").as_string());
 	}
 
-	std::unique_ptr<DataTypes::ServerResponses::ServerResponseSpeechTranscription> VoxtaApiHandler::GetSpeechRecognitionPartial(
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseSpeechTranscription> VoxtaApiResponseHandler::GetSpeechRecognitionPartial(
 		const std::map<std::string, signalr::value>& map) const
 	{
 		return std::make_unique<DataTypes::ServerResponses::ServerResponseSpeechTranscription>(
 			map.at("text").as_string(), Voxta::DataTypes::ServerResponses::ServerResponseSpeechTranscription::TranscriptionState::PARTIAL);
 	}
 
-	std::unique_ptr<DataTypes::ServerResponses::ServerResponseSpeechTranscription> VoxtaApiHandler::GetSpeechRecognitionEnd(
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseSpeechTranscription> VoxtaApiResponseHandler::GetSpeechRecognitionEnd(
 		const std::map<std::string, signalr::value>& map) const
 	{
 		return std::make_unique<DataTypes::ServerResponses::ServerResponseSpeechTranscription>(
@@ -203,7 +97,7 @@ namespace Voxta
 			Voxta::DataTypes::ServerResponses::ServerResponseSpeechTranscription::TranscriptionState::CANCELLED);
 	}
 
-	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatMessage> VoxtaApiHandler::GetReplyEndReponseResponse(
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatMessage> VoxtaApiResponseHandler::GetReplyEndReponseResponse(
 		const std::map<std::string, signalr::value>& map) const
 	{
 		return std::make_unique<DataTypes::ServerResponses::ServerResponseChatMessage>(
@@ -213,7 +107,7 @@ namespace Voxta
 			map.at("sessionId").as_string());
 	}
 
-	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatMessage> VoxtaApiHandler::GetReplyChunkReponseResponse(
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatMessage> VoxtaApiResponseHandler::GetReplyChunkReponseResponse(
 		const std::map<std::string, signalr::value>& map) const
 	{
 		return std::make_unique<DataTypes::ServerResponses::ServerResponseChatMessage>(
@@ -227,7 +121,7 @@ namespace Voxta
 			map.at("audioUrl").as_string());
 	}
 
-	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatMessage> VoxtaApiHandler::GetReplyStartReponseResponse(
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatMessage> VoxtaApiResponseHandler::GetReplyStartReponseResponse(
 		const std::map<std::string, signalr::value>& map) const
 	{
 		return std::make_unique<DataTypes::ServerResponses::ServerResponseChatMessage>(
@@ -237,7 +131,7 @@ namespace Voxta
 			map.at("sessionId").as_string());
 	}
 
-	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatStarted> VoxtaApiHandler::GetChatStartedResponse(
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatStarted> VoxtaApiResponseHandler::GetChatStartedResponse(
 		const std::map<std::string, signalr::value>& map) const
 	{
 		auto& user = map.at("user").as_map();
@@ -272,12 +166,12 @@ namespace Voxta
 			chars, services, map.at("chatId").as_string(), map.at("sessionId").as_string());
 	}
 
-	std::unique_ptr<DataTypes::ServerResponses::ServerResponseCharacterLoaded> VoxtaApiHandler::GetCharacterLoadedResponse(
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseCharacterLoaded> VoxtaApiResponseHandler::GetCharacterLoadedResponse(
 		const std::map<std::string, signalr::value>& map) const
 	{
 		auto& characterData = map.at("character").as_map();
 		auto& ttsConfig = characterData.at("textToSpeech").as_array();
-		auto configs = std::vector<DataTypes::ServerResponses::CharacterLoadedVoiceData>();
+		auto configs = std::vector<DataTypes::ServerResponses::ServerResponseCharacterLoaded::CharacterLoadedVoiceData>();
 
 		for (const auto& config : ttsConfig)
 		{
@@ -296,7 +190,7 @@ namespace Voxta
 			characterData.at("enableThinkingSpeech").as_bool(), configs);
 	}
 
-	std::unique_ptr<DataTypes::ServerResponses::ServerResponseCharacterList> VoxtaApiHandler::GetCharacterListLoadedResponse(
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseCharacterList> VoxtaApiResponseHandler::GetCharacterListLoadedResponse(
 		const std::map<std::string, signalr::value>& map) const
 	{
 		auto& charArray = map.at("characters").as_array();
@@ -314,7 +208,7 @@ namespace Voxta
 		return std::make_unique<DataTypes::ServerResponses::ServerResponseCharacterList>(chars);
 	}
 
-	std::unique_ptr<DataTypes::ServerResponses::ServerResponseWelcome> VoxtaApiHandler::GetWelcomeResponse(
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseWelcome> VoxtaApiResponseHandler::GetWelcomeResponse(
 		const std::map<std::string, signalr::value>& map) const
 	{
 		auto& user = map.at("user").as_map();

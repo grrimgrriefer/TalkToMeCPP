@@ -149,8 +149,9 @@
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Voxta\VoxtaClient.cpp" />
     <ClCompile Include="src\Utility\Logging\ThreadedLogger.cpp" />
-    <ClCompile Include="src\Voxta\VoxtaApiHandler.cpp" />
+    <ClCompile Include="src\Voxta\VoxtaApiRequestHandler.cpp" />
     <ClCompile Include="src\Utility\AudioPlayback\WavTools.cpp" />
+    <ClCompile Include="src\Voxta\VoxtaApiResponseHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Utility\GuidUtility.h" />
@@ -166,6 +167,8 @@
     <ClInclude Include="src\Utility\Logging\HubConnectionLogger.h" />
     <ClInclude Include="src\Voxta\DataTypes\CharData.h" />
     <ClInclude Include="src\Voxta\DataTypes\ChatMessage.h" />
+    <ClInclude Include="src\Voxta\DataTypes\CharVoiceService.h" />
+    <ClInclude Include="src\Voxta\DataTypes\VoiceServiceParams.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\HelperStructs\CharacterVoiceOverrideConfig.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseBase.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseCharacterLoaded.h" />
@@ -178,11 +181,12 @@
     <ClInclude Include="src\Utility\SignalR\SignalRWrapperInterface.h" />
     <ClInclude Include="src\Voxta\DataTypes\VoiceServiceData.h" />
     <ClInclude Include="src\Voxta\VoxtaClient.h" />
-    <ClInclude Include="src\Voxta\VoxtaApiHandler.h" />
+    <ClInclude Include="src\Voxta\VoxtaApiRequestHandler.h" />
     <ClInclude Include="src\Utility\Logging\ThreadedLogger.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseCharacterList.h" />
     <ClInclude Include="src\Voxta\DataTypes\ChatSession.h" />
     <ClInclude Include="src\Utility\AudioPlayback\WavTools.h" />
+    <ClInclude Include="src\Voxta\VoxtaApiResponseHandler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

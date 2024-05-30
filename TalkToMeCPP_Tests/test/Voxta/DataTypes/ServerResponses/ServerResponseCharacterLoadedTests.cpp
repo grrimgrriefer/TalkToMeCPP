@@ -15,21 +15,24 @@ namespace TalkToMeCPPTests
 	public:
 		TEST_METHOD(TestServerResponseCharacterLoadedGetType)
 		{
-			Voxta::DataTypes::ServerResponses::ServerResponseCharacterLoaded characterLoadedResponse("char001", true, std::vector<Voxta::DataTypes::ServerResponses::CharacterLoadedVoiceData>());
+			Voxta::DataTypes::ServerResponses::ServerResponseCharacterLoaded characterLoadedResponse(
+				"char001", true, std::vector<Voxta::DataTypes::ServerResponses::ServerResponseCharacterLoaded::CharacterLoadedVoiceData>());
 			Assert::IsTrue(Voxta::DataTypes::ServerResponses::ServerResponseType::CHARACTER_LOADED == characterLoadedResponse.GetType());
 		}
 
 		TEST_METHOD(TestServerResponseCharacterLoadedCharacterId)
 		{
 			std::string characterId = "char001";
-			Voxta::DataTypes::ServerResponses::ServerResponseCharacterLoaded characterLoadedResponse(characterId, true, std::vector<Voxta::DataTypes::ServerResponses::CharacterLoadedVoiceData>());
+			Voxta::DataTypes::ServerResponses::ServerResponseCharacterLoaded characterLoadedResponse(
+				characterId, true, std::vector<Voxta::DataTypes::ServerResponses::ServerResponseCharacterLoaded::CharacterLoadedVoiceData>());
 			Assert::AreEqual(characterId, characterLoadedResponse.m_characterId);
 		}
 
 		TEST_METHOD(TestServerResponseCharacterLoadedEnableThinkingSpeech)
 		{
 			bool enableThinkingSpeech = true;
-			Voxta::DataTypes::ServerResponses::ServerResponseCharacterLoaded characterLoadedResponse("char001", enableThinkingSpeech, std::vector<Voxta::DataTypes::ServerResponses::CharacterLoadedVoiceData>());
+			Voxta::DataTypes::ServerResponses::ServerResponseCharacterLoaded characterLoadedResponse(
+				"char001", enableThinkingSpeech, std::vector<Voxta::DataTypes::ServerResponses::ServerResponseCharacterLoaded::CharacterLoadedVoiceData>());
 			Assert::IsTrue(enableThinkingSpeech == characterLoadedResponse.m_enableThinkingSpeech);
 		}
 	};

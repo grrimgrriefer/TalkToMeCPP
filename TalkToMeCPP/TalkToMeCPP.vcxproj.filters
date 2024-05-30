@@ -27,7 +27,7 @@
     <ClCompile Include="src\Utility\Logging\HubConnectionLogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Voxta\VoxtaApiHandler.cpp">
+    <ClCompile Include="src\Voxta\VoxtaApiRequestHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Utility\SignalR\SignalRWrapper.cpp">
@@ -57,6 +57,9 @@
     <ClCompile Include="src\Utility\AudioInput\AudioWebSocketStateData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Voxta\VoxtaApiResponseHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Voxta\VoxtaClient.h">
@@ -77,7 +80,7 @@
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseWelcome.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Voxta\VoxtaApiHandler.h">
+    <ClInclude Include="src\Voxta\VoxtaApiRequestHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseCharacterList.h">
@@ -147,6 +150,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Utility\GuidUtility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Voxta\VoxtaApiResponseHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Voxta\DataTypes\CharVoiceService.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Voxta\DataTypes\VoiceServiceParams.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

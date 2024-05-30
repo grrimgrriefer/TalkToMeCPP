@@ -20,7 +20,9 @@ namespace Utility::SignalR
 	class SignalRWrapper : public SignalRWrapperInterface
 	{
 	public:
-		explicit SignalRWrapper(std::string_view address, int port, Logging::LoggerInterface& logger);
+		explicit SignalRWrapper(std::string_view address,
+			int port,
+			Logging::LoggerInterface& logger);
 		~SignalRWrapper() override = default;
 
 		void Start(std::function<void(std::exception_ptr)> callback) noexcept override;
@@ -28,10 +30,11 @@ namespace Utility::SignalR
 
 		void On(const std::string& event_name,
 			const std::function<void(const std::vector<signalr::value>&)>& handler) override;
+
 		void Invoke(const std::string& method_name,
 			const std::vector<signalr::value>& arguments = std::vector<signalr::value>(),
-			std::function<void(const signalr::value&, std::exception_ptr)> callback =
-			[] (const signalr::value&, std::exception_ptr) { /*empty cuz optional*/ }) noexcept override;
+			const std::function<void(const signalr::value&, std::exception_ptr)>& callback =
+				[] (const signalr::value&, std::exception_ptr) { /*empty cuz optional*/ }) noexcept override;
 
 	private:
 		std::unique_ptr<signalr::hub_connection> m_connection;

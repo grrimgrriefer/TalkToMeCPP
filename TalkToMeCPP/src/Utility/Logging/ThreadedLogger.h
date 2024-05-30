@@ -24,7 +24,8 @@ namespace Utility::Logging
 	public:
 		explicit ThreadedLogger(std::string_view filename);
 
-		void LogMessage(LogLevel level, const std::string& message) override;
+		void LogMessage(LogLevel level,
+			const std::string& message) override;
 
 	private:
 		std::string m_logFilePath;

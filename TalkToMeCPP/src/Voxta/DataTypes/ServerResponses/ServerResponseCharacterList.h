@@ -13,17 +13,16 @@ namespace Voxta::DataTypes::ServerResponses
 	/// </summary>
 	struct ServerResponseCharacterList : ServerResponseBase
 	{
+		const std::vector<DataTypes::CharData> m_characters;
+
 		ServerResponseType GetType() final
 		{
 			return ServerResponseType::CHARACTER_LIST;
 		}
 
-		explicit ServerResponseCharacterList(const std::vector<DataTypes::CharData>& characters) : m_characters(characters)
+		explicit ServerResponseCharacterList(const std::vector<DataTypes::CharData>& characters) :
+			m_characters(characters)
 		{
 		}
-
-		// Might be worth having CharData const too, idk yet.
-		// const is safer, but moving is cheaper for performance
-		const std::vector<DataTypes::CharData> m_characters;
 	};
 }

@@ -5,7 +5,8 @@
 #include "gmock/gmock.h"
 #include "CppUnitTest.h"
 #include "../MockProviders.cpp"
-#include "../TalkToMeCPP/src/Voxta/VoxtaApiHandler.h"
+#include "../TalkToMeCPP/src/Voxta/VoxtaApiRequestHandler.h"
+#include "../TalkToMeCPP/src/Voxta/VoxtaApiResponseHandler.h"
 #include "../TalkToMeCPP/src/Voxta/DataTypes/CharData.h"
 #include "../TalkToMeCPP/src/Voxta/DataTypes/ServerResponses/ServerResponseCharacterList.h"
 #include "../TalkToMeCPP/src/Voxta/DataTypes/ServerResponses/ServerResponseCharacterLoaded.h"
@@ -25,7 +26,7 @@ namespace TalkToMeCPPTests
 	public:
 		TEST_METHOD(TestGetAuthenticateRequestData)
 		{
-			auto response = Voxta::VoxtaApiHandler().GetAuthenticateRequestData();
+			auto response = Voxta::VoxtaApiRequestHandler().GetAuthenticateRequestData();
 
 			Assert::IsTrue(response.is_map());
 			auto& responseMap = response.as_map();
@@ -50,7 +51,7 @@ namespace TalkToMeCPPTests
 
 		TEST_METHOD(TestGetLoadCharactersListData)
 		{
-			auto response = Voxta::VoxtaApiHandler().GetLoadCharactersListData();
+			auto response = Voxta::VoxtaApiRequestHandler().GetLoadCharactersListData();
 
 			Assert::IsTrue(response.is_map());
 			auto& responseMap = response.as_map();
@@ -60,7 +61,7 @@ namespace TalkToMeCPPTests
 		TEST_METHOD(TestGetLoadCharacterRequestData)
 		{
 			auto guid = Utility::GuidUtility::GenerateGuid();
-			auto response = Voxta::VoxtaApiHandler().GetLoadCharacterRequestData(guid);
+			auto response = Voxta::VoxtaApiRequestHandler().GetLoadCharacterRequestData(guid);
 
 			Assert::IsTrue(response.is_map());
 			auto& responseMap = response.as_map();
@@ -71,7 +72,7 @@ namespace TalkToMeCPPTests
 		TEST_METHOD(TestGetStartChatRequestData)
 		{
 			const auto charData = Voxta::DataTypes::CharData(Utility::GuidUtility::GenerateGuid(), "HuhWeird");
-			auto response = Voxta::VoxtaApiHandler().GetStartChatRequestData(&charData);
+			auto response = Voxta::VoxtaApiRequestHandler().GetStartChatRequestData(&charData);
 
 			Assert::IsTrue(response.is_map());
 			auto& responseMap = response.as_map();
@@ -96,7 +97,7 @@ namespace TalkToMeCPPTests
 		{
 			auto sessionId = Utility::GuidUtility::GenerateGuid();
 			std::string message = "justsometestmessage hola";
-			auto response = Voxta::VoxtaApiHandler().GetSendUserMessageData(sessionId, message);
+			auto response = Voxta::VoxtaApiRequestHandler().GetSendUserMessageData(sessionId, message);
 
 			Assert::IsTrue(response.is_map());
 			auto& responseMap = response.as_map();
@@ -111,7 +112,7 @@ namespace TalkToMeCPPTests
 		{
 			std::string userName("waitwat?");
 			std::string userId(Utility::GuidUtility::GenerateGuid());
-			auto response = Voxta::VoxtaApiHandler().GetResponseData(MockProviders::GetWelcomeResponse(userId, userName).as_map());
+			auto response = Voxta::VoxtaApiResponseHandler().GetResponseData(MockProviders::GetWelcomeResponse(userId, userName).as_map());
 			auto derivedResponse = dynamic_cast<Voxta::DataTypes::ServerResponses::ServerResponseWelcome*>(response.get());
 
 			Assert::IsNotNull(derivedResponse);
@@ -127,7 +128,7 @@ namespace TalkToMeCPPTests
 			bool explicitContent1 = true, explicitContent2 = false;
 			bool favorite1 = false, favorite2 = false;
 
-			auto response = Voxta::VoxtaApiHandler().GetResponseData(MockProviders::GetCharactersListLoadedResponse({ id1 , id2 }, { name1 , name2 },
+			auto response = Voxta::VoxtaApiResponseHandler().GetResponseData(MockProviders::GetCharactersListLoadedResponse({ id1 , id2 }, { name1 , name2 },
 				{ creatorNotes1 , creatorNotes2 }, { explicitContent1 , explicitContent2 }, { favorite1 , favorite2 }).as_map());
 			auto derivedResponse = dynamic_cast<Voxta::DataTypes::ServerResponses::ServerResponseCharacterList*>(response.get());
 
@@ -149,7 +150,7 @@ namespace TalkToMeCPPTests
 		{
 			std::string characterId(Utility::GuidUtility::GenerateGuid());
 			bool enableThinkingSpeech(true);
-			auto response = Voxta::VoxtaApiHandler().GetResponseData(MockProviders::GetCharacterLoadedResponse(characterId, enableThinkingSpeech).as_map());
+			auto response = Voxta::VoxtaApiResponseHandler().GetResponseData(MockProviders::GetCharacterLoadedResponse(characterId, enableThinkingSpeech).as_map());
 			auto derivedResponse = dynamic_cast<Voxta::DataTypes::ServerResponses::ServerResponseCharacterLoaded*>(response.get());
 
 			Assert::IsNotNull(derivedResponse);
@@ -167,7 +168,7 @@ namespace TalkToMeCPPTests
 			std::string sttServiceId = Utility::GuidUtility::GenerateGuid();
 			std::string ttsServiceId = Utility::GuidUtility::GenerateGuid();
 
-			auto response = Voxta::VoxtaApiHandler().GetResponseData(MockProviders::GetChatStartedResponse(chatId, userId, "",
+			auto response = Voxta::VoxtaApiResponseHandler().GetResponseData(MockProviders::GetChatStartedResponse(chatId, userId, "",
 				llmServiceId, sttServiceId, ttsServiceId, charId, "", sessionId).as_map());
 			auto derivedResponse = dynamic_cast<Voxta::DataTypes::ServerResponses::ServerResponseChatStarted*>(response.get());
 
@@ -188,7 +189,7 @@ namespace TalkToMeCPPTests
 			std::string charId = Utility::GuidUtility::GenerateGuid();
 			std::string sessionId = Utility::GuidUtility::GenerateGuid();
 			std::string messageId = Utility::GuidUtility::GenerateGuid();
-			auto response = Voxta::VoxtaApiHandler().GetResponseData(MockProviders::GetReplyStartResponse(messageId, charId, sessionId).as_map());
+			auto response = Voxta::VoxtaApiResponseHandler().GetResponseData(MockProviders::GetReplyStartResponse(messageId, charId, sessionId).as_map());
 			auto derivedResponse = dynamic_cast<Voxta::DataTypes::ServerResponses::ServerResponseChatMessage*>(response.get());
 
 			Assert::IsNotNull(derivedResponse);
@@ -205,7 +206,7 @@ namespace TalkToMeCPPTests
 			std::string messageText = "Lmao I aint leaking my ai messages on github xd";
 			std::string audioUrl = "/api/tts/gens/etc...";
 
-			auto response = Voxta::VoxtaApiHandler().GetResponseData(MockProviders::GetReplyChunkResponse(messageId, charId, static_cast<double>(0),
+			auto response = Voxta::VoxtaApiResponseHandler().GetResponseData(MockProviders::GetReplyChunkResponse(messageId, charId, static_cast<double>(0),
 				static_cast<double>(47), messageText, audioUrl, sessionId).as_map());
 			auto derivedResponse = dynamic_cast<Voxta::DataTypes::ServerResponses::ServerResponseChatMessage*>(response.get());
 
@@ -223,7 +224,7 @@ namespace TalkToMeCPPTests
 			std::string sessionId = Utility::GuidUtility::GenerateGuid();
 			std::string messageId = Utility::GuidUtility::GenerateGuid();
 
-			auto response = Voxta::VoxtaApiHandler().GetResponseData(MockProviders::GetReplyEndResponse(messageId, charId, sessionId).as_map());
+			auto response = Voxta::VoxtaApiResponseHandler().GetResponseData(MockProviders::GetReplyEndResponse(messageId, charId, sessionId).as_map());
 			auto derivedResponse = dynamic_cast<Voxta::DataTypes::ServerResponses::ServerResponseChatMessage*>(response.get());
 
 			Assert::IsNotNull(derivedResponse);
@@ -239,7 +240,7 @@ namespace TalkToMeCPPTests
 			std::string text = "just some random message idk";
 			std::string messageId = Utility::GuidUtility::GenerateGuid();
 
-			auto response = Voxta::VoxtaApiHandler().GetResponseData(MockProviders::GetUpdateChatResponse(messageId, charId, text, sessionId).as_map());
+			auto response = Voxta::VoxtaApiResponseHandler().GetResponseData(MockProviders::GetUpdateChatResponse(messageId, charId, text, sessionId).as_map());
 			auto derivedResponse = dynamic_cast<Voxta::DataTypes::ServerResponses::ServerResponseChatUpdate*>(response.get());
 
 			Assert::IsNotNull(derivedResponse);

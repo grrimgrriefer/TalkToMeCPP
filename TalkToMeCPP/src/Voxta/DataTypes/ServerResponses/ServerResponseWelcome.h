@@ -12,15 +12,16 @@ namespace Voxta::DataTypes::ServerResponses
 	/// </summary>
 	struct ServerResponseWelcome : ServerResponseBase
 	{
+		const DataTypes::CharData m_user;
+
 		ServerResponseType GetType() final
 		{
 			return ServerResponseType::WELCOME;
 		}
 
-		explicit ServerResponseWelcome(const DataTypes::CharData& userData) : m_user(userData)
+		explicit ServerResponseWelcome(const DataTypes::CharData& userData) :
+			m_user(userData)
 		{
 		}
-
-		const DataTypes::CharData m_user;
 	};
 }

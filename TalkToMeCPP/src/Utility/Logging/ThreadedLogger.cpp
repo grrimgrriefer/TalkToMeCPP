@@ -15,7 +15,8 @@
 
 namespace Utility::Logging
 {
-	ThreadedLogger::ThreadedLogger(std::string_view path) : m_logFilePath(path)
+	ThreadedLogger::ThreadedLogger(std::string_view path) :
+		m_logFilePath(path)
 	{
 		std::ofstream newFile(m_logFilePath, std::ios::trunc);
 		if (newFile.is_open())
@@ -31,7 +32,8 @@ namespace Utility::Logging
 		}
 	}
 
-	void ThreadedLogger::LogMessage(LogLevel level, const std::string& message)
+	void ThreadedLogger::LogMessage(LogLevel level,
+		const std::string& message)
 	{
 		std::stringstream formattedMessage;
 		using enum LogLevel;

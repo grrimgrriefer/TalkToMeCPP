@@ -5,7 +5,8 @@
 #include "gmock/gmock.h"
 #include "CppUnitTest.h"
 #include "../TalkToMeCPP/src/Voxta/VoxtaClient.h"
-#include "../TalkToMeCPP/src/Voxta/VoxtaApiHandler.h"
+#include "../TalkToMeCPP/src/Voxta/VoxtaApiRequestHandler.h"
+#include "../TalkToMeCPP/src/Voxta/VoxtaApiResponseHandler.h"
 #include "../TalkToMeCPP/src/Utility/Logging/LoggerInterface.h"
 #include "../TalkToMeCPP/src/Voxta/DataTypes/CharData.h"
 #include "../TalkToMeCPP/src/Voxta/DataTypes/ChatMessage.h"
@@ -38,7 +39,7 @@ namespace TalkToMeCPPTests
 			MOCK_METHOD(void, Start, (std::function<void(std::exception_ptr)>), (noexcept, override));
 			MOCK_METHOD(void, Stop, (std::function<void(std::exception_ptr)>), (noexcept, override));
 			MOCK_METHOD(void, On, (const std::string&, const std::function<void(const std::vector<signalr::value>&)>&), (override));
-			MOCK_METHOD(void, Invoke, (const std::string&, const std::vector<signalr::value>&, std::function<void(const signalr::value&, std::exception_ptr)>), (noexcept, override));
+			MOCK_METHOD(void, Invoke, (const std::string&, const std::vector<signalr::value>&, const std::function<void(const signalr::value&, std::exception_ptr)>&), (noexcept, override));
 		};
 
 		class MockLogger : public Utility::Logging::LoggerInterface

@@ -12,6 +12,11 @@ namespace Voxta::DataTypes
 	/// </summary>
 	struct ChatMessage
 	{
+		std::string m_text;
+		std::vector<std::string> m_audioUrls;
+		const std::string m_messageId;
+		const std::string m_charId;
+
 		explicit ChatMessage(std::string_view messageId, std::string_view charID, std::string_view text) :
 			m_text(text), m_messageId(messageId), m_charId(charID)
 		{
@@ -21,14 +26,6 @@ namespace Voxta::DataTypes
 			m_charId(charID)
 		{
 		}
-		~ChatMessage() = default;
-
-		std::string m_text = "";
-		// TODO: might have to change this from string into an object
-		// double check when implementing playback
-		std::vector<std::string> m_audioUrls;
-		const std::string m_messageId;
-		const std::string m_charId;
 	};
 
 	/// <summary>
@@ -40,7 +37,11 @@ namespace Voxta::DataTypes
 	struct ChatMessageIdComparer
 	{
 		std::string m_messageId;
-		explicit ChatMessageIdComparer(std::string_view messageId) : m_messageId(messageId) {}
+
+		explicit ChatMessageIdComparer(std::string_view messageId) :
+			m_messageId(messageId)
+		{
+		}
 
 		bool operator()(const std::unique_ptr<DataTypes::ChatMessage>& element) const
 		{

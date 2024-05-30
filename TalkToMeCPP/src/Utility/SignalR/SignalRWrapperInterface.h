@@ -11,9 +11,6 @@ namespace Utility::SignalR
 {
 	/// <summary>
 	/// Interface whose only purpose is so we can Mock the wrapper for unit tests.
-	/// Without this, tests would require the VoxtaServer to be running, which is impossible when
-	/// github actions is running these tests...
-	///
 	/// Syntax is same as microsoft, so don't yell at me for them not utilising c++20 syntax
 	/// </summary>
 	class SignalRWrapperInterface
@@ -26,9 +23,10 @@ namespace Utility::SignalR
 
 		virtual void On(const std::string& event_name,
 			const std::function<void(const std::vector<signalr::value>&)>& handler) = 0;
+
 		virtual void Invoke(const std::string& method_name,
 			const std::vector<signalr::value>& arguments = std::vector<signalr::value>(),
-			std::function<void(const signalr::value&, std::exception_ptr)> callback =
-			[] (const signalr::value&, std::exception_ptr) { /*empty cuz optional*/ }) noexcept = 0;
+			const std::function<void(const signalr::value&, std::exception_ptr)>& callback =
+				[] (const signalr::value&, std::exception_ptr) { /*empty cuz optional*/ }) noexcept = 0;
 	};
 }

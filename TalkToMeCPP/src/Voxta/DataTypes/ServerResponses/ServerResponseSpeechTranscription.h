@@ -2,6 +2,7 @@
 
 #pragma once
 #include "ServerResponseBase.h"
+#include <string>
 
 namespace Voxta::DataTypes::ServerResponses
 {
@@ -11,22 +12,26 @@ namespace Voxta::DataTypes::ServerResponses
 	/// </summary>
 	struct ServerResponseSpeechTranscription : ServerResponseBase
 	{
+		enum class TranscriptionState
+		{
+			PARTIAL,
+			END,
+			CANCELLED
+		};
+
+		const TranscriptionState m_transcriptionState;
+		const std::string m_transcribedSpeech;
+
 		ServerResponseType GetType() final
 		{
 			return ServerResponseType::SPEECH_TRANSCRIPTION;
 		}
 
-		enum class TranscriptionState
-		{
-			PARTIAL, END, CANCELLED
-		};
-
-		explicit ServerResponseSpeechTranscription(std::string_view transcribedSpeech, TranscriptionState transcriptionState) :
-			m_transcriptionState(transcriptionState), m_transcribedSpeech(transcribedSpeech)
+		explicit ServerResponseSpeechTranscription(std::string_view transcribedSpeech,
+				TranscriptionState transcriptionState) :
+			m_transcriptionState(transcriptionState),
+			m_transcribedSpeech(transcribedSpeech)
 		{
 		}
-
-		const TranscriptionState m_transcriptionState;
-		const std::string m_transcribedSpeech;
 	};
 }

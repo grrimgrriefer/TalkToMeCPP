@@ -19,6 +19,7 @@
 #include <format>
 #include <functional>
 #include <future>
+#include <map>
 #include <memory>
 #include <signalrclient/signalr_value.h>
 #include <string>
@@ -35,32 +36,13 @@ namespace Voxta
 			const std::function<void(std::string_view fatalError)>& fatalErrorTriggered,
 			const std::function<void(const DataTypes::ChatMessage*, const DataTypes::CharData*)>& charSpeakingEvent) :
 		m_hubConnection(std::move(connectionBuilder)),
+		m_logger(logger),
 		m_stateChange(stateChange),
 		m_requestingUserInputEvent(requestingUserInputEvent),
 		m_transcribedSpeechUpdate(transcribedSpeechUpdate),
-		m_charSpeakingEvent(charSpeakingEvent),
 		m_fatalErrorTriggered(fatalErrorTriggered),
-		m_logger(logger)
+		m_charSpeakingEvent(charSpeakingEvent)
 	{
-	}
-
-	std::string_view VoxtaClient::GetUsername() const
-	{
-		if (m_userData)
-		{
-			return m_userData->m_name;
-		}
-		return "";
-	}
-
-	const std::vector<std::unique_ptr<const DataTypes::CharData>>& VoxtaClient::GetCharacters() const
-	{
-		return m_characterList;
-	}
-
-	const DataTypes::ChatSession* VoxtaClient::GetChatSession() const
-	{
-		return m_chatSession.get();
 	}
 
 	void VoxtaClient::Connect()
@@ -79,7 +61,7 @@ namespace Voxta
 				SafeInvoke([this] ()
 					{
 						m_logger.LogMessage(Utility::Logging::LoggerInterface::LogLevel::Info, "VoxtaClient connected successfully");
-						SendMessageToServer(m_voxtaApi.GetAuthenticateRequestData());
+						SendMessageToServer(m_voxtaRequestApi.GetAuthenticateRequestData());
 					}, exception);
 				startTask.set_value();
 			});
@@ -109,51 +91,50 @@ namespace Voxta
 		stopTask.get_future().get();
 	}
 
-	void VoxtaClient::ForceStop()
+	void VoxtaClient::ForceStopImmediate()
 	{
 		m_logger.LogMessage(Utility::Logging::LoggerInterface::LogLevel::Error, "Something requested immediate termination of the connection,"
 			" any running background threads will crash. Please restart the application.");
-		delete m_hubConnection.release();
+		delete m_hubConnection.release(); // TODO: remove this when porting, can cause issues for engine integration
 	}
 
-	void VoxtaClient::StartListeningToServer()
+	std::string_view VoxtaClient::GetUsername() const
 	{
-		m_hubConnection->On("ReceiveMessage", [this] (const std::vector<signalr::value>& messageContainer)
-			{
-				if (messageContainer[0].type() != signalr::value_type::map)
-				{
-					HandleBadResponse(messageContainer[0]);
-				}
-				else try
-				{
-					if (!HandleResponse(messageContainer[0].as_map()))
-					{
-						m_logger.LogMessage(Utility::Logging::LoggerInterface::LogLevel::Error,
-							"Received server response that is not (yet) supported.");
-					}
-				}
-				catch (const std::exception& ex)
-				{
-					std::string error("Something went wrong while parsing the server response:  ");
-					error += ex.what();
-					m_logger.LogMessage(Utility::Logging::LoggerInterface::LogLevel::Error, error);
-				}
-			});
+		if (m_userData)
+		{
+			return m_userData->m_name;
+		}
+		return "";
 	}
 
-	void VoxtaClient::NotifyAudioPlaybackStart(std::string_view messageId, int startIndex, int endIndex, double duration)
+	std::vector<const DataTypes::CharData*> VoxtaClient::GetCharacters() const
 	{
-		SendMessageToServer(m_voxtaApi.GetNotifyAudioPlaybackStartData(m_chatSession->m_sessionId, messageId, startIndex, endIndex, duration));
+		std::vector<const DataTypes::CharData*> rawPointers;
+		for (const auto& uniquePtr : m_characterList)
+		{
+			rawPointers.push_back(uniquePtr.get());
+		}
+		return rawPointers;
 	}
 
-	void VoxtaClient::NotifyAudioPlaybackComplete(std::string_view messageId)
+	const DataTypes::ChatSession* VoxtaClient::GetChatSession() const
 	{
-		SendMessageToServer(m_voxtaApi.GetNotifyAudioPlaybackCompleteData(m_chatSession->m_sessionId, messageId));
+		return m_chatSession.get();
 	}
 
 	void VoxtaClient::LoadCharacter(std::string_view characterId)
 	{
-		SendMessageToServer(m_voxtaApi.GetLoadCharacterRequestData(characterId));
+		SendMessageToServer(m_voxtaRequestApi.GetLoadCharacterRequestData(characterId));
+	}
+
+	void VoxtaClient::NotifyAudioPlaybackStart(std::string_view messageId, int startIndex, int endIndex, double duration)
+	{
+		SendMessageToServer(m_voxtaRequestApi.GetNotifyAudioPlaybackStartData(m_chatSession->m_sessionId, messageId, startIndex, endIndex, duration));
+	}
+
+	void VoxtaClient::NotifyAudioPlaybackComplete(std::string_view messageId)
+	{
+		SendMessageToServer(m_voxtaRequestApi.GetNotifyAudioPlaybackCompleteData(m_chatSession->m_sessionId, messageId));
 	}
 
 	void VoxtaClient::SendMessageToServer(const signalr::value& message)
@@ -173,14 +154,44 @@ namespace Voxta
 			});
 	}
 
+	void VoxtaClient::StartListeningToServer()
+	{
+		m_hubConnection->On("ReceiveMessage", [this] (const std::vector<signalr::value>& messageContainer)
+			{
+				OnReceiveMessage(messageContainer);
+			});
+	}
+
+	void VoxtaClient::OnReceiveMessage(const std::vector<signalr::value>& messageContainer)
+	{
+		if (messageContainer[0].type() != signalr::value_type::map)
+		{
+			HandleBadResponse(messageContainer[0]);
+		}
+		else try
+		{
+			if (!HandleResponse(messageContainer[0].as_map()))
+			{
+				m_logger.LogMessage(Utility::Logging::LoggerInterface::LogLevel::Error,
+					"Received server response that is not (yet) supported.");
+			}
+		}
+		catch (const std::exception& ex)
+		{
+			std::string error("Something went wrong while parsing the server response:  ");
+			error += ex.what();
+			m_logger.LogMessage(Utility::Logging::LoggerInterface::LogLevel::Error, error);
+		}
+	}
+
 	bool VoxtaClient::HandleResponse(const std::map<std::string, signalr::value>& map)
 	{
-		if (m_voxtaApi.c_ignoredMessageTypes.contains(map.at("$type").as_string()))
+		if (m_voxtaResponseApi.c_ignoredMessageTypes.contains(map.at("$type").as_string()))
 		{
 			return true;
 		}
 
-		auto response = m_voxtaApi.GetResponseData(map);
+		auto response = m_voxtaResponseApi.GetResponseData(map);
 		if (!response)
 		{
 			return false;
@@ -227,7 +238,7 @@ namespace Voxta
 		auto derivedResponse = dynamic_cast<const DataTypes::ServerResponses::ServerResponseWelcome*>(&response);
 		m_userData = std::make_unique<DataTypes::CharData>(derivedResponse->m_user);
 		m_stateChange(VoxtaClientState::AUTHENTICATED);
-		SendMessageToServer(m_voxtaApi.GetLoadCharactersListData());
+		SendMessageToServer(m_voxtaRequestApi.GetLoadCharactersListData());
 	}
 
 	void VoxtaClient::HandleCharacterListResponse(const DataTypes::ServerResponses::ServerResponseBase& response)
@@ -247,7 +258,7 @@ namespace Voxta
 		if (auto characterIt = std::ranges::find_if(m_characterList.begin(), m_characterList.end(),
 			DataTypes::CharDataIdComparer(derivedResponse->m_characterId)); characterIt != std::end(m_characterList))
 		{
-			SendMessageToServer(m_voxtaApi.GetStartChatRequestData((*characterIt).get()));
+			SendMessageToServer(m_voxtaRequestApi.GetStartChatRequestData((*characterIt).get()));
 			return true;
 		}
 		else
@@ -263,11 +274,10 @@ namespace Voxta
 		auto derivedResponse = dynamic_cast<const DataTypes::ServerResponses::ServerResponseChatStarted*>(&response);
 
 		std::vector<const DataTypes::CharData*> characters;
-		auto& charIds = derivedResponse->m_characterIds;
-		for (int i = 0; i < charIds.size(); i++)
+		for (auto& charIds = derivedResponse->m_characterIds; const auto & charId : charIds)
 		{
 			if (auto characterIt = std::ranges::find_if(m_characterList.begin(), m_characterList.end(),
-				DataTypes::CharDataIdComparer(charIds[i])); characterIt != std::end(m_characterList))
+				DataTypes::CharDataIdComparer(charId)); characterIt != std::end(m_characterList))
 			{
 				characters.emplace_back((*characterIt).get());
 			}
@@ -340,7 +350,7 @@ namespace Voxta
 				if (!m_usingMicrophoneInput)
 				{
 					std::string userInputText = m_requestingUserInputEvent();
-					SendMessageToServer(m_voxtaApi.GetSendUserMessageData(m_chatSession->m_sessionId, userInputText));
+					SendMessageToServer(m_voxtaRequestApi.GetSendUserMessageData(m_chatSession->m_sessionId, userInputText));
 				}
 				break;
 		}
@@ -369,7 +379,7 @@ namespace Voxta
 				{
 					m_sentFinalUserMessage = true;
 					m_transcribedSpeechUpdate(derivedResponse->m_transcribedSpeech, true);
-					SendMessageToServer(m_voxtaApi.GetSendUserMessageData(m_chatSession->m_sessionId, derivedResponse->m_transcribedSpeech));
+					SendMessageToServer(m_voxtaRequestApi.GetSendUserMessageData(m_chatSession->m_sessionId, derivedResponse->m_transcribedSpeech));
 				}
 				break;
 			case CANCELLED:

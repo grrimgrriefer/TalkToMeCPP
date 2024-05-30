@@ -17,9 +17,13 @@
 
 namespace Utility::SignalR
 {
-	SignalRWrapper::SignalRWrapper(std::string_view address, int port, Logging::LoggerInterface& logger) :
-		m_connection(std::make_unique<signalr::hub_connection>(signalr::hub_connection_builder::create(std::format("http://{}:{}/hub", address, std::to_string(port)))
-			.with_logging(std::make_shared<Logging::HubConnectionLogger>(logger), signalr::trace_level::verbose).build()))
+	SignalRWrapper::SignalRWrapper(std::string_view address,
+			int port,
+			Logging::LoggerInterface& logger) :
+		m_connection(std::make_unique<signalr::hub_connection>(signalr::hub_connection_builder::create(
+			std::format("http://{}:{}/hub", address, std::to_string(port)))
+			.with_logging(std::make_shared<Logging::HubConnectionLogger>(logger),
+			signalr::trace_level::verbose).build()))
 	{
 	}
 
@@ -33,13 +37,15 @@ namespace Utility::SignalR
 		m_connection->stop(callback);
 	}
 
-	void SignalRWrapper::On(const std::string& event_name, const std::function<void(const std::vector<signalr::value>&)>& handler)
+	void SignalRWrapper::On(const std::string& event_name,
+		const std::function<void(const std::vector<signalr::value>&)>& handler)
 	{
 		m_connection->on(event_name.data(), handler);
 	}
 
-	void SignalRWrapper::Invoke(const std::string& method_name, const std::vector<signalr::value>& arguments,
-		std::function<void(const signalr::value&, std::exception_ptr)> callback) noexcept
+	void SignalRWrapper::Invoke(const std::string& method_name,
+		const std::vector<signalr::value>& arguments,
+		const std::function<void(const signalr::value&, std::exception_ptr)>& callback) noexcept
 	{
 		m_connection->invoke(method_name.data(), arguments, callback);
 	}

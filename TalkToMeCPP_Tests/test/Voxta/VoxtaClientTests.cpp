@@ -7,8 +7,10 @@
 #include "../MockProviders.cpp"
 #include "../TalkToMeCPP/src/Voxta/VoxtaClient.h"
 #include "../TalkToMeCPP/src/Voxta/VoxtaClient.cpp"
-#include "../TalkToMeCPP/src/Voxta/VoxtaApiHandler.h"
-#include "../TalkToMeCPP/src/Voxta/VoxtaApiHandler.cpp"
+#include "../TalkToMeCPP/src/Voxta/VoxtaApiRequestHandler.h"
+#include "../TalkToMeCPP/src/Voxta/VoxtaApiRequestHandler.cpp"
+#include "../TalkToMeCPP/src/Voxta/VoxtaApiResponseHandler.h"
+#include "../TalkToMeCPP/src/Voxta/VoxtaApiResponseHandler.cpp"
 #include "../TalkToMeCPP/src/Utility/Logging/LoggerInterface.h"
 #include "../TalkToMeCPP/src/Voxta/DataTypes/CharData.h"
 #include "../TalkToMeCPP/src/Voxta/DataTypes/ChatMessage.h"
@@ -56,6 +58,10 @@ namespace TalkToMeCPPTests
 			{
 				sttTranscribedText = transcribedText;
 				sttIsFinalized = isFinalized;
+			};
+		std::function<void(std::string_view)> fatalErrorMock = [this] (std::string_view transcribedText)
+			{
+				sttTranscribedText = transcribedText;
 			};
 		std::function<void(const Voxta::DataTypes::ChatMessage*, const Voxta::DataTypes::CharData*)> charSpeakingEventMock = [this] (const Voxta::DataTypes::ChatMessage* chatMsg, const Voxta::DataTypes::CharData* charData)
 			{
@@ -232,7 +238,7 @@ namespace TalkToMeCPPTests
 			parameter(std::vector<signalr::value> { MockProviders::GetCharactersListLoadedResponse({ id1 , id2 }, { name1 , name2 },
 				{ creatorNotes1 , creatorNotes2 }, { explicitContent1 , explicitContent2 }, { favorite1 , favorite2 })});
 
-			auto& chars = client.GetCharacters();
+			auto chars = client.GetCharacters();
 			Assert::AreEqual(size_t(2), chars.size());
 			Assert::AreEqual(id1, chars[0]->m_id);
 			Assert::AreEqual(name1, chars[0]->m_name);
@@ -333,7 +339,7 @@ namespace TalkToMeCPPTests
 			Assert::AreEqual(sessionId, chatSession->m_sessionId);
 
 			Assert::AreEqual(size_t(1), chatSession->m_characters.size());
-			Assert::IsTrue(client.GetCharacters()[0].get() == chatSession->m_characters[0]); // force compare pointers here, not using AreSame on purpose
+			Assert::IsTrue(client.GetCharacters()[0] == chatSession->m_characters[0]); // force compare pointers here, not using AreSame on purpose
 
 			Assert::AreEqual(size_t(3), chatSession->m_services.size());
 
@@ -354,7 +360,7 @@ namespace TalkToMeCPPTests
 		{
 			signalRWrapper = std::move(mockWrapper);
 			loggerWrapper = std::move(mockLogger);
-			return Voxta::VoxtaClient(std::move(signalRWrapper), *loggerWrapper, stateChangeMock, requestingUserInputEventMock, speechTranscribingEventMock, charSpeakingEventMock);
+			return Voxta::VoxtaClient(std::move(signalRWrapper), *loggerWrapper, stateChangeMock, requestingUserInputEventMock, speechTranscribingEventMock, fatalErrorMock, charSpeakingEventMock);
 		}
 	};
 }
