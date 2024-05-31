@@ -169,7 +169,6 @@
     <ClInclude Include="src\Voxta\DataTypes\ChatMessage.h" />
     <ClInclude Include="src\Voxta\DataTypes\CharVoiceService.h" />
     <ClInclude Include="src\Voxta\DataTypes\VoiceServiceParams.h" />
-    <ClInclude Include="src\Voxta\DataTypes\ServerResponses\HelperStructs\CharacterVoiceOverrideConfig.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseBase.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseCharacterLoaded.h" />
     <ClInclude Include="src\Voxta\DataTypes\ServerResponses\ServerResponseChatMessage.h" />

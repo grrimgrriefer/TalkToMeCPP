@@ -15,14 +15,14 @@ namespace Voxta::DataTypes::ServerResponses
 	{
 		const std::vector<DataTypes::CharData> m_characters;
 
-		ServerResponseType GetType() final
-		{
-			return ServerResponseType::CHARACTER_LIST;
-		}
-
 		explicit ServerResponseCharacterList(const std::vector<DataTypes::CharData>& characters) :
 			m_characters(characters)
 		{
+		}
+
+		ServerResponseType GetType() final
+		{
+			return ServerResponseType::CHARACTER_LIST;
 		}
 	};
 }

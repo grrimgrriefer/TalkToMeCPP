@@ -3,15 +3,18 @@
 #pragma once
 #include "AudioCaptureDevice.h"
 #include "AudioWebSocket.h"
+#include "../Logging/LoggerInterface.h"
 #include <exception>
 #include <format>
 #include <iostream>
 #include <memory>
 #include <rtaudio/RtAudio.h>
+#include <mutex>
 
 namespace Utility::AudioInput
 {
-	AudioCaptureDevice::AudioCaptureDevice() : microphoneApi(std::make_unique<RtAudio>())
+	AudioCaptureDevice::AudioCaptureDevice(Logging::LoggerInterface& logger) :
+		m_logger(logger)
 	{
 	}
 
@@ -31,20 +34,23 @@ namespace Utility::AudioInput
 
 	bool AudioCaptureDevice::IsInitialized()
 	{
+		std::scoped_lock<std::mutex> lock(m_mutex);
 		return microphoneApi->isStreamOpen();
 	}
 
 	bool AudioCaptureDevice::TryInitialize()
 	{
+		std::scoped_lock<std::mutex> lock(m_mutex);
 		if (microphoneApi->getDeviceCount() == 0)
 		{
-			std::cerr << "No audio devices available\n";
+			m_logger.LogMessage(Logging::LoggerInterface::LogLevel::Error, "No audio devices available");
 			return false;
 		}
 
 		if (microphoneApi->isStreamOpen())
 		{
-			std::cerr << "Audio input stream is already open, concurrent audio streams are not allowed.\n";
+			m_logger.LogMessage(Logging::LoggerInterface::LogLevel::Warning,
+				"Audio input stream is already open, concurrent audio streams are not allowed.");
 			return false;
 		}
 
@@ -58,9 +64,10 @@ namespace Utility::AudioInput
 		try
 		{
 			microphoneApi->openStream(nullptr, &parameters, RTAUDIO_SINT16,
-							sampleRate, &bufferFrames, &AudioCaptureDevice::audioCallback, this);
+							sampleRate, &bufferFrames, &AudioCaptureDevice::AudioCallback, this);
 			auto info = microphoneApi->getDeviceInfo(parameters.deviceId);
-			std::cout << std::format("Started audio input stream from device {}", info.name) << std::endl;
+			m_logger.LogMessage(Logging::LoggerInterface::LogLevel::Info,
+				std::format("Started audio input stream from device {}", info.name));
 			return true;
 		}
 		catch (std::exception& e)
@@ -72,6 +79,7 @@ namespace Utility::AudioInput
 
 	void AudioCaptureDevice::StartStream()
 	{
+		std::scoped_lock<std::mutex> lock(m_mutex);
 		if (microphoneApi && !microphoneApi->isStreamRunning())
 		{
 			microphoneApi->startStream();
@@ -80,28 +88,34 @@ namespace Utility::AudioInput
 
 	void AudioCaptureDevice::StopStream()
 	{
+		std::scoped_lock<std::mutex> lock(m_mutex);
 		if (microphoneApi && microphoneApi->isStreamRunning())
 		{
 			microphoneApi->stopStream();
 		}
 	}
 
-	int AudioCaptureDevice::audioCallback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames,
-							 double streamTime, RtAudioStreamStatus status, void* context)
+	void AudioCaptureDevice::ReceiveAudioInputData(const char* buffer, unsigned int nBufferFrames)
 	{
+		m_socket->Send(buffer, nBufferFrames);
+	}
+
+	int AudioCaptureDevice::AudioCallback(void* outputBuffer,
+		void* inputBuffer,
+		unsigned int nBufferFrames,
+		double streamTime,
+		RtAudioStreamStatus status,
+		void* context)
+	{
+		auto* instance = static_cast<AudioCaptureDevice*>(context);
 		if (status)
 		{
-			std::cerr << "Stream overflow detected!\n";
+			instance->m_logger.LogMessage(Logging::LoggerInterface::LogLevel::Warning,
+				"Stream overflow detected!");
 		}
 		const auto* buffer = static_cast<char*>(inputBuffer);
-		auto* instance = static_cast<AudioCaptureDevice*>(context);
 		instance->ReceiveAudioInputData(buffer, nBufferFrames);
 
 		return 0;
-	}
-
-	void AudioCaptureDevice::ReceiveAudioInputData(const char* buffer, unsigned int nBufferFrames)
-	{
-		m_socket->send(buffer, nBufferFrames);
 	}
 }

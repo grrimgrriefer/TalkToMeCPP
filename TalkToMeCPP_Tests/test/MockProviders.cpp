@@ -36,8 +36,8 @@ namespace TalkToMeCPPTests
 		class MockHubConnection : public Utility::SignalR::SignalRWrapperInterface
 		{
 		public:
-			MOCK_METHOD(void, Start, (std::function<void(std::exception_ptr)>), (noexcept, override));
-			MOCK_METHOD(void, Stop, (std::function<void(std::exception_ptr)>), (noexcept, override));
+			MOCK_METHOD(void, Start, (const std::function<void(std::exception_ptr)>&), (noexcept, override));
+			MOCK_METHOD(void, Stop, (const std::function<void(std::exception_ptr)>&), (noexcept, override));
 			MOCK_METHOD(void, On, (const std::string&, const std::function<void(const std::vector<signalr::value>&)>&), (override));
 			MOCK_METHOD(void, Invoke, (const std::string&, const std::vector<signalr::value>&, const std::function<void(const signalr::value&, std::exception_ptr)>&), (noexcept, override));
 		};

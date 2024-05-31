@@ -23,10 +23,10 @@ namespace Voxta::DataTypes
 		const std::string m_sessionId;
 		const std::map<const ServiceData::ServiceType, const ServiceData> m_services; // Assumes we don't allow the user to disable / enable services while chatting
 
-		explicit ChatSession(std::vector<const CharData*> characters,
+		explicit ChatSession(const std::vector<const CharData*>& characters,
 				std::string_view chatId,
 				std::string_view sessionId,
-				std::map<const ServiceData::ServiceType, const ServiceData> services) :
+				const std::map<const ServiceData::ServiceType, const ServiceData>& services) :
 			m_characters(characters),
 			m_chatId(chatId),
 			m_sessionId(sessionId),

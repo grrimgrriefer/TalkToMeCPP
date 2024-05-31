@@ -22,16 +22,16 @@ namespace Voxta::DataTypes::ServerResponses
 		const TranscriptionState m_transcriptionState;
 		const std::string m_transcribedSpeech;
 
-		ServerResponseType GetType() final
-		{
-			return ServerResponseType::SPEECH_TRANSCRIPTION;
-		}
-
 		explicit ServerResponseSpeechTranscription(std::string_view transcribedSpeech,
 				TranscriptionState transcriptionState) :
 			m_transcriptionState(transcriptionState),
 			m_transcribedSpeech(transcribedSpeech)
 		{
+		}
+
+		ServerResponseType GetType() final
+		{
+			return ServerResponseType::SPEECH_TRANSCRIPTION;
 		}
 	};
 }

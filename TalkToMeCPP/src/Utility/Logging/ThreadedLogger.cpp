@@ -12,23 +12,30 @@
 #include <mutex>
 #include <string>
 #include <thread>
+#include <exception>
 
 namespace Utility::Logging
 {
 	ThreadedLogger::ThreadedLogger(std::string_view path) :
 		m_logFilePath(path)
 	{
-		std::ofstream newFile(m_logFilePath, std::ios::trunc);
-		if (newFile.is_open())
+		try
 		{
-			newFile << "Log started" << std::endl;
-			newFile.flush();
-			newFile.close();
-			std::cout << "Cleared logfile for new session!" << std::endl;
+			std::ofstream newFile(m_logFilePath, std::ios::trunc);
+			if (newFile.is_open())
+			{
+				newFile << "Log started" << std::endl;
+				newFile.flush();
+				std::cout << "Cleared logfile for new session!" << std::endl;
+			}
+			else
+			{
+				std::cerr << "Failed to create an empty logfile :(" << std::endl;
+			}
 		}
-		else
+		catch (const std::exception& e)
 		{
-			std::cerr << "Failed to create an empty logfile :(" << std::endl;
+			std::cerr << "Fatal error when trying to create logfile on disk: " << e.what() << std::endl;
 		}
 	}
 
@@ -97,7 +104,6 @@ namespace Utility::Logging
 		m_logFile.open(m_logFilePath, std::ofstream::out | std::ofstream::app);
 		std::ranges::copy(m_logBuffer, std::ostream_iterator<std::string>(m_logFile, "\n"));
 		m_logFile.flush();
-		m_logFile.close();
 
 		m_writeRequested = false;
 	}

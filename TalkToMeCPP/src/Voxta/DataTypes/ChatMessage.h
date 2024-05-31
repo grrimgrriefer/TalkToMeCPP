@@ -17,12 +17,17 @@ namespace Voxta::DataTypes
 		const std::string m_messageId;
 		const std::string m_charId;
 
-		explicit ChatMessage(std::string_view messageId, std::string_view charID, std::string_view text) :
-			m_text(text), m_messageId(messageId), m_charId(charID)
+		explicit ChatMessage(std::string_view messageId,
+				std::string_view charID,
+				std::string_view text) :
+			m_text(text),
+			m_messageId(messageId),
+			m_charId(charID)
 		{
 		}
 
-		explicit ChatMessage(std::string_view messageId, std::string_view charID) : m_messageId(messageId),
+		explicit ChatMessage(std::string_view messageId, std::string_view charID) :
+			m_messageId(messageId),
 			m_charId(charID)
 		{
 		}

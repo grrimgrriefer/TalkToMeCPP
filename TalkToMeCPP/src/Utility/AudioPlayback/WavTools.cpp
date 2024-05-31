@@ -4,18 +4,23 @@
 #include "../Logging/LoggerInterface.h"
 #include "WavTools.h"
 #include <cstdint>
-#include <iostream>
 #include <vector>
+#include <stdexcept>
 
 namespace Utility::AudioPlayback
 {
-	WavTools::WavTools(Logging::LoggerInterface& logger)
-		: m_logger(logger)
+	WavTools::WavTools(Logging::LoggerInterface& logger) :
+		m_logger(logger)
 	{
 	}
 
 	double WavTools::CalculateDuration(const std::vector<char>& audioData) const
 	{
+		if (audioData.size() < sizeof(WAVHeader))
+		{
+			return ReportFailure();
+		}
+
 		WAVHeader header;
 		std::memcpy(&header, audioData.data(), sizeof(WAVHeader));
 
@@ -25,15 +30,20 @@ namespace Utility::AudioPlayback
 		char subchunk2ID[4];
 		if (audioData.size() < dataOffset + sizeof(subchunk2ID))
 		{
-			std::cerr << "Error: Incomplete WAV data." << std::endl;
-			return -1.0; // Error code
+			return ReportFailure();
 		}
 
 		uint32_t subchunk2Size;
 		std::memcpy(&subchunk2Size, audioData.data() + dataOffset + sizeof(subchunk2ID), sizeof(subchunk2Size));
 
-		double duration = static_cast<double>(subchunk2Size) / (header.sampleRate * header.numChannels * (header.bitsPerSample / 8.0));
+		return static_cast<double>(subchunk2Size) / (header.sampleRate *
+			header.numChannels * (header.bitsPerSample / 8.0));
+	}
 
-		return duration;
+	int WavTools::ReportFailure() const
+	{
+		m_logger.LogMessage(Logging::LoggerInterface::LogLevel::Error, "Error: Incomplete WAV data.");
+		throw std::range_error("Error: Incomplete WAV data.");
+		return -1;
 	}
 }

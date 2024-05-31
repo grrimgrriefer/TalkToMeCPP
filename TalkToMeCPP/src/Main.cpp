@@ -2,7 +2,7 @@
 
 #pragma once
 #include "ExampleImplementation.h"
-#include <windows.h>
+#include <Windows.h>
 #include <consoleapi.h>
 #include <processenv.h>
 

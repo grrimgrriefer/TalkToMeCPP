@@ -7,8 +7,8 @@
 
 namespace Utility::Logging
 {
-	HubConnectionLogger::HubConnectionLogger(LoggerInterface& logger)
-		: m_logger(logger)
+	HubConnectionLogger::HubConnectionLogger(LoggerInterface& logger) :
+		m_logger(logger)
 	{
 	}
 

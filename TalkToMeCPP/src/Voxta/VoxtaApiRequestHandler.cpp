@@ -103,7 +103,7 @@ namespace Voxta
 			{ "messageId", messageId.data() },
 			{ "startIndex", signalr::value(static_cast<double>(startIndex)) },
 			{ "endIndex", signalr::value(static_cast<double>(endIndex)) },
-			{ "duration", signalr::value(static_cast<double>(duration)) }
+			{ "duration", signalr::value(duration) }
 		});
 	}
 

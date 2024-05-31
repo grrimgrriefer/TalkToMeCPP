@@ -24,7 +24,8 @@ namespace Voxta::DataTypes::ServerResponses
 	/// </summary>
 	struct ServerResponseBase
 	{
-		virtual ServerResponseType GetType() = 0;
 		virtual ~ServerResponseBase() = default;
+
+		virtual ServerResponseType GetType() = 0;
 	};
 }

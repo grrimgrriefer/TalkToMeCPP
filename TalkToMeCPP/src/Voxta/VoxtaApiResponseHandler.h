@@ -43,22 +43,31 @@ namespace Voxta
 	private:
 		std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatUpdate> GetChatUpdateResponse(
 			const std::map<std::string, signalr::value>& map) const;
+
 		std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatMessage> GetReplyEndReponseResponse(
 			const std::map<std::string, signalr::value>& map) const;
+
 		std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatMessage> GetReplyChunkReponseResponse(
 			const std::map<std::string, signalr::value>& map) const;
+
 		std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatMessage> GetReplyStartReponseResponse(
 			const std::map<std::string, signalr::value>& map) const;
+
 		std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatStarted> GetChatStartedResponse(
 			const std::map<std::string, signalr::value>& map) const;
+
 		std::unique_ptr<DataTypes::ServerResponses::ServerResponseCharacterLoaded> GetCharacterLoadedResponse(
 			const std::map<std::string, signalr::value>& map) const;
+
 		std::unique_ptr<DataTypes::ServerResponses::ServerResponseCharacterList> GetCharacterListLoadedResponse(
 			const std::map<std::string, signalr::value>& map) const;
+
 		std::unique_ptr<DataTypes::ServerResponses::ServerResponseWelcome> GetWelcomeResponse(
 			const std::map<std::string, signalr::value>& map) const;
+
 		std::unique_ptr<DataTypes::ServerResponses::ServerResponseSpeechTranscription> GetSpeechRecognitionPartial(
 			const std::map<std::string, signalr::value>& map) const;
+
 		std::unique_ptr<DataTypes::ServerResponses::ServerResponseSpeechTranscription> GetSpeechRecognitionEnd(
 			const std::map<std::string, signalr::value>& map) const;
 	};

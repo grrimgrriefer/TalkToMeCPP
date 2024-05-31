@@ -23,10 +23,11 @@ namespace Utility::SignalR
 		explicit SignalRWrapper(std::string_view address,
 			int port,
 			Logging::LoggerInterface& logger);
+
 		~SignalRWrapper() override = default;
 
-		void Start(std::function<void(std::exception_ptr)> callback) noexcept override;
-		void Stop(std::function<void(std::exception_ptr)> callback) noexcept override;
+		void Start(const std::function<void(std::exception_ptr)>& callback) noexcept override;
+		void Stop(const std::function<void(std::exception_ptr)>& callback) noexcept override;
 
 		void On(const std::string& event_name,
 			const std::function<void(const std::vector<signalr::value>&)>& handler) override;

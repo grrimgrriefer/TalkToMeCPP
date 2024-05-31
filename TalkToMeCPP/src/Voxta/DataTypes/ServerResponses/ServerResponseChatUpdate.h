@@ -17,11 +17,6 @@ namespace Voxta::DataTypes::ServerResponses
 		const std::string m_text;
 		const std::string m_sessionId;
 
-		ServerResponseType GetType() final
-		{
-			return ServerResponseType::CHAT_UPDATE;
-		}
-
 		explicit ServerResponseChatUpdate(std::string_view messageId,
 				std::string_view senderId,
 				std::string_view text,
@@ -31,6 +26,11 @@ namespace Voxta::DataTypes::ServerResponses
 			m_text(text),
 			m_sessionId(sessionId)
 		{
+		}
+
+		ServerResponseType GetType() final
+		{
+			return ServerResponseType::CHAT_UPDATE;
 		}
 	};
 }

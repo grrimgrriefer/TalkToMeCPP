@@ -7,6 +7,9 @@
 
 namespace Utility::AudioPlayback
 {
+	/// <summary>
+	/// Utility class for handling binary data that represents wav data
+	/// </summary>
 	class WavTools
 	{
 	public:
@@ -30,5 +33,7 @@ namespace Utility::AudioPlayback
 		};
 
 		Logging::LoggerInterface& m_logger;
+
+		int ReportFailure() const;
 	};
 }

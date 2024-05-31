@@ -81,22 +81,6 @@ namespace Voxta
 			map.at("sessionId").as_string());
 	}
 
-	std::unique_ptr<DataTypes::ServerResponses::ServerResponseSpeechTranscription> VoxtaApiResponseHandler::GetSpeechRecognitionPartial(
-		const std::map<std::string, signalr::value>& map) const
-	{
-		return std::make_unique<DataTypes::ServerResponses::ServerResponseSpeechTranscription>(
-			map.at("text").as_string(), Voxta::DataTypes::ServerResponses::ServerResponseSpeechTranscription::TranscriptionState::PARTIAL);
-	}
-
-	std::unique_ptr<DataTypes::ServerResponses::ServerResponseSpeechTranscription> VoxtaApiResponseHandler::GetSpeechRecognitionEnd(
-		const std::map<std::string, signalr::value>& map) const
-	{
-		return std::make_unique<DataTypes::ServerResponses::ServerResponseSpeechTranscription>(
-			map.contains("text") ? map.at("text").as_string() : "",
-			map.contains("text") ? Voxta::DataTypes::ServerResponses::ServerResponseSpeechTranscription::TranscriptionState::END :
-			Voxta::DataTypes::ServerResponses::ServerResponseSpeechTranscription::TranscriptionState::CANCELLED);
-	}
-
 	std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatMessage> VoxtaApiResponseHandler::GetReplyEndReponseResponse(
 		const std::map<std::string, signalr::value>& map) const
 	{
@@ -214,5 +198,21 @@ namespace Voxta
 		auto& user = map.at("user").as_map();
 		return std::make_unique<DataTypes::ServerResponses::ServerResponseWelcome>(
 			DataTypes::CharData(user.at("id").as_string(), user.at("name").as_string()));
+	}
+
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseSpeechTranscription> VoxtaApiResponseHandler::GetSpeechRecognitionPartial(
+		const std::map<std::string, signalr::value>& map) const
+	{
+		return std::make_unique<DataTypes::ServerResponses::ServerResponseSpeechTranscription>(
+			map.at("text").as_string(), Voxta::DataTypes::ServerResponses::ServerResponseSpeechTranscription::TranscriptionState::PARTIAL);
+	}
+
+	std::unique_ptr<DataTypes::ServerResponses::ServerResponseSpeechTranscription> VoxtaApiResponseHandler::GetSpeechRecognitionEnd(
+		const std::map<std::string, signalr::value>& map) const
+	{
+		return std::make_unique<DataTypes::ServerResponses::ServerResponseSpeechTranscription>(
+			map.contains("text") ? map.at("text").as_string() : "",
+			map.contains("text") ? Voxta::DataTypes::ServerResponses::ServerResponseSpeechTranscription::TranscriptionState::END :
+			Voxta::DataTypes::ServerResponses::ServerResponseSpeechTranscription::TranscriptionState::CANCELLED);
 	}
 }

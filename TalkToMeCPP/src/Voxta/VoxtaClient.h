@@ -28,7 +28,14 @@ namespace Voxta
 	class VoxtaClient
 	{
 	public:
-		enum class VoxtaClientState { DISCONNECTED, CONNECTING, AUTHENTICATED, CHARACTER_LOBBY, CHATTING };
+		enum class VoxtaClientState
+		{
+			DISCONNECTED,
+			CONNECTING,
+			AUTHENTICATED,
+			CHARACTER_LOBBY,
+			CHATTING
+		};
 
 		explicit VoxtaClient(std::unique_ptr<Utility::SignalR::SignalRWrapperInterface> connectionBuilder,
 			Utility::Logging::LoggerInterface& logger,
@@ -37,8 +44,6 @@ namespace Voxta
 			const std::function<void(std::string_view currentTranscription, bool finalized)>& transcribedSpeechUpdate,
 			const std::function<void(std::string_view errorMsg)>& fatalErrorTriggered,
 			const std::function<void(const DataTypes::ChatMessage*, const DataTypes::CharData*)>& charSpeakingEvent);
-
-		~VoxtaClient() = default;
 
 		void Connect();
 		void Disconnect();
@@ -49,7 +54,11 @@ namespace Voxta
 		const DataTypes::ChatSession* GetChatSession() const;
 
 		void LoadCharacter(std::string_view characterId);
-		void NotifyAudioPlaybackStart(std::string_view messageId, int startIndex, int endIndex, double duration);
+		void NotifyAudioPlaybackStart(std::string_view messageId,
+			int startIndex,
+			int endIndex,
+			double duration);
+
 		void NotifyAudioPlaybackComplete(std::string_view messageId);
 
 	private:

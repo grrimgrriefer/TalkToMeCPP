@@ -32,11 +32,6 @@ namespace Voxta::DataTypes::ServerResponses
 		const std::string m_messageText = "";
 		const std::string m_audioUrlPath = "";
 
-		ServerResponseType GetType() final
-		{
-			return ServerResponseType::CHAT_MESSAGE;
-		}
-
 		explicit ServerResponseChatMessage(MessageType type,
 				std::string_view messageId,
 				std::string_view senderId,
@@ -65,6 +60,11 @@ namespace Voxta::DataTypes::ServerResponses
 			m_messageText(messageText),
 			m_audioUrlPath(audioUrlPath)
 		{
+		}
+
+		ServerResponseType GetType() final
+		{
+			return ServerResponseType::CHAT_MESSAGE;
 		}
 	};
 }

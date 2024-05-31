@@ -20,6 +20,6 @@ namespace Utility::Logging
 		void __cdecl write(const std::string& entry) override;
 
 	private:
-		Logging::LoggerInterface& m_logger;
+		LoggerInterface& m_logger;
 	};
 }

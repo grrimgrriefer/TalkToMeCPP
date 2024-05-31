@@ -27,12 +27,12 @@ namespace Utility::SignalR
 	{
 	}
 
-	void SignalRWrapper::Start(std::function<void(std::exception_ptr)> callback) noexcept
+	void SignalRWrapper::Start(const std::function<void(std::exception_ptr)>& callback) noexcept
 	{
 		m_connection->start(callback);
 	}
 
-	void SignalRWrapper::Stop(std::function<void(std::exception_ptr)> callback) noexcept
+	void SignalRWrapper::Stop(const std::function<void(std::exception_ptr)>& callback) noexcept
 	{
 		m_connection->stop(callback);
 	}

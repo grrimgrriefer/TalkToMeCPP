@@ -18,8 +18,8 @@ namespace Utility::SignalR
 	public:
 		virtual ~SignalRWrapperInterface() = default;
 
-		virtual void Start(std::function<void(std::exception_ptr)> callback) noexcept = 0;
-		virtual void Stop(std::function<void(std::exception_ptr)> callback) noexcept = 0;
+		virtual void Start(const std::function<void(std::exception_ptr)>& callback) noexcept = 0;
+		virtual void Stop(const std::function<void(std::exception_ptr)>& callback) noexcept = 0;
 
 		virtual void On(const std::string& event_name,
 			const std::function<void(const std::vector<signalr::value>&)>& handler) = 0;

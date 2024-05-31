@@ -3,62 +3,65 @@
 #pragma once
 #include "AudioInputWrapper.h"
 #include "AudioWebSocket.h"
+#include "../Logging/LoggerInterface.h"
 #include <chrono>
 #include <memory>
 #include <string>
 #include <thread>
-#include <type_traits>
 
 namespace Utility::AudioInput
 {
-	AudioInputWrapper::AudioInputWrapper(std::string_view serverIP, int serverPort) :
-		websocketPotato(std::make_shared<Utility::AudioInput::AudioWebSocket>(serverIP, serverPort))
+	AudioInputWrapper::AudioInputWrapper(Logging::LoggerInterface& logger,
+			std::string_view serverIP,
+			int serverPort) :
+		m_audioCaptureDevice(logger),
+		m_audioWebSocket(std::make_shared<Utility::AudioInput::AudioWebSocket>(logger, serverIP, serverPort))
 	{
 	}
 
 	void AudioInputWrapper::StartStreaming()
 	{
-		if (isStartingUp || isStreaming)
+		if (m_isStartingUp || m_isStreaming)
 		{
 			return;
 		}
 
-		if (!audioDevice.IsInitialized())
+		if (!m_audioCaptureDevice.IsInitialized())
 		{
-			isStartingUp = true;
-			startupThread = std::move(std::jthread([this] ()
+			m_isStartingUp = true;
+			m_startupThread = std::jthread([this] ()
 				{
-					websocketPotato->connect();
+					m_audioWebSocket->Connect();
 					std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-					websocketPotato->send("{\"contentType\":\"audio/wav\",\"sampleRate\":16000,"
+					m_audioWebSocket->Send("{\"contentType\":\"audio/wav\",\"sampleRate\":16000,"
 						"\"channels\":1,\"bitsPerSample\": 16,\"bufferMilliseconds\":30}");
 					std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-					audioDevice.RegisterSocket(websocketPotato);
-					audioDevice.TryInitialize();
+					m_audioCaptureDevice.RegisterSocket(m_audioWebSocket);
+					m_audioCaptureDevice.TryInitialize();
 					std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-					audioDevice.StartStream();
-					isStreaming = true;
-					isStartingUp = false;
-				}));
+					m_audioCaptureDevice.StartStream();
+					m_isStreaming = true;
+					m_isStartingUp = false;
+				});
 		}
 		else
 		{
-			audioDevice.StartStream();
-			isStreaming = true;
+			m_audioCaptureDevice.StartStream();
+			m_isStreaming = true;
 		}
 	}
 
 	void AudioInputWrapper::StopStreaming()
 	{
-		if (isStartingUp || !isStreaming)
+		if (m_isStartingUp || !m_isStreaming)
 		{
 			return;
 		}
 
-		audioDevice.StopStream();
-		isStreaming = false;
+		m_audioCaptureDevice.StopStream();
+		m_isStreaming = false;
 	}
 }

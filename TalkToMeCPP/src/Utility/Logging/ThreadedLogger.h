@@ -24,12 +24,10 @@ namespace Utility::Logging
 	public:
 		explicit ThreadedLogger(std::string_view filename);
 
-		void LogMessage(LogLevel level,
-			const std::string& message) override;
+		void LogMessage(LogLevel level, const std::string& message) override;
 
 	private:
-		std::string m_logFilePath;
-
+		const std::string m_logFilePath;
 		std::mutex m_mutex;
 		std::ofstream m_logFile;
 		std::deque<std::string> m_logQueue;

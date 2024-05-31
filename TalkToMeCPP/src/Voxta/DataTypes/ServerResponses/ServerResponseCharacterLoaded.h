@@ -26,7 +26,7 @@ namespace Voxta::DataTypes::ServerResponses
 			const std::string m_voiceLabel;
 
 			explicit CharacterLoadedVoiceData(const std::map<std::string, std::string>& voiceParameters,
-					std::string_view voiceLabel) :
+				std::string_view voiceLabel) :
 				m_voiceParameters(voiceParameters),
 				m_voiceLabel(voiceLabel)
 			{
@@ -37,18 +37,18 @@ namespace Voxta::DataTypes::ServerResponses
 		const bool m_enableThinkingSpeech;
 		const std::vector<CharacterLoadedVoiceData> m_voiceData;
 
-		ServerResponseType GetType() final
-		{
-			return ServerResponseType::CHARACTER_LOADED;
-		}
-
 		explicit ServerResponseCharacterLoaded(std::string_view characterId,
 				bool enableThinkingSpeech,
-				std::vector<CharacterLoadedVoiceData> voiceOverrideConfigs) :
+				const std::vector<CharacterLoadedVoiceData>& voiceOverrideConfigs) :
 			m_characterId(characterId),
 			m_enableThinkingSpeech(enableThinkingSpeech),
 			m_voiceData(voiceOverrideConfigs)
 		{
+		}
+
+		ServerResponseType GetType() final
+		{
+			return ServerResponseType::CHARACTER_LOADED;
 		}
 	};
 }

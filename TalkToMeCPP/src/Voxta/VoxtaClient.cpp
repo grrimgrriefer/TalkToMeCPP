@@ -104,6 +104,8 @@ namespace Voxta
 		{
 			return m_userData->m_name;
 		}
+		m_logger.LogMessage(Utility::Logging::LoggerInterface::LogLevel::Warning,
+			"Tried to fetch username but no userdata was found.");
 		return "";
 	}
 
@@ -127,9 +129,16 @@ namespace Voxta
 		SendMessageToServer(m_voxtaRequestApi.GetLoadCharacterRequestData(characterId));
 	}
 
-	void VoxtaClient::NotifyAudioPlaybackStart(std::string_view messageId, int startIndex, int endIndex, double duration)
+	void VoxtaClient::NotifyAudioPlaybackStart(std::string_view messageId,
+		int startIndex,
+		int endIndex,
+		double duration)
 	{
-		SendMessageToServer(m_voxtaRequestApi.GetNotifyAudioPlaybackStartData(m_chatSession->m_sessionId, messageId, startIndex, endIndex, duration));
+		SendMessageToServer(m_voxtaRequestApi.GetNotifyAudioPlaybackStartData(m_chatSession->m_sessionId,
+			messageId,
+			startIndex,
+			endIndex,
+			duration));
 	}
 
 	void VoxtaClient::NotifyAudioPlaybackComplete(std::string_view messageId)
@@ -231,6 +240,25 @@ namespace Voxta
 			default:
 				return false;
 		}
+	}
+
+	void VoxtaClient::HandleBadResponse(const signalr::value& response)
+	{
+		using enum signalr::value_type;
+		std::string type;
+		switch (response.type())
+		{
+			case array: type = "array"; break;
+			case string: type = "string"; break;
+			case float64: type = "float64"; break;
+			case null: type = "null"; break;
+			case boolean: type = "boolean"; break;
+			case binary: type = "binary"; break;
+			default:
+				type = "unkown?";  break;
+		}
+		m_logger.LogMessage(Utility::Logging::LoggerInterface::LogLevel::Error, std::format("Recieved a message of type "
+			"{} from Voxta server, which is currenlty not supported.", type));
 	}
 
 	void VoxtaClient::HandleWelcomeResponse(const DataTypes::ServerResponses::ServerResponseBase& response)
@@ -387,25 +415,6 @@ namespace Voxta
 				// for some reason server says it's cancelled but then it picks back up again, idk why.
 				break;
 		}
-	}
-
-	void VoxtaClient::HandleBadResponse(const signalr::value& response)
-	{
-		using enum signalr::value_type;
-		std::string type;
-		switch (response.type())
-		{
-			case array: type = "array"; break;
-			case string: type = "string"; break;
-			case float64: type = "float64"; break;
-			case null: type = "null"; break;
-			case boolean: type = "boolean"; break;
-			case binary: type = "binary"; break;
-			default:
-				type = "unkown?";  break;
-		}
-		m_logger.LogMessage(Utility::Logging::LoggerInterface::LogLevel::Error, std::format("Recieved a message of type "
-			"{} from Voxta server, which is currenlty not supported.", type));
 	}
 
 	template<typename Callable>

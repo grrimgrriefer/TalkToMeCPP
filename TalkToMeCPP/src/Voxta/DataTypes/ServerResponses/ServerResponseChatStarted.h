@@ -21,11 +21,6 @@ namespace Voxta::DataTypes::ServerResponses
 		const std::string m_chatId;
 		const std::string m_sessionId;
 
-		ServerResponseType GetType() final
-		{
-			return ServerResponseType::CHAT_STARTED;
-		}
-
 		explicit ServerResponseChatStarted(std::string_view userId,
 				const std::vector<std::string>& characterIds,
 				const std::map<const Voxta::DataTypes::ServiceData::ServiceType, const DataTypes::ServiceData>& services,
@@ -37,6 +32,11 @@ namespace Voxta::DataTypes::ServerResponses
 			m_chatId(chatId),
 			m_sessionId(sessionId)
 		{
+		}
+
+		ServerResponseType GetType() final
+		{
+			return ServerResponseType::CHAT_STARTED;
 		}
 	};
 }

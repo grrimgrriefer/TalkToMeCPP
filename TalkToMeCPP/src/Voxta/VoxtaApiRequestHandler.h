@@ -18,14 +18,13 @@ namespace Voxta
 		signalr::value GetLoadCharactersListData() const;
 		signalr::value GetLoadCharacterRequestData(std::string_view characterId) const;
 		signalr::value GetStartChatRequestData(const DataTypes::CharData* charData) const;
-		signalr::value GetSendUserMessageData(std::string_view sessionId,
-			std::string_view userMessage) const;
+		signalr::value GetSendUserMessageData(std::string_view sessionId, std::string_view userMessage) const;
 		signalr::value GetNotifyAudioPlaybackStartData(std::string_view sessionId,
 			std::string_view messageId,
 			int startIndex,
 			int endIndex,
 			double duration) const;
-		signalr::value GetNotifyAudioPlaybackCompleteData(std::string_view sessionId,
-			std::string_view messageId) const;
+
+		signalr::value GetNotifyAudioPlaybackCompleteData(std::string_view sessionId, std::string_view messageId) const;
 	};
 }

@@ -6,7 +6,6 @@
 #include "Utility/AudioPlayback/ThreadedAudioPlayer.h"
 #include "Utility/Logging/ThreadedLogger.h"
 #include "Utility/SignalR/SignalRWrapper.h"
-#include "Utility/SignalR/SignalRWrapperInterface.h"
 #include "Voxta/DataTypes/CharData.h"
 #include "Voxta/DataTypes/ChatMessage.h"
 #include "Voxta/VoxtaClient.h"
@@ -19,7 +18,6 @@
 #include <ostream>
 #include <stdlib.h>
 #include <string>
-#include <type_traits>
 #include <vector>
 
 namespace JustAnExample
@@ -31,7 +29,7 @@ namespace JustAnExample
 
 		m_logger = std::make_unique<Utility::Logging::ThreadedLogger>(path.string());
 		m_audioPlayer = std::make_unique<Utility::AudioPlayback::ThreadedAudioPlayer>(*m_logger, serverIP, serverPort);
-		m_audioInput = std::make_unique<Utility::AudioInput::AudioInputWrapper>(serverIP, serverPort);
+		m_audioInput = std::make_unique<Utility::AudioInput::AudioInputWrapper>(*m_logger, serverIP, serverPort);
 
 		m_voxtaClient = std::make_unique<Voxta::VoxtaClient>(
 			std::make_unique<Utility::SignalR::SignalRWrapper>(serverIP, serverPort, *m_logger),
@@ -183,7 +181,8 @@ namespace JustAnExample
 		else
 		{
 			// Add empty spaces to overwrite the old line in the CMD
-			std::fill_n(outputText.begin() + outputText.length(), transcriptionTextLength - outputText.length(), ' ');
+			std::string indent(transcriptionTextLength - outputText.length(), ' ');
+			outputText.append(indent);
 		}
 
 		if (!finalized)

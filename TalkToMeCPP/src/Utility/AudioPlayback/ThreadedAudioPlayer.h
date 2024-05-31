@@ -14,24 +14,33 @@
 
 namespace Utility::AudioPlayback
 {
+	/// <summary>
+	/// Class that handles the downloading and playback of STT audio.
+	/// This is all done in background threads in a queued manner.
+	/// </summary>
 	class ThreadedAudioPlayer
 	{
 	public:
-		explicit ThreadedAudioPlayer(Logging::LoggerInterface& logger, std::string_view serverIP, int serverPort);
+		explicit ThreadedAudioPlayer(Logging::LoggerInterface& logger,
+			std::string_view serverIP,
+			int serverPort);
+
 		~ThreadedAudioPlayer();
 
 		bool RequestQueuedPlayback(std::string_view pathToFile);
-		void RegisterFinishedPlaybackTrigger(std::function<void()> onPlaybackFinished);
+		void RegisterFinishedPlaybackTrigger(const std::function<void()>& onPlaybackFinished);
 
 	private:
-		std::jthread m_playbackThread;
-		std::queue<std::vector<char>> m_audioQueue;
+		WavTools m_wavTools;
+		HttpClient m_httpClient;
+		Logging::LoggerInterface& m_logger;
+
 		std::mutex m_queueMutex;
 		std::condition_variable m_cv;
-		WavTools m_wavTools;
-		Logging::LoggerInterface& m_logger;
-		HttpClient m_httpClient;
 		std::function<void()> m_playbackFinished;
+		std::jthread m_playbackThread;
+		std::queue<std::vector<char>> m_audioQueue;
+
 		std::string m_serverIP;
 		int m_serverPort;
 
