@@ -123,6 +123,26 @@ namespace TalkToMeCPPTests
 			const std::string_view& ttsServiceId, const std::string_view& characterId, const std::string_view& characterName,
 			const std::string_view& sessionId)
 		{
+			std::map<std::string, signalr::value> services{};
+
+			if (!llmServiceId.empty())
+			{
+				services.try_emplace("textGen", std::map<std::string, signalr::value> {
+					{ "serviceName", "VoxtaCloud" },
+					{ "serviceId", signalr::value(llmServiceId.data()) } });
+			}
+			if (!sttServiceId.empty())
+			{
+				services.try_emplace("speechToText", std::map<std::string, signalr::value> {
+					{ "serviceName", "VoxtaCloud" },
+					{ "serviceId", signalr::value(sttServiceId.data()) } });
+			}if (!llmServiceId.empty())
+			{
+				services.try_emplace("textToSpeech", std::map<std::string, signalr::value> {
+					{ "serviceName", "Coqui" },
+					{ "serviceId", signalr::value(ttsServiceId.data()) } });
+			}
+
 			return signalr::value(std::map<std::string, signalr::value> {
 				{ "$type", "chatStarted" },
 				{ "chatId", signalr::value(chatId.data()) },
@@ -130,17 +150,7 @@ namespace TalkToMeCPPTests
 					{ "id", signalr::value(userId.data()) },
 					{ "name", signalr::value(userName.data()) }
 				} },
-				{ "services", std::map<std::string, signalr::value> {
-					{ "textGen", std::map<std::string, signalr::value> {
-						{ "serviceName", "VoxtaCloud" },
-						{ "serviceId", signalr::value(llmServiceId.data()) } } },
-					{ "speechToText", std::map<std::string, signalr::value> {
-						{ "serviceName", "VoxtaCloud" },
-						{ "serviceId", signalr::value(sttServiceId.data()) } } },
-					{ "textToSpeech", std::map<std::string, signalr::value> {
-						{ "serviceName", "Coqui" },
-						{ "serviceId", signalr::value(ttsServiceId.data()) } } }
-				} },
+				{ "services", signalr::value(services) },
 				{ "characters", std::vector<signalr::value> {
 					std::map<std::string, signalr::value> {
 						{ "id", signalr::value(characterId.data()) },

@@ -39,6 +39,7 @@ namespace Voxta
 
 		explicit VoxtaClient(std::unique_ptr<Utility::SignalR::SignalRWrapperInterface> connectionBuilder,
 			Utility::Logging::LoggerInterface& logger,
+			bool usingMicrophoneInput,
 			const std::function<void(VoxtaClientState newState)>& stateChange,
 			const std::function<std::string()>& requestingUserInputEvent,
 			const std::function<void(std::string_view currentTranscription, bool finalized)>& transcribedSpeechUpdate,
@@ -70,7 +71,7 @@ namespace Voxta
 		std::unique_ptr<DataTypes::ChatSession> m_chatSession;
 		std::vector<std::unique_ptr<const DataTypes::CharData>> m_characterList;
 		Utility::Logging::LoggerInterface& m_logger;
-		bool m_usingMicrophoneInput = true;
+		bool m_usingMicrophoneInput;
 		bool m_sentFinalUserMessage = false; // very ugly hack but socket returns final like 6 times, and we only wanna send once
 
 		const std::function<void(VoxtaClientState newState)> m_stateChange;

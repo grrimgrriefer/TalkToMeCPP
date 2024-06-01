@@ -18,15 +18,6 @@ namespace Utility::AudioInput
 	{
 	}
 
-	AudioCaptureDevice::~AudioCaptureDevice()
-	{
-		if (microphoneApi)
-		{
-			microphoneApi->stopStream();
-			if (microphoneApi->isStreamOpen()) microphoneApi->closeStream();
-		}
-	}
-
 	void AudioCaptureDevice::RegisterSocket(std::shared_ptr<Utility::AudioInput::AudioWebSocket> socket)
 	{
 		m_socket = socket;

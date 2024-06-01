@@ -30,6 +30,7 @@ namespace Voxta
 {
 	VoxtaClient::VoxtaClient(std::unique_ptr<Utility::SignalR::SignalRWrapperInterface> connectionBuilder,
 			Utility::Logging::LoggerInterface& logger,
+			bool usingMicrophoneInput,
 			const std::function<void(VoxtaClientState newState)>& stateChange,
 			const std::function<std::string()>& requestingUserInputEvent,
 			const std::function<void(std::string_view currentTranscription, bool finalized)>& transcribedSpeechUpdate,
@@ -37,6 +38,7 @@ namespace Voxta
 			const std::function<void(const DataTypes::ChatMessage*, const DataTypes::CharData*)>& charSpeakingEvent) :
 		m_hubConnection(std::move(connectionBuilder)),
 		m_logger(logger),
+		m_usingMicrophoneInput(usingMicrophoneInput),
 		m_stateChange(stateChange),
 		m_requestingUserInputEvent(requestingUserInputEvent),
 		m_transcribedSpeechUpdate(transcribedSpeechUpdate),
@@ -88,11 +90,13 @@ namespace Voxta
 				stopTask.set_value();
 			});
 
+		m_currentState = VoxtaClientState::DISCONNECTED;
 		stopTask.get_future().get();
 	}
 
 	void VoxtaClient::ForceStopImmediate()
 	{
+		m_currentState = VoxtaClientState::DISCONNECTED;
 		m_logger.LogMessage(Utility::Logging::LoggerInterface::LogLevel::Error, "Something requested immediate termination of the connection,"
 			" any running background threads will crash. Please restart the application.");
 		delete m_hubConnection.release(); // TODO: remove this when porting, can cause issues for engine integration
@@ -173,9 +177,15 @@ namespace Voxta
 
 	void VoxtaClient::OnReceiveMessage(const std::vector<signalr::value>& messageContainer)
 	{
-		if (messageContainer[0].type() != signalr::value_type::map)
+		if (m_currentState == VoxtaClientState::DISCONNECTED)
 		{
-			HandleBadResponse(messageContainer[0]);
+			m_logger.LogMessage(Utility::Logging::LoggerInterface::LogLevel::Error,
+					"The connection was severed unexpectedly, skipping processing of remaining response data.");
+			return;
+		}
+		if (messageContainer.empty() || messageContainer[0].type() != signalr::value_type::map)
+		{
+			HandleBadResponse(messageContainer.empty() ? signalr::value() : messageContainer[0]);
 		}
 		else try
 		{

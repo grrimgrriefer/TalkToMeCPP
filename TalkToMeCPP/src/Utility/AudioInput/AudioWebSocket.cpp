@@ -50,7 +50,15 @@ namespace Utility::AudioInput
 		m_logger.LogMessage(Logging::LoggerInterface::LogLevel::Info, "Closing AudioWebSocket connection ");
 
 		websocketpp::lib::error_code ec;
-		m_endpoint.close(m_connection->GetHandle(), websocketpp::close::status::going_away, "", ec);
+		try
+		{
+			m_endpoint.close(m_connection->GetHandle(), websocketpp::close::status::going_away, "", ec);
+		}
+		catch (const std::exception& ex)
+		{
+			m_logger.LogMessage(Logging::LoggerInterface::LogLevel::Error,
+				std::format("Error closing connection: {} ", ex.what()));
+		}
 		if (ec)
 		{
 			m_logger.LogMessage(Logging::LoggerInterface::LogLevel::Error,

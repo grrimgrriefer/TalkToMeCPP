@@ -178,9 +178,11 @@
     <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseChatMessageTests.cpp" />
     <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseChatStartedTests.cpp" />
     <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseChatUpdateTests.cpp" />
+    <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseSpeechTranscriptionTests.cpp" />
     <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseWelcomeTests.cpp" />
     <ClCompile Include="test\Voxta\DataTypes\ServiceDataTests.cpp" />
-    <ClCompile Include="test\Voxta\VoxtaApiHandlerTests.cpp" />
+    <ClCompile Include="test\Voxta\VoxtaApiRequestHandlerTests.cpp" />
+    <ClCompile Include="test\Voxta\VoxtaApiResponseHandlerTests.cpp" />
     <ClCompile Include="test\Voxta\VoxtaClientTests.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -51,10 +51,16 @@
     <ClCompile Include="test\Voxta\VoxtaClientTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="test\Voxta\VoxtaApiHandlerTests.cpp">
+    <ClCompile Include="test\Voxta\VoxtaApiRequestHandlerTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="test\MockProviders.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseSpeechTranscriptionTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\Voxta\VoxtaApiResponseHandlerTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -92,7 +92,7 @@ namespace TalkToMeCPPTests
 		{
 			std::string methodName;
 			ON_CALL(*mockWrapper.get(), On(testing::_, testing::_)).WillByDefault(testing::SaveArg<0>(&methodName));
-			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([] (std::function<void(std::exception_ptr)> callback) { callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
 			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([] () {});
 			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault([] () {});
 
@@ -104,7 +104,7 @@ namespace TalkToMeCPPTests
 		{
 			bool triggered = false;
 			ON_CALL(*mockWrapper.get(), On(testing::_, testing::_)).WillByDefault([] () {});
-			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (std::function<void(std::exception_ptr)> callback) { triggered = true; callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (const std::function<void(std::exception_ptr)>& callback) { triggered = true; callback(nullptr); });
 			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([] () {});
 			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault([] () {});
 
@@ -112,11 +112,42 @@ namespace TalkToMeCPPTests
 			Assert::IsTrue(triggered);
 		}
 
+		TEST_METHOD(TestConnectReceiveInvalidFormats)
+		{
+			Utility::Logging::LoggerInterface::LogLevel logtype = Utility::Logging::LoggerInterface::LogLevel::Debug;
+			std::function<void(const std::vector<signalr::value>&)> invokerCallback;
+			ON_CALL(*mockWrapper.get(), On(testing::_, testing::_)).WillByDefault(testing::SaveArg<1>(&invokerCallback));
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([] () {});
+			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault(testing::SaveArg<0>(&logtype));
+
+			CreateClient().Connect();
+
+			invokerCallback(std::vector<signalr::value>{ }); // null
+			Assert::AreEqual(static_cast<int>(Utility::Logging::LoggerInterface::LogLevel::Error), static_cast<int>(logtype));
+			logtype = Utility::Logging::LoggerInterface::LogLevel::Debug;
+
+			invokerCallback(std::vector<signalr::value>{ std::vector<uint8_t>{ 0 } }); //bytes
+			Assert::AreEqual(static_cast<int>(Utility::Logging::LoggerInterface::LogLevel::Error), static_cast<int>(logtype));
+			logtype = Utility::Logging::LoggerInterface::LogLevel::Debug;
+
+			invokerCallback(std::vector<signalr::value>{ false }); // bool
+			Assert::AreEqual(static_cast<int>(Utility::Logging::LoggerInterface::LogLevel::Error), static_cast<int>(logtype));
+			logtype = Utility::Logging::LoggerInterface::LogLevel::Debug;
+
+			invokerCallback(std::vector<signalr::value>{ "heyo" }); // string
+			Assert::AreEqual(static_cast<int>(Utility::Logging::LoggerInterface::LogLevel::Error), static_cast<int>(logtype));
+			logtype = Utility::Logging::LoggerInterface::LogLevel::Debug;
+
+			invokerCallback(std::vector<signalr::value>{ std::vector<signalr::value> { true, false } }); // array
+			Assert::AreEqual(static_cast<int>(Utility::Logging::LoggerInterface::LogLevel::Error), static_cast<int>(logtype));
+		}
+
 		TEST_METHOD(TestConnectAuthenticateRequested)
 		{
 			std::vector<signalr::value> parameter;
 			ON_CALL(*mockWrapper.get(), On(testing::_, testing::_)).WillByDefault([] () {});
-			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (std::function<void(std::exception_ptr)> callback) { callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
 			ON_CALL(*mockWrapper.get(), Invoke("SendMessage", testing::_, testing::_)).WillByDefault(testing::SaveArg<1>(&parameter));
 			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault([] () {});
 
@@ -127,11 +158,27 @@ namespace TalkToMeCPPTests
 			Assert::AreEqual(std::string("authenticate"), parameter[0].as_map().at("$type").as_string());
 		}
 
+		TEST_METHOD(TestConnectAuthenticateRequestResponseHandled)
+		{
+			Utility::Logging::LoggerInterface::LogLevel logtype = Utility::Logging::LoggerInterface::LogLevel::Debug;
+
+			std::function<void(const signalr::value&, std::exception_ptr)> parameter;
+			ON_CALL(*mockWrapper.get(), On(testing::_, testing::_)).WillByDefault([] () {});
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Invoke("SendMessage", testing::_, testing::_)).WillByDefault(testing::SaveArg<2>(&parameter));
+			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault(testing::SaveArg<0>(&logtype));
+
+			CreateClient().Connect();
+			parameter(MockProviders::GetWelcomeResponse(Utility::GuidUtility::GenerateGuid(), "some random username idk, idc"), nullptr);
+
+			Assert::AreEqual(static_cast<int>(Utility::Logging::LoggerInterface::LogLevel::Info), static_cast<int>(logtype));
+		}
+
 		TEST_METHOD(TestConnectLogOnException)
 		{
 			Utility::Logging::LoggerInterface::LogLevel logtype = Utility::Logging::LoggerInterface::LogLevel::Debug;
 			ON_CALL(*mockWrapper.get(), On(testing::_, testing::_)).WillByDefault([] () {});
-			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (std::function<void(std::exception_ptr)> callback) { callback(std::move(std::make_exception_ptr("mock"))); });
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (const std::function<void(std::exception_ptr)>& callback) { callback(std::move(std::make_exception_ptr("mock"))); });
 			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([] () {});
 			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault(testing::SaveArg<0>(&logtype));
 
@@ -144,7 +191,7 @@ namespace TalkToMeCPPTests
 			bool triggered = false;
 			Utility::Logging::LoggerInterface::LogLevel logtype = Utility::Logging::LoggerInterface::LogLevel::Debug;
 			ON_CALL(*mockWrapper.get(), On(testing::_, testing::_)).WillByDefault([] () {});
-			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (std::function<void(std::exception_ptr)> callback) { triggered = true; callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (const std::function<void(std::exception_ptr)>& callback) { triggered = true; callback(nullptr); });
 			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([] () {});
 			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault(testing::SaveArg<0>(&logtype));
 
@@ -158,17 +205,33 @@ namespace TalkToMeCPPTests
 			Assert::AreEqual(static_cast<int>(Utility::Logging::LoggerInterface::LogLevel::Warning), static_cast<int>(logtype));
 		}
 
+		TEST_METHOD(TestDisconnectWhenAlreadyDisconnectedLogWarning)
+		{
+			Utility::Logging::LoggerInterface::LogLevel logtype = Utility::Logging::LoggerInterface::LogLevel::Debug;
+			ON_CALL(*mockWrapper.get(), On(testing::_, testing::_)).WillByDefault([] () {});
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Stop(testing::_)).WillByDefault([&] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([] () {});
+			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault(testing::SaveArg<0>(&logtype));
+			auto client = CreateClient();
+			client.Connect();
+
+			client.Disconnect();
+			client.Disconnect();
+
+			Assert::AreEqual(static_cast<int>(Utility::Logging::LoggerInterface::LogLevel::Warning), static_cast<int>(logtype));
+		}
+
 		TEST_METHOD(TestDisconnectStopInvoked)
 		{
 			bool triggered = false;
 			ON_CALL(*mockWrapper.get(), On(testing::_, testing::_)).WillByDefault([] () {});
-			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (std::function<void(std::exception_ptr)> callback) { callback(nullptr); });
-			ON_CALL(*mockWrapper.get(), Stop(testing::_)).WillByDefault([&] (std::function<void(std::exception_ptr)> callback) { triggered = true; callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Stop(testing::_)).WillByDefault([&] (const std::function<void(std::exception_ptr)>& callback) { triggered = true; callback(nullptr); });
 			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([] () {});
 			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault([] () {});
 			auto client = CreateClient();
 			client.Connect();
-
 			client.Disconnect();
 			Assert::IsTrue(triggered);
 		}
@@ -177,9 +240,9 @@ namespace TalkToMeCPPTests
 		{
 			bool triggered = false;
 			ON_CALL(*mockWrapper.get(), On(testing::_, testing::_)).WillByDefault([&] (const std::string& method, const std::function<void(const std::vector<signalr::value>&)>& func) { triggered = true; });
-			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (std::function<void(std::exception_ptr)> callback) { triggered = true; callback(nullptr); });
-			ON_CALL(*mockWrapper.get(), Stop(testing::_)).WillByDefault([&] (std::function<void(std::exception_ptr)> callback) { callback(nullptr); });
-			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([&] (const std::string&, const std::vector<signalr::value>&, std::function<void(const signalr::value&, std::exception_ptr)>) { triggered = true; });
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (const std::function<void(std::exception_ptr)>& callback) { triggered = true; callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Stop(testing::_)).WillByDefault([&] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([&] (const std::string&, const std::vector<signalr::value>&, const std::function<void(const signalr::value&, std::exception_ptr)>&) { triggered = true; });
 			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault([] () {});
 			auto client = CreateClient();
 			client.Connect();
@@ -189,15 +252,83 @@ namespace TalkToMeCPPTests
 			Assert::IsFalse(triggered);
 		}
 
+		TEST_METHOD(TestForceStopImmediate)
+		{
+			Utility::Logging::LoggerInterface::LogLevel logtype = Utility::Logging::LoggerInterface::LogLevel::Debug;
+			std::function<void(const std::vector<signalr::value>&)> capturedFunc;
+
+			ON_CALL(*mockWrapper.get(), On(testing::_, testing::_)).WillByDefault([&] (const std::string& method, const std::function<void(const std::vector<signalr::value>&)>& func) { capturedFunc = func; });
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Stop(testing::_)).WillByDefault([&] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([] () {});
+			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault(testing::SaveArg<0>(&logtype));
+			auto client = CreateClient();
+			client.Connect();
+
+			client.ForceStopImmediate();
+			capturedFunc(std::vector<signalr::value> {MockProviders::GetCharactersListLoadedResponse(
+				{ Utility::GuidUtility::GenerateGuid() }, { "Bella" }, { "Magnetic woman" }, { true }, { false })});
+
+			auto characters = client.GetCharacters();
+			Assert::AreEqual(static_cast<int>(Utility::Logging::LoggerInterface::LogLevel::Error), static_cast<int>(logtype));
+			Assert::AreEqual(size_t(0), characters.size());
+		}
+
+		TEST_METHOD(TestErrorForMissingService)
+		{
+			Utility::Logging::LoggerInterface::LogLevel logtype = Utility::Logging::LoggerInterface::LogLevel::Debug;
+			std::function<void(const std::vector<signalr::value>&)> receiveMessageMockFunc;
+
+			ON_CALL(*mockWrapper.get(), On("ReceiveMessage", testing::_)).WillByDefault(testing::SaveArg<1>(&receiveMessageMockFunc));
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([] () {});
+			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault(testing::SaveArg<0>(&logtype));
+
+			CreateClientWithChatInitialized(receiveMessageMockFunc, false, false, false);
+			Assert::AreEqual(static_cast<int>(Utility::Logging::LoggerInterface::LogLevel::Error), static_cast<int>(logtype));
+		}
+
+		TEST_METHOD(TestNotifyAudioPlaybackStartSendInvoked)
+		{
+			std::vector<signalr::value> param;
+			std::function<void(const std::vector<signalr::value>&)> receiveMessageMockFunc;
+			ON_CALL(*mockWrapper.get(), On("ReceiveMessage", testing::_)).WillByDefault(testing::SaveArg<1>(&receiveMessageMockFunc));
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Invoke("SendMessage", testing::_, testing::_)).WillByDefault(testing::SaveArg<1>(&param));
+			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault([] () {});
+
+			CreateClientWithChatInitialized(receiveMessageMockFunc).NotifyAudioPlaybackStart(Utility::GuidUtility::GenerateGuid(), 0, 1, 0.5);
+			Assert::AreEqual(size_t(1), param.size());
+			Assert::IsTrue(param[0].is_map());
+			Assert::IsTrue(param[0].as_map().contains("$type"));
+			Assert::AreEqual(std::string("speechPlaybackStart"), param[0].as_map().at("$type").as_string());
+		}
+
+		TEST_METHOD(TestNotifyAudioPlaybackCompleteSendInvoked)
+		{
+			std::vector<signalr::value> parameter;
+			std::function<void(const std::vector<signalr::value>&)> receiveMessageMockFunc;
+			ON_CALL(*mockWrapper.get(), On("ReceiveMessage", testing::_)).WillByDefault(testing::SaveArg<1>(&receiveMessageMockFunc));
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Invoke("SendMessage", testing::_, testing::_)).WillByDefault(testing::SaveArg<1>(&parameter));
+			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault([] () {});
+
+			CreateClientWithChatInitialized(receiveMessageMockFunc).NotifyAudioPlaybackComplete(Utility::GuidUtility::GenerateGuid());
+			Assert::AreEqual(size_t(1), parameter.size());
+			Assert::IsTrue(parameter[0].is_map());
+			Assert::IsTrue(parameter[0].as_map().contains("$type"));
+			Assert::AreEqual(std::string("speechPlaybackComplete"), parameter[0].as_map().at("$type").as_string());
+		}
+
 		TEST_METHOD(TestLoadCharacterSendInvoked)
 		{
 			std::vector<signalr::value> parameter;
 			ON_CALL(*mockWrapper.get(), On(testing::_, testing::_)).WillByDefault([] () {});
-			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (std::function<void(std::exception_ptr)> callback) { callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
 			ON_CALL(*mockWrapper.get(), Invoke("SendMessage", testing::_, testing::_)).WillByDefault(testing::SaveArg<1>(&parameter));
 			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault([] () {});
 
-			CreateClient().LoadCharacter("somerandomguid");
+			CreateClient().LoadCharacter(Utility::GuidUtility::GenerateGuid());
 			Assert::AreEqual(size_t(1), parameter.size());
 			Assert::IsTrue(parameter[0].is_map());
 			Assert::IsTrue(parameter[0].as_map().contains("$type"));
@@ -206,9 +337,8 @@ namespace TalkToMeCPPTests
 
 		TEST_METHOD(TestGetCharactersEmpty)
 		{
-			std::function<void(const std::vector<signalr::value>&)> parameter;
-			ON_CALL(*mockWrapper.get(), On("ReceiveMessage", testing::_)).WillByDefault(testing::SaveArg<1>(&parameter));
-			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([] (std::function<void(std::exception_ptr)> callback) { callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), On(testing::_, testing::_)).WillByDefault([] () {});
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
 			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([] () {});
 			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault([] () {});
 
@@ -220,9 +350,9 @@ namespace TalkToMeCPPTests
 
 		TEST_METHOD(TestGetCharacters)
 		{
-			std::function<void(const std::vector<signalr::value>&)> parameter;
-			ON_CALL(*mockWrapper.get(), On("ReceiveMessage", testing::_)).WillByDefault(testing::SaveArg<1>(&parameter));
-			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([] (std::function<void(std::exception_ptr)> callback) { callback(nullptr); });
+			std::function<void(const std::vector<signalr::value>&)> receiveMessageMockFunc;
+			ON_CALL(*mockWrapper.get(), On("ReceiveMessage", testing::_)).WillByDefault(testing::SaveArg<1>(&receiveMessageMockFunc));
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
 			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([] () {});
 			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault([] () {});
 
@@ -235,7 +365,7 @@ namespace TalkToMeCPPTests
 			bool explicitContent1 = true, explicitContent2 = false;
 			bool favorite1 = false, favorite2 = false;
 
-			parameter(std::vector<signalr::value> { MockProviders::GetCharactersListLoadedResponse({ id1 , id2 }, { name1 , name2 },
+			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetCharactersListLoadedResponse({ id1 , id2 }, { name1 , name2 },
 				{ creatorNotes1 , creatorNotes2 }, { explicitContent1 , explicitContent2 }, { favorite1 , favorite2 })});
 
 			auto chars = client.GetCharacters();
@@ -255,7 +385,7 @@ namespace TalkToMeCPPTests
 		TEST_METHOD(TestGetUsernameEmpty)
 		{
 			ON_CALL(*mockWrapper.get(), On(testing::_, testing::_)).WillByDefault([] () {});
-			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([] (std::function<void(std::exception_ptr)> callback) { callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
 			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([] () {});
 			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault([] () {});
 
@@ -269,7 +399,7 @@ namespace TalkToMeCPPTests
 		{
 			std::function<void(const std::vector<signalr::value>&)> parameter;
 			ON_CALL(*mockWrapper.get(), On("ReceiveMessage", testing::_)).WillByDefault(testing::SaveArg<1>(&parameter));
-			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([] (std::function<void(std::exception_ptr)> callback) { callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
 			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([] () {});
 			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault([] () {});
 
@@ -285,7 +415,7 @@ namespace TalkToMeCPPTests
 		TEST_METHOD(TestGetChatSessionEmpty)
 		{
 			ON_CALL(*mockWrapper.get(), On(testing::_, testing::_)).WillByDefault([] () {});
-			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([] (std::function<void(std::exception_ptr)> callback) { callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
 			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([] () {});
 			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault([] () {});
 
@@ -295,11 +425,11 @@ namespace TalkToMeCPPTests
 			Assert::IsNull(client.GetChatSession());
 		}
 
-		TEST_METHOD(TestGetChatSession)
+		TEST_METHOD(TestGetChatReplyReponseHandling)
 		{
-			std::function<void(const std::vector<signalr::value>&)> parameter;
-			ON_CALL(*mockWrapper.get(), On("ReceiveMessage", testing::_)).WillByDefault(testing::SaveArg<1>(&parameter));
-			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([] (std::function<void(std::exception_ptr)> callback) { callback(nullptr); });
+			std::function<void(const std::vector<signalr::value>&)> receiveMessageMockFunc;
+			ON_CALL(*mockWrapper.get(), On("ReceiveMessage", testing::_)).WillByDefault(testing::SaveArg<1>(&receiveMessageMockFunc));
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
 			ON_CALL(*mockWrapper.get(), Invoke(testing::_, testing::_, testing::_)).WillByDefault([] () {});
 			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault([] () {});
 
@@ -322,16 +452,17 @@ namespace TalkToMeCPPTests
 			auto client = CreateClient();
 			client.Connect();
 
-			parameter(std::vector<signalr::value> { MockProviders::GetWelcomeResponse(userId, userName) });
-			parameter(std::vector<signalr::value> { MockProviders::GetCharactersListLoadedResponse({ charId }, { charName },
+			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetWelcomeResponse(userId, userName) });
+			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetCharactersListLoadedResponse({ charId }, { charName },
 				{ creatorNotes1 }, { explicitContent1 }, { favorite1 })});
-			parameter(std::vector<signalr::value> { MockProviders::GetStartChatResponse(charId, chatId) });
-			parameter(std::vector<signalr::value> { MockProviders::GetChatStartedResponse(chatId, userId, userName,
+			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetCharacterLoadedResponse(charId, false)});
+			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetStartChatResponse(charId, chatId) });
+			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetChatStartedResponse(chatId, userId, userName,
 				llmServiceId, sttServiceId, ttsServiceId, charId, charName, sessionId) });
-			parameter(std::vector<signalr::value> { MockProviders::GetReplyStartResponse(messageId1, charId, sessionId) });
-			parameter(std::vector<signalr::value> { MockProviders::GetReplyChunkResponse(messageId1, charId, static_cast<double>(0),
+			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetReplyStartResponse(messageId1, charId, sessionId) });
+			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetReplyChunkResponse(messageId1, charId, static_cast<double>(0),
 				static_cast<double>(47), messageText1, audioUrl1, sessionId) });
-			parameter(std::vector<signalr::value> { MockProviders::GetReplyEndResponse(messageId1, charId, sessionId) });
+			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetReplyEndResponse(messageId1, charId, sessionId) });
 
 			auto chatSession = client.GetChatSession();
 
@@ -356,11 +487,87 @@ namespace TalkToMeCPPTests
 			Assert::AreEqual(charId, msg->get()->m_charId);
 		}
 
-		Voxta::VoxtaClient CreateClient()
+		TEST_METHOD(TestGetChatWrittenUserInput)
+		{
+			std::vector<signalr::value> serverRequestMessage;
+			std::function<void(const std::vector<signalr::value>&)> receiveMessageMockFunc;
+
+			ON_CALL(*mockWrapper.get(), On("ReceiveMessage", testing::_)).WillByDefault(testing::SaveArg<1>(&receiveMessageMockFunc));
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Invoke("SendMessage", testing::_, testing::_)).WillByDefault(testing::SaveArg<1>(&serverRequestMessage));
+			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault([] () {});
+
+			std::string charId = Utility::GuidUtility::GenerateGuid();
+			std::string sessionId = Utility::GuidUtility::GenerateGuid();
+			std::string messageId1 = Utility::GuidUtility::GenerateGuid();
+			std::string messageId2 = Utility::GuidUtility::GenerateGuid();
+			std::string userId = Utility::GuidUtility::GenerateGuid();
+
+			userInput = "This is just something that the use would have inputted.";
+
+			auto client = CreateClientWithChatInitialized(receiveMessageMockFunc, true, true, true, false, charId, sessionId, userId);
+			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetReplyStartResponse(messageId1, charId, sessionId) });
+			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetReplyChunkResponse(messageId1, charId, static_cast<double>(0),
+				static_cast<double>(47), "Char text example", "/api/tts/gens/etc...", sessionId) });
+			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetReplyEndResponse(messageId1, charId, sessionId) });
+
+			Assert::AreEqual(size_t(1), serverRequestMessage.size());
+			Assert::IsTrue(serverRequestMessage[0].is_map());
+			Assert::IsTrue(serverRequestMessage[0].as_map().contains("$type"));
+			Assert::AreEqual(std::string("send"), serverRequestMessage[0].as_map().at("$type").as_string());
+
+			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetUpdateChatResponse(messageId2, userId, userInput, sessionId) });
+
+			auto chatSession = client.GetChatSession();
+			auto userMsg = chatSession->m_chatMessages.rbegin();
+			Assert::AreEqual(userInput, userMsg->get()->m_text);
+			Assert::AreEqual(size_t(0), userMsg->get()->m_audioUrls.size());
+			Assert::AreEqual(userId, userMsg->get()->m_charId);
+		}
+
+		Voxta::VoxtaClient CreateClient(bool useMicrophoneInput = true)
 		{
 			signalRWrapper = std::move(mockWrapper);
 			loggerWrapper = std::move(mockLogger);
-			return Voxta::VoxtaClient(std::move(signalRWrapper), *loggerWrapper, stateChangeMock, requestingUserInputEventMock, speechTranscribingEventMock, fatalErrorMock, charSpeakingEventMock);
+			return Voxta::VoxtaClient(std::move(signalRWrapper), *loggerWrapper, useMicrophoneInput, stateChangeMock, requestingUserInputEventMock, speechTranscribingEventMock, fatalErrorMock, charSpeakingEventMock);
+		}
+
+		Voxta::VoxtaClient CreateClientWithChatInitialized(const std::function<void(const std::vector<signalr::value>&)>& receiveMessageMockFunc,
+			bool includdLLM = true,
+			bool includeSTT = true,
+			bool includeTTS = true,
+			bool useMicrophoneInput = true,
+			std::string_view charIdParam = "",
+			std::string_view sessionIdParam = "",
+			std::string_view userIdParam = "")
+		{
+			std::string charId = charIdParam.empty() ? Utility::GuidUtility::GenerateGuid() : charIdParam.data();
+			std::string charName = "Bella";
+			std::string creatorNotes1 = "Magnetic woman";
+			bool explicitContent1 = true;
+			bool favorite1 = false;
+			std::string chatId = Utility::GuidUtility::GenerateGuid();
+			std::string sessionId = sessionIdParam.empty() ? Utility::GuidUtility::GenerateGuid() : sessionIdParam.data();
+			std::string messageId1 = Utility::GuidUtility::GenerateGuid();
+			std::string messageText1 = "Lmao I aint leaking my ai messages on github xd";
+			std::string audioUrl1 = "/api/tts/gens/etc...";
+			std::string userId = userIdParam.empty() ? Utility::GuidUtility::GenerateGuid() : userIdParam.data();
+			std::string userName = "ayowtf";
+			std::string llmServiceId = includdLLM ? Utility::GuidUtility::GenerateGuid() : "";
+			std::string sttServiceId = includeSTT ? Utility::GuidUtility::GenerateGuid() : "";
+			std::string ttsServiceId = includeTTS ? Utility::GuidUtility::GenerateGuid() : "";
+
+			auto client = CreateClient(useMicrophoneInput);
+			client.Connect();
+
+			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetWelcomeResponse(userId, userName) });
+			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetCharactersListLoadedResponse({ charId }, { charName },
+				{ creatorNotes1 }, { explicitContent1 }, { favorite1 })});
+			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetStartChatResponse(charId, chatId) });
+			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetChatStartedResponse(chatId, userId, userName,
+				llmServiceId, sttServiceId, ttsServiceId, charId, charName, sessionId) });
+
+			return client;
 		}
 	};
 }

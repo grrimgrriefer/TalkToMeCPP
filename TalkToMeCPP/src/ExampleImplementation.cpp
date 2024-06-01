@@ -34,6 +34,7 @@ namespace JustAnExample
 		m_voxtaClient = std::make_unique<Voxta::VoxtaClient>(
 			std::make_unique<Utility::SignalR::SignalRWrapper>(serverIP, serverPort, *m_logger),
 			*m_logger,
+			true,
 			[this] (Voxta::VoxtaClient::VoxtaClientState newState)
 			{
 				ClientCallback(newState);

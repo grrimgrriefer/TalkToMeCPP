@@ -17,7 +17,6 @@ namespace Utility::AudioInput
 	{
 	public:
 		explicit AudioCaptureDevice(Logging::LoggerInterface& logger);
-		~AudioCaptureDevice();
 
 		void RegisterSocket(std::shared_ptr<Utility::AudioInput::AudioWebSocket> socket);
 
