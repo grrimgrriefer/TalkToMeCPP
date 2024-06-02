@@ -12,7 +12,7 @@ _Made in collaboration with https://twitter.com/DZnnah[DZnnah]_
 image:{img-build-status}[Build Status, link={uri-build-status}]
 image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
 
-*This project is analysed on https://sonarcloud.io/project/overview?id=grrimgrriefer_TalkToMeCPP[SonarCloud]!*
+*This project is analysed on https://sonarcloud.io/organizations/grrimgrriefer/projects[SonarCloud]!*
 
 [ :heavy_check_mark: ]   Authenticate to Voxta server
 
@@ -28,7 +28,7 @@ image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
 
 [ :heavy_check_mark:		]   Full code & dependency cleanup
 
-[ :fire:		]   add tests for >80% coverage
+[ :heavy_check_mark:		]   add tests for >80% coverage *(v0.0.2a)*
 
 == Build
 
@@ -42,7 +42,7 @@ image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
   
 == Run
 
-1. Run Voxta.Server.Exe (v1.0.0-beta.116)
+1. Run Voxta.Server.Exe (v1.0.0-beta.117)
   - Download from https://voxta.ai/
   - Ensure a valid Voxta service configuration (TTS, STT, LLM)
 2. Run TalkToMeCPP.exe
