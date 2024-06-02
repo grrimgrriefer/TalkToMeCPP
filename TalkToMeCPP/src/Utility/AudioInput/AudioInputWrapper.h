@@ -7,6 +7,7 @@
 #include <memory>
 #include <string>
 #include <thread>
+#include <functional>
 
 namespace Utility::AudioInput
 {
@@ -19,7 +20,8 @@ namespace Utility::AudioInput
 	public:
 		explicit AudioInputWrapper(Logging::LoggerInterface& logger,
 			std::string_view serverIP,
-			int serverPort);
+			int serverPort,
+			const std::function<void(std::string_view currentTranscription)>& initializedStatusOutput = nullptr);
 
 		void StartStreaming();
 		void StopStreaming();
@@ -27,6 +29,8 @@ namespace Utility::AudioInput
 	private:
 		AudioCaptureDevice m_audioCaptureDevice;
 		std::shared_ptr<Utility::AudioInput::AudioWebSocket> m_audioWebSocket;
+
+		const std::function<void(std::string_view currentTranscription)> m_initializedStatusOutput;
 
 		std::jthread m_startupThread;
 		bool m_isStreaming = false;

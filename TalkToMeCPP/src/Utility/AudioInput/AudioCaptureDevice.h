@@ -6,6 +6,7 @@
 #include <memory>
 #include <mutex>
 #include <rtaudio/RtAudio.h>
+#include <string>
 
 namespace Utility::AudioInput
 {
@@ -27,10 +28,13 @@ namespace Utility::AudioInput
 		void StopStream();
 		void ReceiveAudioInputData(const char* buffer, unsigned int nBufferFrames);
 
+		std::string_view GetDeviceName();
+
 	private:
 		std::mutex m_mutex;
 		Logging::LoggerInterface& m_logger;
 
+		std::string m_deviceName;
 		std::unique_ptr<RtAudio> microphoneApi = std::make_unique<RtAudio>();
 		std::shared_ptr<Utility::AudioInput::AudioWebSocket> m_socket;
 

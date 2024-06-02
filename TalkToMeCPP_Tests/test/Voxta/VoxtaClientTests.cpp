@@ -521,10 +521,17 @@ namespace TalkToMeCPPTests
 			auto chatSession = client.GetChatSession();
 			Assert::AreEqual(size_t(2), chatSession->m_chatMessages.size());
 
-			auto userMsg = chatSession->m_chatMessages.rbegin();
-			Assert::AreEqual(userInput, userMsg->get()->m_text);
-			Assert::AreEqual(size_t(0), userMsg->get()->m_audioUrls.size());
-			Assert::AreEqual(userId, userMsg->get()->m_charId);
+			for (auto& chatMessage : chatSession->m_chatMessages)
+			{
+				// code block to be executed
+				if (chatMessage->m_messageId == messageId2)
+				{
+					Assert::AreEqual(userInput, chatMessage->m_text);
+					Assert::AreEqual(size_t(0), chatMessage->m_audioUrls.size());
+					Assert::AreEqual(userId, chatMessage->m_charId);
+					break;
+				}
+			}
 		}
 
 		TEST_METHOD(TestSpeechTranscriptionHandling)

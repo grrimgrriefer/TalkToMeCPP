@@ -10,6 +10,7 @@
 #include <memory>
 #include <rtaudio/RtAudio.h>
 #include <mutex>
+#include <string>
 
 namespace Utility::AudioInput
 {
@@ -52,11 +53,13 @@ namespace Utility::AudioInput
 		unsigned int sampleRate = 16000;
 		unsigned int bufferFrames = 256;
 
+		auto info = microphoneApi->getDeviceInfo(parameters.deviceId);
+		m_deviceName = info.name;
+
 		try
 		{
 			microphoneApi->openStream(nullptr, &parameters, RTAUDIO_SINT16,
 							sampleRate, &bufferFrames, &AudioCaptureDevice::AudioCallback, this);
-			auto info = microphoneApi->getDeviceInfo(parameters.deviceId);
 			m_logger.LogMessage(Logging::LoggerInterface::LogLevel::Info,
 				std::format("Started audio input stream from device {}", info.name));
 			return true;
@@ -89,6 +92,11 @@ namespace Utility::AudioInput
 	void AudioCaptureDevice::ReceiveAudioInputData(const char* buffer, unsigned int nBufferFrames)
 	{
 		m_socket->Send(buffer, nBufferFrames);
+	}
+
+	std::string_view AudioCaptureDevice::GetDeviceName()
+	{
+		return m_deviceName;
 	}
 
 	int AudioCaptureDevice::AudioCallback(void* outputBuffer,

@@ -45,6 +45,7 @@ namespace JustAnExample
 		void ListCharacters(const std::vector<const Voxta::DataTypes::CharData*>& characters) const;
 		void CharSpeaking(const Voxta::DataTypes::ChatMessage* message, const Voxta::DataTypes::CharData* charSource) const;
 		void DisplaySpeechTranscription(std::string_view currentTranscription, bool finalized);
+		void DisplayMicrophoneInitialization(std::string_view currentTranscription);
 		void DoAudioPlayback(const Voxta::DataTypes::ChatMessage* message) const;
 	};
 }

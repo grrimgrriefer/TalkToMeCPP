@@ -28,8 +28,16 @@ namespace JustAnExample
 		path /= "logfile.txt";
 
 		m_logger = std::make_unique<Utility::Logging::ThreadedLogger>(path.string());
-		m_audioPlayer = std::make_unique<Utility::AudioPlayback::ThreadedAudioPlayer>(*m_logger, serverIP, serverPort);
-		m_audioInput = std::make_unique<Utility::AudioInput::AudioInputWrapper>(*m_logger, serverIP, serverPort);
+		m_audioPlayer = std::make_unique<Utility::AudioPlayback::ThreadedAudioPlayer>(*m_logger,
+			serverIP,
+			serverPort);
+		m_audioInput = std::make_unique<Utility::AudioInput::AudioInputWrapper>(*m_logger,
+			serverIP,
+			serverPort,
+			[this] (std::string_view initializeStatus)
+			{
+				DisplayMicrophoneInitialization(initializeStatus);
+			});
 
 		m_voxtaClient = std::make_unique<Voxta::VoxtaClient>(
 			std::make_unique<Utility::SignalR::SignalRWrapper>(serverIP, serverPort, *m_logger),
@@ -167,6 +175,11 @@ namespace JustAnExample
 	void ExampleImplementation::CharSpeaking(const Voxta::DataTypes::ChatMessage* message, const Voxta::DataTypes::CharData* charSource) const
 	{
 		std::cout << std::endl << std::format("{}: {}", charSource->m_name, message->m_text) << std::endl;
+	}
+
+	void ExampleImplementation::DisplayMicrophoneInitialization(std::string_view currentTranscription)
+	{
+		std::cout << currentTranscription << std::endl;
 	}
 
 	void ExampleImplementation::DisplaySpeechTranscription(std::string_view currentTranscription, bool finalized)
