@@ -210,5 +210,26 @@ namespace TalkToMeCPPTests
 				{ "sessionId", signalr::value(sessionId.data()) }
 			});
 		}
+
+		static signalr::value GetSpeechRecognitionPartialResponse(const std::string_view& message)
+		{
+			return signalr::value(std::map<std::string, signalr::value> {
+				{ "$type", "speechRecognitionPartial" },
+				{ "text", signalr::value(message.data()) }
+			});
+		}
+
+		static signalr::value GetSpeechRecognitionEndResponse(const std::string_view& message, bool cancelledResponse)
+		{
+			auto map = std::map<std::string, signalr::value>{
+				{ "$type", "speechRecognitionEnd" }
+			};
+			if (!cancelledResponse)
+			{
+				map.try_emplace("text", signalr::value(message.data()));
+			}
+
+			return signalr::value(map);
+		}
 	};
 }

@@ -7,8 +7,11 @@
 #include "../MockProviders.cpp"
 #include "../TalkToMeCPP/src/Voxta/VoxtaApiRequestHandler.h"
 #include "../TalkToMeCPP/src/Voxta/DataTypes/CharData.h"
+#include "../TalkToMeCPP/src/Voxta/DataTypes/CharVoiceService.h"
+#include "../TalkToMeCPP/src/Voxta/DataTypes/VoiceServiceParams.h"
 #include "../TalkToMeCPP/src/Utility/GuidUtility.h"
 #include <string>
+#include <memory>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -64,7 +67,9 @@ namespace TalkToMeCPPTests
 
 		TEST_METHOD(TestGetStartChatRequestData)
 		{
-			const auto charData = Voxta::DataTypes::CharData(Utility::GuidUtility::GenerateGuid(), "HuhWeird");
+			const auto charData = Voxta::DataTypes::CharData(Utility::GuidUtility::GenerateGuid(), "HuhWeird", std::make_shared<Voxta::DataTypes::CharVoiceService>(
+				Voxta::DataTypes::VoiceServiceParams("female_03.wav", "0.7", "1", "1"), "serviceName", Utility::GuidUtility::GenerateGuid()));
+
 			auto response = Voxta::VoxtaApiRequestHandler().GetStartChatRequestData(&charData);
 
 			Assert::IsTrue(response.is_map());
@@ -82,8 +87,6 @@ namespace TalkToMeCPPTests
 			Assert::AreEqual(charData.m_id, characterMap.at("id").as_string());
 			Assert::AreEqual(charData.m_name, characterMap.at("name").as_string());
 			Assert::AreEqual(std::string(charData.m_explicitContent ? "True" : "False"), characterMap.at("explicitContent").as_string()); // string value of bool is intentional
-
-			// Todo: assertions for TTS settings
 		}
 
 		TEST_METHOD(TestGetSendUserMessageData)

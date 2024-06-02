@@ -104,6 +104,7 @@ namespace Utility::Logging
 		m_logFile.open(m_logFilePath, std::ofstream::out | std::ofstream::app);
 		std::ranges::copy(m_logBuffer, std::ostream_iterator<std::string>(m_logFile, "\n"));
 		m_logFile.flush();
+		m_logFile.close();
 
 		m_writeRequested = false;
 	}

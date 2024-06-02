@@ -519,10 +519,33 @@ namespace TalkToMeCPPTests
 			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetUpdateChatResponse(messageId2, userId, userInput, sessionId) });
 
 			auto chatSession = client.GetChatSession();
+			Assert::AreEqual(size_t(2), chatSession->m_chatMessages.size());
+
 			auto userMsg = chatSession->m_chatMessages.rbegin();
 			Assert::AreEqual(userInput, userMsg->get()->m_text);
 			Assert::AreEqual(size_t(0), userMsg->get()->m_audioUrls.size());
 			Assert::AreEqual(userId, userMsg->get()->m_charId);
+		}
+
+		TEST_METHOD(TestSpeechTranscriptionHandling)
+		{
+			std::vector<signalr::value> parameter;
+			std::function<void(const std::vector<signalr::value>&)> receiveMessageMockFunc;
+			ON_CALL(*mockWrapper.get(), On("ReceiveMessage", testing::_)).WillByDefault(testing::SaveArg<1>(&receiveMessageMockFunc));
+			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
+			ON_CALL(*mockWrapper.get(), Invoke("SendMessage", testing::_, testing::_)).WillByDefault(testing::SaveArg<1>(&parameter));
+			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault([] () {});
+
+			std::string speechTranscription = "This is just something that the use would have inputted.";
+			auto client = CreateClientWithChatInitialized(receiveMessageMockFunc);
+
+			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetSpeechRecognitionEndResponse(speechTranscription, true) });
+			Assert::IsTrue(sttTranscribedText.empty());
+			Assert::IsFalse(sttIsFinalized);
+
+			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetSpeechRecognitionEndResponse(speechTranscription, false) });
+			Assert::AreEqual(speechTranscription, sttTranscribedText);
+			Assert::IsTrue(sttIsFinalized);
 		}
 
 		Voxta::VoxtaClient CreateClient(bool useMicrophoneInput = true)

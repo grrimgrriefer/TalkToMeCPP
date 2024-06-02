@@ -19,9 +19,12 @@ namespace Voxta::DataTypes
 		bool m_favorite = false;
 		std::shared_ptr<CharVoiceService> m_voiceService = nullptr;
 
-		explicit CharData(std::string_view id, std::string_view name) :
+		explicit CharData(std::string_view id,
+			std::string_view name,
+			std::shared_ptr<CharVoiceService> voiceService = nullptr) :
 			m_id(id),
-			m_name(name)
+			m_name(name),
+			m_voiceService(voiceService)
 		{
 		}
 	};

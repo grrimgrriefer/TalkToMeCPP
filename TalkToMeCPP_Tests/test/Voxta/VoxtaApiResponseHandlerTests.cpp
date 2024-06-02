@@ -13,6 +13,7 @@
 #include "../TalkToMeCPP/src/Voxta/DataTypes/ServerResponses/ServerResponseChatStarted.h"
 #include "../TalkToMeCPP/src/Voxta/DataTypes/ServerResponses/ServerResponseChatUpdate.h"
 #include "../TalkToMeCPP/src/Voxta/DataTypes/ServerResponses/ServerResponseWelcome.h"
+#include "../TalkToMeCPP/src/Voxta/DataTypes/ServerResponses/ServerResponseSpeechTranscription.h"
 #include "../TalkToMeCPP/src/Utility/GuidUtility.h"
 #include <string>
 
@@ -163,6 +164,42 @@ namespace TalkToMeCPPTests
 			Assert::AreEqual(sessionId, derivedResponse->m_sessionId);
 			Assert::AreEqual(text, derivedResponse->m_text);
 			Assert::AreEqual(messageId, derivedResponse->m_messageId);
+		}
+
+		TEST_METHOD(TryGetSpeechRecognitionPartialResponse)
+		{
+			std::string text = "just another random message idk";
+
+			auto response = Voxta::VoxtaApiResponseHandler().GetResponseData(MockProviders::GetSpeechRecognitionPartialResponse(text).as_map());
+			auto derivedResponse = dynamic_cast<Voxta::DataTypes::ServerResponses::ServerResponseSpeechTranscription*>(response.get());
+
+			Assert::IsNotNull(derivedResponse);
+			Assert::AreEqual(text, derivedResponse->m_transcribedSpeech);
+			Assert::AreEqual(static_cast<int>(Voxta::DataTypes::ServerResponses::ServerResponseSpeechTranscription::TranscriptionState::PARTIAL), static_cast<int>(derivedResponse->m_transcriptionState));
+		}
+
+		TEST_METHOD(TryGetSpeechRecognitionEndResponse)
+		{
+			std::string text = "I only keep making more random message idk";
+
+			auto response = Voxta::VoxtaApiResponseHandler().GetResponseData(MockProviders::GetSpeechRecognitionEndResponse(text, false).as_map());
+			auto derivedResponse = dynamic_cast<Voxta::DataTypes::ServerResponses::ServerResponseSpeechTranscription*>(response.get());
+
+			Assert::IsNotNull(derivedResponse);
+			Assert::AreEqual(text, derivedResponse->m_transcribedSpeech);
+			Assert::AreEqual(static_cast<int>(Voxta::DataTypes::ServerResponses::ServerResponseSpeechTranscription::TranscriptionState::END), static_cast<int>(derivedResponse->m_transcriptionState));
+		}
+
+		TEST_METHOD(TryGetSpeechRecognitionEndResponseCancelled)
+		{
+			std::string text = "I only keep making more random message idk";
+
+			auto response = Voxta::VoxtaApiResponseHandler().GetResponseData(MockProviders::GetSpeechRecognitionEndResponse(text, true).as_map());
+			auto derivedResponse = dynamic_cast<Voxta::DataTypes::ServerResponses::ServerResponseSpeechTranscription*>(response.get());
+
+			Assert::IsNotNull(derivedResponse);
+			Assert::IsTrue(derivedResponse->m_transcribedSpeech.empty());
+			Assert::AreEqual(static_cast<int>(Voxta::DataTypes::ServerResponses::ServerResponseSpeechTranscription::TranscriptionState::CANCELLED), static_cast<int>(derivedResponse->m_transcriptionState));
 		}
 	};
 }

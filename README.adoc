@@ -2,14 +2,6 @@
 
 _Made in collaboration with https://twitter.com/DZnnah[DZnnah]_
 
-:warning: +
-*Server IPadres* +
-Currently hardcoded to 127.0.0.1 + 
-change it in _(main.cpp)_ if you run the server on a different machine in your LAN. +
-*Microphone*  +
-Currently hardcoded to use deviceID 0 & 16khz + 
-change it in _(AudioCaptureDevice.cpp)_ if your hardware setup is different.
-
 == Dev Progress
 
 :uri-qg-status: https://sonarcloud.io/dashboard?id=grrimgrriefer_TalkToMeCPP
@@ -34,11 +26,9 @@ image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
 
 [ :heavy_check_mark:	]   Hook up Microphone input to Voxta server thru websocket
 
-[ :fire:		]   Full code & dependency cleanup
+[ :heavy_check_mark:		]   Full code & dependency cleanup
 
-[ :black_square_button:		]   add tests for >80% coverage
-
-[ :black_square_button:		]   Error handling
+[ :fire:		]   add tests for >80% coverage
 
 == Build
 
@@ -57,6 +47,15 @@ image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
   - Ensure a valid Voxta service configuration (TTS, STT, LLM)
 2. Run TalkToMeCPP.exe
 3. Enjoy :3
+
+Note:
+
+*Server IPadres* +
+Currently hardcoded to 127.0.0.1 + 
+change it in _(main.cpp)_ if you run the server on a different machine in your LAN. +
+*Microphone*  +
+Currently hardcoded to use your 'Windows System Default' device & 16khz + 
+change it in _(AudioCaptureDevice.cpp)_ if your hardware setup is different.
 
 == Q&A
 
