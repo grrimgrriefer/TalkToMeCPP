@@ -93,7 +93,7 @@ namespace JustAnExample
 
 				ListCharacters(characters);
 				int index = AskUserForCharacterSelection(charAmount);
-				m_voxtaClient->LoadCharacter(characters[index]->m_id);
+				m_voxtaClient->StartChatWithCharacter(characters[index]->m_id);
 				break;
 			}
 			case Voxta::VoxtaClient::VoxtaClientState::CHATTING:

@@ -8,7 +8,6 @@
 #include "DataTypes/ChatSession.h"
 #include "DataTypes/ServerResponses/ServerResponseBase.h"
 #include "DataTypes/ServerResponses/ServerResponseCharacterList.h"
-#include "DataTypes/ServerResponses/ServerResponseCharacterLoaded.h"
 #include "DataTypes/ServerResponses/ServerResponseChatMessage.h"
 #include "DataTypes/ServerResponses/ServerResponseChatStarted.h"
 #include "DataTypes/ServerResponses/ServerResponseChatUpdate.h"
@@ -128,9 +127,18 @@ namespace Voxta
 		return m_chatSession.get();
 	}
 
-	void VoxtaClient::LoadCharacter(std::string_view characterId)
+	void VoxtaClient::StartChatWithCharacter(std::string_view characterId)
 	{
-		SendMessageToServer(m_voxtaRequestApi.GetLoadCharacterRequestData(characterId));
+		if (auto characterIt = std::ranges::find_if(m_characterList.begin(), m_characterList.end(),
+			DataTypes::CharDataIdComparer(characterId)); characterIt != std::end(m_characterList))
+		{
+			SendMessageToServer(m_voxtaRequestApi.GetStartChatRequestData((*characterIt).get()));
+		}
+		else
+		{
+			m_logger.LogMessage(Utility::Logging::LoggerInterface::LogLevel::Error,
+				"Loaded a character that doesn't exist in the list? This should never happen.");
+		}
 	}
 
 	void VoxtaClient::NotifyAudioPlaybackStart(std::string_view messageId,
@@ -228,9 +236,6 @@ namespace Voxta
 				m_logger.LogMessage(Info, "Fetched character list sucessfully");
 				HandleCharacterListResponse(*response);
 				return true;
-			case CHARACTER_LOADED:
-				m_logger.LogMessage(Info, "Loaded selected character sucessfully");
-				return HandleCharacterLoadedResponse(*response);
 			case CHAT_STARTED:
 				m_logger.LogMessage(Info, "Started chat session sucessfully");
 				HandleChatStartedResponse(*response);
@@ -288,23 +293,6 @@ namespace Voxta
 			m_characterList.emplace_back(std::make_unique<DataTypes::CharData>(charElement));
 		}
 		m_stateChange(VoxtaClientState::CHARACTER_LOBBY);
-	}
-
-	bool VoxtaClient::HandleCharacterLoadedResponse(const DataTypes::ServerResponses::ServerResponseBase& response)
-	{
-		auto derivedResponse = dynamic_cast<const DataTypes::ServerResponses::ServerResponseCharacterLoaded*>(&response);
-		if (auto characterIt = std::ranges::find_if(m_characterList.begin(), m_characterList.end(),
-			DataTypes::CharDataIdComparer(derivedResponse->m_characterId)); characterIt != std::end(m_characterList))
-		{
-			SendMessageToServer(m_voxtaRequestApi.GetStartChatRequestData((*characterIt).get()));
-			return true;
-		}
-		else
-		{
-			m_logger.LogMessage(Utility::Logging::LoggerInterface::LogLevel::Error,
-				"Loaded a character that doesn't exist in the list? This should never happen.");
-			return false;
-		}
 	}
 
 	void VoxtaClient::HandleChatStartedResponse(const DataTypes::ServerResponses::ServerResponseBase& response)

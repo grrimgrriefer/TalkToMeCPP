@@ -8,7 +8,6 @@
 #include "../TalkToMeCPP/src/Voxta/VoxtaApiResponseHandler.h"
 #include "../TalkToMeCPP/src/Voxta/DataTypes/CharData.h"
 #include "../TalkToMeCPP/src/Voxta/DataTypes/ServerResponses/ServerResponseCharacterList.h"
-#include "../TalkToMeCPP/src/Voxta/DataTypes/ServerResponses/ServerResponseCharacterLoaded.h"
 #include "../TalkToMeCPP/src/Voxta/DataTypes/ServerResponses/ServerResponseChatMessage.h"
 #include "../TalkToMeCPP/src/Voxta/DataTypes/ServerResponses/ServerResponseChatStarted.h"
 #include "../TalkToMeCPP/src/Voxta/DataTypes/ServerResponses/ServerResponseChatUpdate.h"
@@ -60,18 +59,6 @@ namespace TalkToMeCPPTests
 			Assert::AreEqual(creatorNotes2, derivedResponse->m_characters[1].m_creatorNotes);
 			Assert::AreEqual(explicitContent2, derivedResponse->m_characters[1].m_explicitContent);
 			Assert::AreEqual(favorite2, derivedResponse->m_characters[1].m_favorite);
-		}
-
-		TEST_METHOD(TestGetResponseDataGetServerResponseCharacterLoaded)
-		{
-			std::string characterId(Utility::GuidUtility::GenerateGuid());
-			bool enableThinkingSpeech(true);
-			auto response = Voxta::VoxtaApiResponseHandler().GetResponseData(MockProviders::GetCharacterLoadedResponse(characterId, enableThinkingSpeech).as_map());
-			auto derivedResponse = dynamic_cast<Voxta::DataTypes::ServerResponses::ServerResponseCharacterLoaded*>(response.get());
-
-			Assert::IsNotNull(derivedResponse);
-			Assert::AreEqual(characterId, derivedResponse->m_characterId);
-			Assert::AreEqual(enableThinkingSpeech, derivedResponse->m_enableThinkingSpeech);
 		}
 
 		TEST_METHOD(TestGetResponseDataGetServerResponseChatStarted)

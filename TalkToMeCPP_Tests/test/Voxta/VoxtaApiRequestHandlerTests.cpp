@@ -54,17 +54,6 @@ namespace TalkToMeCPPTests
 			Assert::AreEqual(std::string("loadCharactersList"), responseMap.at("$type").as_string());
 		}
 
-		TEST_METHOD(TestGetLoadCharacterRequestData)
-		{
-			auto guid = Utility::GuidUtility::GenerateGuid();
-			auto response = Voxta::VoxtaApiRequestHandler().GetLoadCharacterRequestData(guid);
-
-			Assert::IsTrue(response.is_map());
-			auto& responseMap = response.as_map();
-			Assert::AreEqual(std::string("loadCharacter"), responseMap.at("$type").as_string());
-			Assert::AreEqual(guid, responseMap.at("characterId").as_string());
-		}
-
 		TEST_METHOD(TestGetStartChatRequestData)
 		{
 			const auto charData = Voxta::DataTypes::CharData(Utility::GuidUtility::GenerateGuid(), "HuhWeird", std::make_shared<Voxta::DataTypes::CharVoiceService>(

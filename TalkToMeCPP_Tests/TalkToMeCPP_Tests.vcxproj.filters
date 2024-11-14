@@ -42,9 +42,6 @@
     <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseChatMessageTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseCharacterLoadedTests.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseCharacterListTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

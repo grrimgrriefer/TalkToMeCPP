@@ -4,7 +4,6 @@
 #include "DataTypes/CharData.h"
 #include "DataTypes/ServerResponses/ServerResponseBase.h"
 #include "DataTypes/ServerResponses/ServerResponseCharacterList.h"
-#include "DataTypes/ServerResponses/ServerResponseCharacterLoaded.h"
 #include "DataTypes/ServerResponses/ServerResponseChatMessage.h"
 #include "DataTypes/ServerResponses/ServerResponseChatStarted.h"
 #include "DataTypes/ServerResponses/ServerResponseChatUpdate.h"
@@ -32,10 +31,6 @@ namespace Voxta
 		else if (type == "charactersListLoaded")
 		{
 			return GetCharacterListLoadedResponse(map);
-		}
-		else if (type == "characterLoaded")
-		{
-			return GetCharacterLoadedResponse(map);
 		}
 		else if (type == "chatStarted")
 		{
@@ -148,30 +143,6 @@ namespace Voxta
 		}
 		return std::make_unique<DataTypes::ServerResponses::ServerResponseChatStarted>(user.at("id").as_string(),
 			chars, services, map.at("chatId").as_string(), map.at("sessionId").as_string());
-	}
-
-	std::unique_ptr<DataTypes::ServerResponses::ServerResponseCharacterLoaded> VoxtaApiResponseHandler::GetCharacterLoadedResponse(
-		const std::map<std::string, signalr::value>& map) const
-	{
-		auto& characterData = map.at("character").as_map();
-		auto& ttsConfig = characterData.at("textToSpeech").as_array();
-		auto configs = std::vector<DataTypes::ServerResponses::ServerResponseCharacterLoaded::CharacterLoadedVoiceData>();
-
-		for (const auto& config : ttsConfig)
-		{
-			auto& configMap = config.as_map();
-			auto& configVoice = configMap.at("voice").as_map();
-			auto& originalParamsMap = configVoice.at("parameters").as_map();
-			std::map<std::string, std::string> converted_map;
-			for (const auto& pair : originalParamsMap)
-			{
-				converted_map[pair.first] = pair.second.as_string();
-			}
-			configs.emplace_back(converted_map, configVoice.contains("label")
-				? configVoice.at("label").as_string() : nullptr);
-		}
-		return std::make_unique<DataTypes::ServerResponses::ServerResponseCharacterLoaded>(characterData.at("id").as_string(),
-			characterData.at("enableThinkingSpeech").as_bool(), configs);
 	}
 
 	std::unique_ptr<DataTypes::ServerResponses::ServerResponseCharacterList> VoxtaApiResponseHandler::GetCharacterListLoadedResponse(

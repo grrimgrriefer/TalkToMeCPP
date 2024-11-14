@@ -54,7 +54,7 @@ namespace Voxta
 		std::vector<const DataTypes::CharData*> GetCharacters() const;
 		const DataTypes::ChatSession* GetChatSession() const;
 
-		void LoadCharacter(std::string_view characterId);
+		void StartChatWithCharacter(std::string_view characterId);
 		void NotifyAudioPlaybackStart(std::string_view messageId,
 			int startIndex,
 			int endIndex,
@@ -89,7 +89,6 @@ namespace Voxta
 
 		void HandleWelcomeResponse(const DataTypes::ServerResponses::ServerResponseBase& response);
 		void HandleCharacterListResponse(const DataTypes::ServerResponses::ServerResponseBase& response);
-		bool HandleCharacterLoadedResponse(const DataTypes::ServerResponses::ServerResponseBase& response);
 		void HandleChatStartedResponse(const DataTypes::ServerResponses::ServerResponseBase& response);
 		void HandleChatMessageResponse(const DataTypes::ServerResponses::ServerResponseBase& response);
 		void HandleChatUpdateResponse(const DataTypes::ServerResponses::ServerResponseBase& response);

@@ -30,6 +30,8 @@ image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
 
 [ :heavy_check_mark:		]   add tests for >80% coverage *(v0.0.2a)*
 
+[ :heavy_check_mark:		]   update API to VoxtaServer v132 *(v0.0.3a)*
+
 == Build
 
 * Stable release: https://github.com/grrimgrriefer/TalkToMeCPP/releases
@@ -42,7 +44,7 @@ image:{img-qg-status}[Quality Gate Status,link={uri-qg-status}]
   
 == Run
 
-1. Run Voxta.Server.Exe (v1.0.0-beta.117)
+1. Run Voxta.Server.Exe (v1.0.0-beta.1327)
   - Download from https://voxta.ai/
   - Ensure a valid Voxta service configuration (TTS, STT, LLM)
 2. Run TalkToMeCPP.exe

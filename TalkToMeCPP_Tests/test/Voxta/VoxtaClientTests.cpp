@@ -320,21 +320,6 @@ namespace TalkToMeCPPTests
 			Assert::AreEqual(std::string("speechPlaybackComplete"), parameter[0].as_map().at("$type").as_string());
 		}
 
-		TEST_METHOD(TestLoadCharacterSendInvoked)
-		{
-			std::vector<signalr::value> parameter;
-			ON_CALL(*mockWrapper.get(), On(testing::_, testing::_)).WillByDefault([] () {});
-			ON_CALL(*mockWrapper.get(), Start(testing::_)).WillByDefault([&] (const std::function<void(std::exception_ptr)>& callback) { callback(nullptr); });
-			ON_CALL(*mockWrapper.get(), Invoke("SendMessage", testing::_, testing::_)).WillByDefault(testing::SaveArg<1>(&parameter));
-			ON_CALL(*mockLogger.get(), LogMessage(testing::_, testing::_)).WillByDefault([] () {});
-
-			CreateClient().LoadCharacter(Utility::GuidUtility::GenerateGuid());
-			Assert::AreEqual(size_t(1), parameter.size());
-			Assert::IsTrue(parameter[0].is_map());
-			Assert::IsTrue(parameter[0].as_map().contains("$type"));
-			Assert::AreEqual(std::string("loadCharacter"), parameter[0].as_map().at("$type").as_string());
-		}
-
 		TEST_METHOD(TestGetCharactersEmpty)
 		{
 			ON_CALL(*mockWrapper.get(), On(testing::_, testing::_)).WillByDefault([] () {});
@@ -455,7 +440,6 @@ namespace TalkToMeCPPTests
 			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetWelcomeResponse(userId, userName) });
 			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetCharactersListLoadedResponse({ charId }, { charName },
 				{ creatorNotes1 }, { explicitContent1 }, { favorite1 })});
-			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetCharacterLoadedResponse(charId, false)});
 			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetStartChatResponse(charId, chatId) });
 			receiveMessageMockFunc(std::vector<signalr::value> { MockProviders::GetChatStartedResponse(chatId, userId, userName,
 				llmServiceId, sttServiceId, ttsServiceId, charId, charName, sessionId) });

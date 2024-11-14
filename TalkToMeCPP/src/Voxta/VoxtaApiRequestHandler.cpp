@@ -16,8 +16,8 @@ namespace Voxta
 		return signalr::value(std::map<std::string, signalr::value> {
 			{ "$type", "authenticate" },
 			{ "client", "TalkToMeCPP" },
-			{ "clientVersion", "0.0.2a" },
-			{ "scope", std::vector<signalr::value> { "role:app", "broadcast:write" } },
+			{ "clientVersion", "0.0.3a" },
+			{ "scope", std::vector<signalr::value> { "role:app" } },
 			{ "capabilities", std::map<std::string, signalr::value> {
 				{ "audioInput", "WebSocketStream" },
 				{ "audioOutput", "Url" },
@@ -33,49 +33,32 @@ namespace Voxta
 		});
 	}
 
-	signalr::value VoxtaApiRequestHandler::GetLoadCharacterRequestData(std::string_view characterId) const
+	signalr::value VoxtaApiRequestHandler::GetLoadScenariosListData() const
 	{
 		return signalr::value(std::map<std::string, signalr::value> {
-			{ "$type", "loadCharacter" },
-			{ "characterId", characterId.data() }
+			{ "$type", "loadScenariosList" }
 		});
+	}
+
+	signalr::value VoxtaApiRequestHandler::GeLoadChatsListData(std::string_view scenarioId, std::string_view characterId) const
+	{
+		std::map<std::string, signalr::value> returnValue = std::map<std::string, signalr::value>{
+			{ "$type", "loadChatsList" },
+			{ "characterId", characterId.data() }
+		};
+		if (!scenarioId.empty())
+		{
+			returnValue.try_emplace("scenarioId", signalr::value(scenarioId.data()));
+		}
+		return signalr::value(returnValue);
 	}
 
 	signalr::value VoxtaApiRequestHandler::GetStartChatRequestData(const DataTypes::CharData* charData) const
 	{
-		std::string guidString = Utility::GuidUtility::GenerateGuid();
-
-		auto characterParams = std::map<std::string, signalr::value>{
-			{ "id", charData->m_id },
-			{ "name", charData->m_name },
-			{ "explicitContent", charData->m_explicitContent ? "True" : "False" } };
-
-		if (charData->m_voiceService)
-		{
-			auto const& serviceData = *(charData->m_voiceService.get());
-			characterParams.try_emplace("textToSpeech", std::vector<signalr::value> {
-				std::map<std::string, signalr::value> {
-					{ "voice", std::map<std::string, signalr::value> {
-						{ "parameters", std::map<std::string, signalr::value> {
-							{ "Filename", serviceData.m_parameters.m_filename },
-							{ "Temperature", serviceData.m_parameters.m_temperature },
-							{ "TopK", serviceData.m_parameters.m_topK },
-							{ "TopP", serviceData.m_parameters.m_topP } } },
-						{ "label", serviceData.m_parameters.m_filename }
-					} },
-					{ "service", std::map<std::string, signalr::value> {
-						{ "serviceName", serviceData.m_name },
-						{ "serviceId", serviceData.m_id }	} }
-				} });
-		}
-
 		return signalr::value(std::map<std::string, signalr::value>{
 			{ "$type", "startChat" },
 			{ "contextKey", "" },
-			{ "context", "" },
-			{ "chatId", guidString },
-			{ "characterId", charData->m_id },
-			{ "character", characterParams }
+			{ "characterIds", std::vector<signalr::value> { charData->m_id } },
 		});
 	}
 

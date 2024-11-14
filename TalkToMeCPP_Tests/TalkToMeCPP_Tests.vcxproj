@@ -174,7 +174,6 @@
     <ClCompile Include="test\Voxta\DataTypes\ChatMessageTests.cpp" />
     <ClCompile Include="test\Voxta\DataTypes\ChatSessionTests.cpp" />
     <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseCharacterListTests.cpp" />
-    <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseCharacterLoadedTests.cpp" />
     <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseChatMessageTests.cpp" />
     <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseChatStartedTests.cpp" />
     <ClCompile Include="test\Voxta\DataTypes\ServerResponses\ServerResponseChatUpdateTests.cpp" />

@@ -16,8 +16,9 @@ namespace Voxta
 	public:
 		signalr::value GetAuthenticateRequestData() const;
 		signalr::value GetLoadCharactersListData() const;
-		signalr::value GetLoadCharacterRequestData(std::string_view characterId) const;
 		signalr::value GetStartChatRequestData(const DataTypes::CharData* charData) const;
+		signalr::value GetLoadScenariosListData() const;
+		signalr::value GeLoadChatsListData(std::string_view scenarioId, std::string_view characterId) const;
 		signalr::value GetSendUserMessageData(std::string_view sessionId, std::string_view userMessage) const;
 		signalr::value GetNotifyAudioPlaybackStartData(std::string_view sessionId,
 			std::string_view messageId,

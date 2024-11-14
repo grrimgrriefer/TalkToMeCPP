@@ -3,7 +3,6 @@
 #pragma once
 #include "DataTypes/ServerResponses/ServerResponseBase.h"
 #include "DataTypes/ServerResponses/ServerResponseCharacterList.h"
-#include "DataTypes/ServerResponses/ServerResponseCharacterLoaded.h"
 #include "DataTypes/ServerResponses/ServerResponseChatMessage.h"
 #include "DataTypes/ServerResponses/ServerResponseChatStarted.h"
 #include "DataTypes/ServerResponses/ServerResponseChatUpdate.h"
@@ -35,7 +34,9 @@ namespace Voxta
 			"speechRecognitionStart",
 			"recordingRequest",
 			"recordingStatus",
-			"speechPlaybackComplete" };
+			"speechPlaybackComplete",
+			"memoryUpdated"
+		};
 
 		std::unique_ptr<DataTypes::ServerResponses::ServerResponseBase> GetResponseData(
 			const std::map<std::string, signalr::value>& map) const;
@@ -54,9 +55,6 @@ namespace Voxta
 			const std::map<std::string, signalr::value>& map) const;
 
 		std::unique_ptr<DataTypes::ServerResponses::ServerResponseChatStarted> GetChatStartedResponse(
-			const std::map<std::string, signalr::value>& map) const;
-
-		std::unique_ptr<DataTypes::ServerResponses::ServerResponseCharacterLoaded> GetCharacterLoadedResponse(
 			const std::map<std::string, signalr::value>& map) const;
 
 		std::unique_ptr<DataTypes::ServerResponses::ServerResponseCharacterList> GetCharacterListLoadedResponse(
