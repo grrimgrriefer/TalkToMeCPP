@@ -31,7 +31,7 @@ namespace Utility::AudioInput
 
 		~AudioWebSocket();
 
-		bool Connect();
+		bool Connect(std::string_view sessionId);
 		void Close(websocketpp::close::status::value code);
 		void Send(const char* buffer, unsigned int nBufferFrames);
 		void Send(const std::string& message);
@@ -40,6 +40,7 @@ namespace Utility::AudioInput
 		Logging::LoggerInterface& m_logger;
 		std::string m_serverIP;
 		int m_serverPort;
+		std::string m_sessionId;
 
 		std::mutex m_mutex;
 		websocketpp::client<websocketpp::config::asio_client> m_endpoint;

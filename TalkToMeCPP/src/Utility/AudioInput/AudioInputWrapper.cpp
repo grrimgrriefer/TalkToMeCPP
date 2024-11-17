@@ -19,10 +19,9 @@ namespace Utility::AudioInput
 		m_audioCaptureDevice(logger),
 		m_audioWebSocket(std::make_shared<Utility::AudioInput::AudioWebSocket>(logger, serverIP, serverPort)),
 		m_initializedStatusOutput(initializedStatusOutput)
-	{
-	}
+	{}
 
-	void AudioInputWrapper::StartStreaming()
+	void AudioInputWrapper::StartStreaming(std::string_view sessionId)
 	{
 		if (m_isStartingUp || m_isStreaming)
 		{
@@ -32,13 +31,13 @@ namespace Utility::AudioInput
 		if (!m_audioCaptureDevice.IsInitialized())
 		{
 			m_isStartingUp = true;
-			m_startupThread = std::jthread([this] ()
+			m_startupThread = std::jthread([this, sessionIdCopy = sessionId.data()] ()
 				{
 					if (m_initializedStatusOutput)
 					{
 						m_initializedStatusOutput("Initializing audio socket");
 					}
-					m_audioWebSocket->Connect();
+					m_audioWebSocket->Connect(sessionIdCopy);
 					std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
 					m_audioWebSocket->Send("{\"contentType\":\"audio/wav\",\"sampleRate\":16000,"

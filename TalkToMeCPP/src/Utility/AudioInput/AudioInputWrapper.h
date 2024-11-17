@@ -23,7 +23,7 @@ namespace Utility::AudioInput
 			int serverPort,
 			const std::function<void(std::string_view currentTranscription)>& initializedStatusOutput = nullptr);
 
-		void StartStreaming();
+		void StartStreaming(std::string_view sessionId);
 		void StopStreaming();
 
 	private:

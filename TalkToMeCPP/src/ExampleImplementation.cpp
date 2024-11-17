@@ -215,7 +215,7 @@ namespace JustAnExample
 		m_audioPlayer->RegisterFinishedPlaybackTrigger([this, message] ()
 			{
 				m_voxtaClient->NotifyAudioPlaybackComplete(message->m_messageId);
-				m_audioInput->StartStreaming();
+				m_audioInput->StartStreaming(m_voxtaClient->GetChatSession()->m_sessionId);
 			});
 
 		for (const auto& url : message->m_audioUrls)

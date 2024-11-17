@@ -67,11 +67,13 @@ namespace Utility::AudioInput
 		m_thread->join();
 	}
 
-	bool AudioWebSocket::Connect()
+	bool AudioWebSocket::Connect(std::string_view sessionId)
 	{
+		m_sessionId = sessionId;
 		std::scoped_lock<std::mutex> lock(m_mutex);
 		websocketpp::lib::error_code ec;
-		const std::string uri = std::format("ws://{}:{}/ws/audio/input/stream", m_serverIP, m_serverPort);
+		const std::string uri = std::format("ws://{}:{}/ws/audio/input/stream?sessionId={}",
+			m_serverIP, m_serverPort, m_sessionId);
 
 		websocketpp::client<websocketpp::config::asio_client>::connection_ptr con = m_endpoint.get_connection(uri, ec);
 		if (ec)
